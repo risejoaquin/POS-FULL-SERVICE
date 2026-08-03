@@ -1,0 +1,143 @@
+<Window x:Class="PosBuilder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:PosBuilder"
+        xmlns:views="clr-namespace:PosBuilder.Views"
+        xmlns:controls="clr-namespace:PosBuilder.Views.Controls"
+        Title="PosBuilder - Wizard" Height="768" Width="1024"
+        WindowStartupLocation="CenterScreen" Background="#F8FAFC"
+        FontFamily="Segoe UI">
+    <Window.Resources>
+        
+        <Style TargetType="Button" x:Key="NavButton">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#94A3B8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="350"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Sidebar -->
+            <Border Grid.Column="0" Background="#1E293B" Padding="20">
+                <StackPanel x:Name="SidebarSteps">
+                    <!-- We will populate this in code-behind or bind to a list. For simplicity, just text blocks. -->
+                    <TextBlock Text="Progreso" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+                    <ItemsControl x:Name="StepList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                    <TextBlock Text="{Binding Icon}" Foreground="{Binding Color}" FontSize="16" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding Title}" Foreground="{Binding Color}" FontSize="14" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+            
+            <!-- Center Content -->
+            <Border Grid.Column="1" Background="White" Margin="20" CornerRadius="12" Padding="10">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.05" BlurRadius="10" ShadowDepth="2"/>
+                </Border.Effect>
+                <ContentControl x:Name="StepContentControl" />
+            </Border>
+            
+            <!-- Preview Pane -->
+            <Border Grid.Column="2" Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="1,0,0,0" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Vista Previa en Tiempo Real" FontSize="16" FontWeight="Bold" Foreground="#334155" Margin="0,0,0,20"/>
+                    
+                    <Border Background="White" CornerRadius="10" Padding="15">
+                        <Border.Effect>
+                            <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="5" ShadowDepth="1"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <Border Background="{Binding BrandingColor}" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                                <TextBlock Text="{Binding BrandingName}" Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Border>
+                            
+                            <TextBlock Text="{Binding TenantName, StringFormat='{}🏪 {0}'}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="🌐 Entorno:" Foreground="#64748B" FontSize="12" Margin="0,0,5,0"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Environment}" Foreground="#334155" FontSize="12" FontWeight="SemiBold"/>
+                            </Grid>
+                            
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="🗄️ Base de datos:" Foreground="#64748B" FontSize="12" Margin="0,0,5,0"/>
+                                <TextBlock Grid.Column="1" Text="{Binding DbType}" Foreground="#334155" FontSize="12" FontWeight="SemiBold"/>
+                            </Grid>
+                            
+                            <TextBlock Text="📦 Módulos Habilitados:" Foreground="#64748B" FontSize="12" Margin="0,5,0,5"/>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="✔️ Inventario" FontSize="12" Foreground="#10B981" Visibility="{Binding ModuleInventory, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock Text="✔️ Reportes" FontSize="12" Foreground="#10B981" Visibility="{Binding ModuleReports, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock Text="✔️ Crédito" FontSize="12" Foreground="#10B981" Visibility="{Binding ModuleCredit, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock Text="✔️ Multi-sucursal" FontSize="12" Foreground="#10B981" Visibility="{Binding ModuleMultiStore, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+        
+        <!-- Footer -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" Content="Anterior" Command="{Binding PreviousCommand}" Style="{StaticResource NavButton}" Background="#94A3B8" Width="120"/>
+                
+                <ProgressBar Grid.Column="1" Value="{Binding CurrentStepIndex}" Maximum="6" Margin="30,0" Height="8" VerticalAlignment="Center" Foreground="#3B82F6" Background="#E2E8F0" BorderThickness="0"/>
+                
+                <Button Grid.Column="2" Content="Siguiente" Command="{Binding NextCommand}" Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" Style="{StaticResource NavButton}" Width="120" Margin="0,0,10,0"/>
+                <Button Grid.Column="3" Content="Generar POS" Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource NavButton}" Background="#10B981" Width="140" Click="Generate_Click"/>
+            </Grid>
+        </Border>
+        <controls:LoadingOverlay x:Name="MainOverlay" Grid.RowSpan="2"/>
+    </Grid>
+</Window>

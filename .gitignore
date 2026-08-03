@@ -1,0 +1,59 @@
+# =========================
+# Web / Node / Scripts
+# =========================
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+
+# =========================
+# .NET Core / C#
+# =========================
+[Bb]in/
+[Oo]bj/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.db
+*.db-shm
+*.db-wal
+pos_local.db
+
+# =========================
+# Publish / Setup Output
+# =========================
+publish/
+Output/
+Releases/
+*.nupkg
+*.exe
+
+# =========================
+# IDEs / OS metadata
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+.vs/
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs y Archivos Temporales
+# =========================
+*.log
+logs/
+temp_logs/
+logs_backup_*.zip
+*.patch
+appsettings.*.json
+!appsettings.example.json
+appsettings.*.json
+!PosCore/appsettings.example.json
