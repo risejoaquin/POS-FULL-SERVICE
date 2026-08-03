@@ -2,13 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copia los archivos del proyecto y restaura dependencias
-COPY ["PosServer/PosServer.csproj", "PosServer/"]
-RUN dotnet restore "PosServer/PosServer.csproj"
-
-# Copia el resto del código
+# Copia todo el codigo de PosServer
 COPY PosServer/ PosServer/
 WORKDIR /src/PosServer
+
+RUN dotnet restore "PosServer.csproj"
 
 # Publica la aplicación
 RUN dotnet publish "PosServer.csproj" -c Release -o /app/publish /p:UseAppHost=false
