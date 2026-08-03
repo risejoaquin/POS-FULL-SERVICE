@@ -2,8 +2,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copia todo el codigo de PosServer
-COPY PosServer/ PosServer/
+# Copia todo el codigo
+COPY . .
 WORKDIR /src/PosServer
 
 RUN dotnet restore "PosServer.csproj"
