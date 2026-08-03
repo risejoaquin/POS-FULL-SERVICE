@@ -42,10 +42,12 @@ public class AuthController : ControllerBase
             {
                 return BadRequest(new { Message = "Username y Password son requeridos." });
             }
+            
+            var usernameLower = request.Username.ToLower();
             var user = await _dbContext.Users
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(u => (tenantId == "" || u.TenantId == tenantId)
-                                       && u.Username.ToLower() == request.Username.ToLower() 
+                .FirstOrDefaultAsync(u => u.TenantId == tenantId
+                                       && u.Username.ToLower() == usernameLower 
                                        && u.IsActive);
                         
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
