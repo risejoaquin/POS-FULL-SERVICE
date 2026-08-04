@@ -17,7 +17,7 @@ public class SyncService
     private readonly ILogger<SyncService> _logger;
     private readonly System.Timers.Timer _timer;
     private bool _isSyncing = false;
-    private readonly System.Threading.SemaphoreSlim _syncSemaphore = new System.Threading.SemaphoreSlim(1, 1);
+    
     private DateTime _lastSyncTime = DateTime.MinValue;
     
     public event Action? OnSyncCompleted;
@@ -215,7 +215,7 @@ public class SyncService
         }
         finally
         {
-            _syncSemaphore.Release();
+            _isSyncing = false;
         }
     }
 
