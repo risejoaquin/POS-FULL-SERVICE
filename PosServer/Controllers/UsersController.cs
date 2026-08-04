@@ -41,6 +41,7 @@ namespace PosServer.Controllers
             {
                 user.Id = 0;
                 user.CreatedAt = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(user.Pin)) user.PasswordHash = user.Pin;
                 _context.Users.Add(user);
             }
             else
@@ -49,8 +50,7 @@ namespace PosServer.Controllers
                 existing.IsActive = user.IsActive;
                 // Asumiremos que si viene password, lo actualizamos.
                 if (!string.IsNullOrEmpty(user.PasswordHash)) existing.PasswordHash = user.PasswordHash;
-                if (!string.IsNullOrEmpty(user.Pin)) existing.Pin = user.Pin;
-                    existing.PasswordHash = user.PasswordHash;
+                if (!string.IsNullOrEmpty(user.Pin)) existing.PasswordHash = user.Pin; // Map Pin to PasswordHash in cloud
                 
                 _context.Users.Update(existing);
             }
