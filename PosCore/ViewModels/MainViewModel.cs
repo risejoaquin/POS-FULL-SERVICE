@@ -184,7 +184,7 @@ public partial class MainViewModel : ObservableObject
         _syncService = syncService;
         _ticketPrinterService = ticketPrinterService;
         _sessionManager = sessionManager;
-        IsAdmin = _sessionManager.Role == "Admin";
+        IsAdmin = _sessionManager.Role != null && _sessionManager.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
 
         _syncService.OnSyncCompleted += () => 
         {

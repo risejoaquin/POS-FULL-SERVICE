@@ -23,10 +23,40 @@
 
         
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-            <Button Content="⚙️" Command="{Binding OpenSettingsCommand}" Width="30" Height="30" Background="Transparent" Foreground="White" BorderThickness="0" Margin="0,0,15,0" ToolTip="Atajos y Configuración" Cursor="Hand" FontSize="16"/>
+            <!-- Módulos de Administrador / Gerente -->
+            <Button Command="{Binding OpenInventoryCommand}" Background="#4F46E5" Foreground="White" BorderThickness="0" Margin="0,0,10,0" ToolTip="Inventario (F8)" Cursor="Hand" FontSize="14" FontWeight="Bold" Padding="10,4" Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📦" Margin="0,0,5,0"/>
+                    <TextBlock Text="Inventario"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding OpenUsersCommand}" Background="#4F46E5" Foreground="White" BorderThickness="0" Margin="0,0,10,0" ToolTip="Usuarios (F7)" Cursor="Hand" FontSize="14" FontWeight="Bold" Padding="10,4" Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="👥" Margin="0,0,5,0"/>
+                    <TextBlock Text="Usuarios"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding OpenReportsCommand}" Background="#4F46E5" Foreground="White" BorderThickness="0" Margin="0,0,10,0" ToolTip="Reportes (F6)" Cursor="Hand" FontSize="14" FontWeight="Bold" Padding="10,4" Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📊" Margin="0,0,5,0"/>
+                    <TextBlock Text="Reportes"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding OpenReturnsCommand}" Background="#EF4444" Foreground="White" BorderThickness="0" Margin="0,0,15,0" ToolTip="Devoluciones (F5)" Cursor="Hand" FontSize="14" FontWeight="Bold" Padding="10,4">
+                <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="↩️" Margin="0,0,5,0"/>
+                    <TextBlock Text="Devoluciones"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Herramientas Base -->
+            <Button Content="⚙️" Command="{Binding OpenSettingsCommand}" Width="30" Height="30" Background="Transparent" Foreground="White" BorderThickness="0" Margin="0,0,10,0" ToolTip="Atajos y Configuración" Cursor="Hand" FontSize="16"/>
             <Button Content="🖨️" Command="{Binding ConfigurePrinterCommand}" Width="30" Height="30" Background="Transparent" Foreground="White" BorderThickness="0" Margin="0,0,15,0" ToolTip="Configurar Impresora" Cursor="Hand" FontSize="16"/>
             <Ellipse Width="12" Height="12" Fill="{Binding SyncStatusColor}" Margin="0,0,8,0" />
-<Ellipse Width="12" Height="12" Fill="{Binding SyncStatusColor}" Margin="0,0,8,0" />
             <TextBlock Text="{Binding SyncStatusMessage}" Foreground="White" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
