@@ -116,6 +116,14 @@ public partial class ReturnsViewModel : ObservableObject
                 {
                     product.StockQuantity += retItem.ReturnQuantity;
                     product.LastUpdated = DateTime.Now;
+                    
+                    var jsonOptionsProd = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+                    _dbContext.OutboxMessages.Add(new OutboxMessage
+                    {
+                        EventType = "ProductUpdated",
+                        Payload = System.Text.Json.JsonSerializer.Serialize(product, jsonOptionsProd),
+                        CreatedAt = DateTime.Now
+                    });
                 }
             }
             
@@ -147,8 +155,14 @@ public partial class ReturnsViewModel : ObservableObject
                     CreatedAt = DateTime.Now
                 };
                 _dbContext.CashMovements.Add(cashMovement);
+                var jsonOptionsShift = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+                currentShift.Movements ??= new System.Collections.Generic.List<CashMovement>();
+                currentShift.Movements.Add(cashMovement);
+                _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "CashMovementCreated", Payload = System.Text.Json.JsonSerializer.Serialize(currentShift, jsonOptionsShift), CreatedAt = DateTime.Now });
             }
-            
+            var jsonOptionsOrder = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+            _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "OrderReturned", Payload = System.Text.Json.JsonSerializer.Serialize(order, jsonOptionsOrder), CreatedAt = DateTime.Now });
+
             await _dbContext.SaveChangesAsync();
             MessageBox.Show($"Devolución parcial procesada. Reembolso: {totalRefund:C}", "Devolución Exitosa", MessageBoxButton.OK, MessageBoxImage.Information);
             await LoadOrdersAsync();
@@ -207,6 +221,11 @@ public partial class ReturnsViewModel : ObservableObject
                         CreatedAt = DateTime.Now
                     };
                     _dbContext.CashMovements.Add(cashMovement);
+                    
+                    var jsonOptionsShift = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+                    currentShift.Movements ??= new System.Collections.Generic.List<CashMovement>();
+                    currentShift.Movements.Add(cashMovement);
+                    _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "CashMovementCreated", Payload = System.Text.Json.JsonSerializer.Serialize(currentShift, jsonOptionsShift), CreatedAt = DateTime.Now });
                 }
 
                 // Devolver stock

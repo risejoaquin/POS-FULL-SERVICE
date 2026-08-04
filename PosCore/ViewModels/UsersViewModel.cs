@@ -70,6 +70,8 @@ public partial class UsersViewModel : ObservableObject
             SelectedUser.Pin = NewPin;
             SelectedUser.Role = NewRole;
             _dbContext.Users.Update(SelectedUser);
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+            _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "UserUpdated", Payload = System.Text.Json.JsonSerializer.Serialize(SelectedUser, jsonOptions), CreatedAt = DateTime.Now });
             SelectedUser = null;
         }
         else
@@ -87,6 +89,8 @@ public partial class UsersViewModel : ObservableObject
                 Role = NewRole
             };
             _dbContext.Users.Add(user);
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+            _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "UserCreated", Payload = System.Text.Json.JsonSerializer.Serialize(user, jsonOptions), CreatedAt = DateTime.Now });
         }
 
         _dbContext.SaveChanges();
@@ -120,6 +124,8 @@ public partial class UsersViewModel : ObservableObject
         {
             user.Pin = "1234";
             _dbContext.Users.Update(user);
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+            _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "UserUpdated", Payload = System.Text.Json.JsonSerializer.Serialize(user, jsonOptions), CreatedAt = DateTime.Now });
             _dbContext.SaveChanges();
             LoadUsers();
             MessageBox.Show($"El PIN de {user.Username} ha sido restablecido a '1234'.", "PIN Restablecido", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -135,6 +141,8 @@ public partial class UsersViewModel : ObservableObject
         if (result == MessageBoxResult.Yes)
         {
             _dbContext.Users.Remove(user);
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+            _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "UserDeleted", Payload = System.Text.Json.JsonSerializer.Serialize(user, jsonOptions), CreatedAt = DateTime.Now });
             _dbContext.SaveChanges();
             LoadUsers();
         }

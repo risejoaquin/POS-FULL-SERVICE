@@ -95,6 +95,8 @@ public partial class ShiftViewModel : ObservableObject
         };
 
         _dbContext.CashRegisterShifts.Add(shift);
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+        _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "ShiftOpened", Payload = System.Text.Json.JsonSerializer.Serialize(shift, jsonOptions), CreatedAt = DateTime.Now });
         _dbContext.SaveChanges();
 
         MessageBox.Show($"Turno abierto con un fondo de {StartingCash:C}", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -119,6 +121,12 @@ public partial class ShiftViewModel : ObservableObject
                 CreatedAt = DateTime.Now
             };
             _dbContext.CashMovements.Add(movement);
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+            
+            // To sync movement we resync the shift with the new movement
+            CurrentShift.Movements ??= new System.Collections.Generic.List<CashMovement>();
+            CurrentShift.Movements.Add(movement);
+            _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "CashMovementCreated", Payload = System.Text.Json.JsonSerializer.Serialize(CurrentShift, jsonOptions), CreatedAt = DateTime.Now });
             _dbContext.SaveChanges();
             
             MessageBox.Show($"Retiro de {dialog.Amount:C} registrado correctamente.", "Retiro de Efectivo", MessageBoxButton.OK, MessageBoxImage.Information);

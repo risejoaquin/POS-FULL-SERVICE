@@ -439,6 +439,15 @@ public partial class MainViewModel : ObservableObject
                     }
                     product.StockQuantity -= item.Quantity;
                     item.Product = product;
+                    
+                    // Trigger ProductUpdated outbox message
+                    var jsonOptionsProd = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+                    DbContext.OutboxMessages.Add(new OutboxMessage
+                    {
+                        EventType = "ProductUpdated",
+                        Payload = System.Text.Json.JsonSerializer.Serialize(product, jsonOptionsProd),
+                        CreatedAt = System.DateTime.Now
+                    });
                 }
             }
 

@@ -67,6 +67,20 @@ public class ApiService : IApiService
         }
     }
 
+    
+    public async Task<bool> DeleteProductAsync(string barcode)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"api/products/{barcode}");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public async Task<bool> SyncProductAsync(Product product)
     {
         try
@@ -85,6 +99,47 @@ public class ApiService : IApiService
         try
         {
             var response = await _httpClient.PostAsJsonAsync("api/orders", order, _jsonOptions);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    
+    public async Task<bool> SyncUserAsync(User user)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/users", user, _jsonOptions);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteUserAsync(string username)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"api/users/{username}");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    
+    public async Task<bool> SyncShiftAsync(CashRegisterShift shift)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/shifts", shift, _jsonOptions);
             return response.IsSuccessStatusCode;
         }
         catch (Exception)

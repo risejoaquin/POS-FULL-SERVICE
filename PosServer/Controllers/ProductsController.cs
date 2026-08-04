@@ -88,5 +88,17 @@ namespace PosServer.Controllers
             await _context.SaveChangesAsync();
             return Ok(product);
         }
+        [HttpDelete("{barcode}")]
+        public async Task<IActionResult> DeleteProduct(string barcode)
+        {
+            var tenantId = _tenantService.GetTenantId();
+            var existing = await _context.Products.FirstOrDefaultAsync(p => p.TenantId == tenantId && p.Barcode == barcode);
+            if (existing != null)
+            {
+                _context.Products.Remove(existing);
+                await _context.SaveChangesAsync();
+            }
+            return Ok();
+        }
     }
 }

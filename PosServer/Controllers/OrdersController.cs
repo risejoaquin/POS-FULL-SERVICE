@@ -33,7 +33,24 @@ namespace PosServer.Controllers
             // Validar idempotencia si viene ClientSideId
             if (!string.IsNullOrEmpty(order.ClientSideId) && await _context.Orders.AnyAsync(o => o.ClientSideId == order.ClientSideId && o.TenantId == tenantId))
             {
-                var existingOrder = await _context.Orders.FirstOrDefaultAsync(o => o.ClientSideId == order.ClientSideId && o.TenantId == tenantId);
+                var existingOrder = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.ClientSideId == order.ClientSideId && o.TenantId == tenantId);
+                
+                if (order.IsReturned && existingOrder != null && !existingOrder.IsReturned)
+                {
+                    // Update as returned
+                    existingOrder.IsReturned = true;
+                    existingOrder.ReturnReason = order.ReturnReason;
+                    existingOrder.AuthorizedBy = order.AuthorizedBy;
+                    existingOrder.TotalAmount = order.TotalAmount; // Partial returns change total amount
+                    
+                    // Stock is already returned to Postgres via SyncProduct, but we could do it here
+                    // Wait, partial return syncs products too, we must not double add stock.
+                    // PosCore ReturnsViewModel adds stock locally and queues ProductUpdated, so Postgres will get ProductUpdated too. We just update the order record here.
+                    
+                    await _context.SaveChangesAsync();
+                    return Ok(new { Message = "Orden actualizada como devuelta", ServerOrderId = existingOrder.Id });
+                }
+
                 return Ok(new { Message = "La orden ya había sido registrada anteriormente (Idempotencia).", ServerOrderId = existingOrder?.Id });
             }
 

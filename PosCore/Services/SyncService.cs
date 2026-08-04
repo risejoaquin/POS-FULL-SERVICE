@@ -108,6 +108,54 @@ public class SyncService
                             success = await apiService.SyncProductAsync(product);
                         }
                     }
+                    else if (message.EventType == "ProductDeleted")
+                    {
+                        // Payload: { Id = ..., Barcode = ... }
+                        using var doc = System.Text.Json.JsonDocument.Parse(message.Payload);
+                        if (doc.RootElement.TryGetProperty("Barcode", out var barcodeElement))
+                        {
+                            var barcode = barcodeElement.GetString();
+                            if (!string.IsNullOrEmpty(barcode))
+                            {
+                                success = await apiService.DeleteProductAsync(barcode);
+                            }
+                        }
+                    }
+                    else if (message.EventType == "UserCreated" || message.EventType == "UserUpdated")
+                    {
+                        var user = JsonSerializer.Deserialize<User>(message.Payload);
+                        if (user != null)
+                        {
+                            success = await apiService.SyncUserAsync(user);
+                        }
+                    }
+                    else if (message.EventType == "UserDeleted")
+                    {
+                        var user = JsonSerializer.Deserialize<User>(message.Payload);
+                        if (user != null && !string.IsNullOrEmpty(user.Username))
+                        {
+                            success = await apiService.DeleteUserAsync(user.Username);
+                        }
+                    }
+                    else if (message.EventType == "OrderReturned")
+                    {
+                        // Same endpoint for orders
+                        var order = JsonSerializer.Deserialize<Order>(message.Payload);
+                        if (order != null)
+                        {
+                            success = await apiService.SyncOrderAsync(order);
+                        }
+                    }
+                    else if (message.EventType == "ShiftOpened" || message.EventType == "ShiftClosed" || message.EventType == "CashMovementCreated")
+                    {
+                        var shift = JsonSerializer.Deserialize<CashRegisterShift>(message.Payload);
+                        if (shift != null)
+                        {
+                            // A veces el payload de cashmovement es diferente, 
+                            // asumiendo que PosCore enviará el objeto CashRegisterShift completo con sus movements.
+                            success = await apiService.SyncShiftAsync(shift);
+                        }
+                    }
 
                     if (success)
                     {

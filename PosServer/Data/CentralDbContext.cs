@@ -41,6 +41,8 @@ public class CentralDbContext : DbContext
     public DbSet<ProductModifier> ProductModifiers { get; set; } = null!;
     public DbSet<ModifierOption> ModifierOptions { get; set; } = null!;
     public DbSet<ProductModifierLink> ProductModifierLinks { get; set; } = null!;
+    public DbSet<CashRegisterShift> CashRegisterShifts { get; set; } = null!;
+    public DbSet<CashMovement> CashMovements { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,6 +104,15 @@ public class CentralDbContext : DbContext
         });
 
         modelBuilder.Entity<User>(entity => {
+            entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
+        });
+
+        modelBuilder.Entity<CashRegisterShift>(entity => {
+            entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            entity.HasMany(s => s.Movements).WithOne(m => m.Shift).HasForeignKey(m => m.ShiftId);
+        });
+
+        modelBuilder.Entity<CashMovement>(entity => {
             entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
         });
 
