@@ -42,6 +42,7 @@ namespace PosServer.Controllers
                     existingOrder.ReturnReason = order.ReturnReason;
                     existingOrder.AuthorizedBy = order.AuthorizedBy;
                     existingOrder.TotalAmount = order.TotalAmount; // Partial returns change total amount
+                    existingOrder.LastUpdated = DateTime.UtcNow;
                     
                     // Stock is already returned to Postgres via SyncProduct, but we could do it here
                     // Wait, partial return syncs products too, we must not double add stock.

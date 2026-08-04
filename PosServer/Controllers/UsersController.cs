@@ -49,6 +49,7 @@ namespace PosServer.Controllers
             {
                 existing.Role = user.Role;
                 existing.IsActive = user.IsActive;
+                existing.LastUpdated = DateTime.UtcNow;
                 // Asumiremos que si viene password, lo actualizamos.
                 if (!string.IsNullOrEmpty(user.PasswordHash)) existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
                 if (!string.IsNullOrEmpty(user.Pin)) existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Pin);

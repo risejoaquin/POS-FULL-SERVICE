@@ -173,7 +173,37 @@ public class SyncService
                         else
                         {
                             _logger.LogWarning($"Fallo al sincronizar Mensaje ID {message.Id}. Intento {message.RetryCount}. Aplicando Backoff indefinido.");
-                            await dbContext.SaveChangesAsync();
+                            if (payload.Orders != null && payload.Orders.Any())
+                {
+                    foreach (var cloudOrder in payload.Orders)
+                    {
+                        var localOrder = await dbContext.Orders
+                            .Include(o => o.Items)
+                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
+                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
+                        {
+                            cloudOrder.Id = 0;
+                            if (cloudOrder.Items != null) {
+                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
+                            }
+                            dbContext.Orders.Add(cloudOrder);
+                        }
+                        else if (localOrder != null)
+                        {
+                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
+                            {
+                                localOrder.IsReturned = cloudOrder.IsReturned;
+                                localOrder.ReturnReason = cloudOrder.ReturnReason;
+                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
+                                localOrder.TotalAmount = cloudOrder.TotalAmount;
+                                localOrder.LastUpdated = cloudOrder.LastUpdated;
+                                dbContext.Orders.Update(localOrder);
+                            }
+                        }
+                    }
+                }
+
+                await dbContext.SaveChangesAsync();
                             await Task.Delay((int)Math.Pow(2, message.RetryCount) * 1000);
                             break;
                         }
@@ -190,9 +220,69 @@ public class SyncService
                         else
                         {
                             _logger.LogWarning($"Excepcion al sincronizar Mensaje ID {message.Id}: {ex.Message}");
-                            await dbContext.SaveChangesAsync();
+                            if (payload.Orders != null && payload.Orders.Any())
+                {
+                    foreach (var cloudOrder in payload.Orders)
+                    {
+                        var localOrder = await dbContext.Orders
+                            .Include(o => o.Items)
+                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
+                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
+                        {
+                            cloudOrder.Id = 0;
+                            if (cloudOrder.Items != null) {
+                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
+                            }
+                            dbContext.Orders.Add(cloudOrder);
+                        }
+                        else if (localOrder != null)
+                        {
+                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
+                            {
+                                localOrder.IsReturned = cloudOrder.IsReturned;
+                                localOrder.ReturnReason = cloudOrder.ReturnReason;
+                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
+                                localOrder.TotalAmount = cloudOrder.TotalAmount;
+                                localOrder.LastUpdated = cloudOrder.LastUpdated;
+                                dbContext.Orders.Update(localOrder);
+                            }
+                        }
+                    }
+                }
+
+                await dbContext.SaveChangesAsync();
                             await Task.Delay((int)Math.Pow(2, message.RetryCount) * 1000);
                             break;
+                        }
+                    }
+                }
+
+                if (payload.Orders != null && payload.Orders.Any())
+                {
+                    foreach (var cloudOrder in payload.Orders)
+                    {
+                        var localOrder = await dbContext.Orders
+                            .Include(o => o.Items)
+                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
+                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
+                        {
+                            cloudOrder.Id = 0;
+                            if (cloudOrder.Items != null) {
+                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
+                            }
+                            dbContext.Orders.Add(cloudOrder);
+                        }
+                        else if (localOrder != null)
+                        {
+                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
+                            {
+                                localOrder.IsReturned = cloudOrder.IsReturned;
+                                localOrder.ReturnReason = cloudOrder.ReturnReason;
+                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
+                                localOrder.TotalAmount = cloudOrder.TotalAmount;
+                                localOrder.LastUpdated = cloudOrder.LastUpdated;
+                                dbContext.Orders.Update(localOrder);
+                            }
                         }
                     }
                 }
@@ -223,68 +313,129 @@ public class SyncService
     {
         try
         {
-            List<Product> cloudProducts;
+            PosCore.Models.SyncPayload? payload = await apiService.GetAllChangesAsync(_lastSyncTime);
 
-            if (_lastSyncTime == DateTime.MinValue)
+            if (payload != null)
             {
-                // Primera vez, descargamos todo
-                cloudProducts = await apiService.GetProductsAsync();
-            }
-            else
-            {
-                // Descargamos solo cambios
-                cloudProducts = await apiService.GetChangesAsync(_lastSyncTime);
-            }
-
-            if (cloudProducts.Any())
-            {
-                foreach (var cloudProduct in cloudProducts)
+                if (payload.Products != null && payload.Products.Any())
                 {
-                    // Buscamos por código de barras, que es más estable que los IDs generados localmente
-                    var localProduct = await dbContext.Products.FirstOrDefaultAsync(p => p.Barcode == cloudProduct.Barcode);
-                    
-                    if (localProduct == null)
+                    foreach (var cloudProduct in payload.Products)
                     {
-                        // Insertamos temporalmente con Id = 0 para que EF Core auto-asigne el Id local
-                        cloudProduct.Id = 0; 
-                        dbContext.Products.Add(cloudProduct);
-                    }
-                    
-                    else
-                    {
-                        // Resolución de Conflictos: 
-                        // El precio y nombre ganan los de la nube.
-                        // El stock se fusiona: Si en caja se vendió algo, la cantidad es menor. 
-                        // Para simplificar, tomamos el mínimo o si la caja restó stock localmente.
-                        
-                        if (cloudProduct.LastUpdated > localProduct.LastUpdated)
+                        var localProduct = await dbContext.Products.FirstOrDefaultAsync(p => p.Barcode == cloudProduct.Barcode);
+                        if (localProduct == null)
                         {
-                            _logger.LogInformation($"Actualizando producto {localProduct.Barcode} con versión del servidor (Conflicto Resuelto).");
-                            localProduct.Name = cloudProduct.Name;
-                            localProduct.Price = cloudProduct.Price;
-                            
-                            // Fusionar inventario de forma segura: si local es menor, restarle a la nube esa diferencia
-                            // Esto asume que la diferencia local fue por ventas offline.
-                            localProduct.StockQuantity = Math.Min(localProduct.StockQuantity, cloudProduct.StockQuantity);
-                            
-                            localProduct.LastUpdated = cloudProduct.LastUpdated;
-                            dbContext.Products.Update(localProduct);
+                            cloudProduct.Id = 0; 
+                            dbContext.Products.Add(cloudProduct);
+                        }
+                        else
+                        {
+                            if (cloudProduct.LastUpdated > localProduct.LastUpdated)
+                            {
+                                localProduct.Name = cloudProduct.Name;
+                                localProduct.Price = cloudProduct.Price;
+                                localProduct.Category = cloudProduct.Category;
+                                localProduct.MinStockThreshold = cloudProduct.MinStockThreshold;
+                                localProduct.IsActive = cloudProduct.IsActive;
+                                localProduct.StockQuantity = Math.Min(localProduct.StockQuantity, cloudProduct.StockQuantity);
+                                localProduct.LastUpdated = cloudProduct.LastUpdated;
+                                dbContext.Products.Update(localProduct);
+                            }
                         }
                     }
+                }
 
+                if (payload.Users != null && payload.Users.Any())
+                {
+                    foreach (var cloudUser in payload.Users)
+                    {
+                        var localUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == cloudUser.Username.ToLower());
+                        if (localUser == null)
+                        {
+                            cloudUser.Id = 0;
+                            dbContext.Users.Add(cloudUser);
+                        }
+                        else
+                        {
+                            if (cloudUser.LastUpdated > localUser.LastUpdated)
+                            {
+                                localUser.Role = cloudUser.Role;
+                                localUser.IsActive = cloudUser.IsActive;
+                                localUser.LastUpdated = cloudUser.LastUpdated;
+                                dbContext.Users.Update(localUser);
+                            }
+                        }
+                    }
+                }
+                
+                if (payload.Shifts != null && payload.Shifts.Any())
+                {
+                    foreach (var cloudShift in payload.Shifts)
+                    {
+                        var localShift = await dbContext.CashRegisterShifts
+                            .Include(s => s.Movements)
+                            .FirstOrDefaultAsync(s => s.OpenedAt == cloudShift.OpenedAt && s.OpenedBy == cloudShift.OpenedBy);
+                        if (localShift == null)
+                        {
+                            cloudShift.Id = 0;
+                            if (cloudShift.Movements != null) {
+                                foreach (var mov in cloudShift.Movements) { mov.Id = 0; mov.ShiftId = 0; }
+                            }
+                            dbContext.CashRegisterShifts.Add(cloudShift);
+                        }
+                        else
+                        {
+                            if (cloudShift.LastUpdated > localShift.LastUpdated)
+                            {
+                                localShift.ClosedAt = cloudShift.ClosedAt;
+                                localShift.ActualEndingCash = cloudShift.ActualEndingCash;
+                                localShift.ExpectedEndingCash = cloudShift.ExpectedEndingCash;
+                                localShift.Difference = cloudShift.Difference;
+                                localShift.ClosedBy = cloudShift.ClosedBy;
+                                localShift.IsClosed = cloudShift.IsClosed;
+                                localShift.LastUpdated = cloudShift.LastUpdated;
+                                dbContext.CashRegisterShifts.Update(localShift);
+                            }
+                        }
+                    }
+                }
+
+                if (payload.Orders != null && payload.Orders.Any())
+                {
+                    foreach (var cloudOrder in payload.Orders)
+                    {
+                        var localOrder = await dbContext.Orders
+                            .Include(o => o.Items)
+                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
+                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
+                        {
+                            cloudOrder.Id = 0;
+                            if (cloudOrder.Items != null) {
+                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
+                            }
+                            dbContext.Orders.Add(cloudOrder);
+                        }
+                        else if (localOrder != null)
+                        {
+                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
+                            {
+                                localOrder.IsReturned = cloudOrder.IsReturned;
+                                localOrder.ReturnReason = cloudOrder.ReturnReason;
+                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
+                                localOrder.TotalAmount = cloudOrder.TotalAmount;
+                                localOrder.LastUpdated = cloudOrder.LastUpdated;
+                                dbContext.Orders.Update(localOrder);
+                            }
+                        }
+                    }
                 }
 
                 await dbContext.SaveChangesAsync();
+                _lastSyncTime = DateTime.UtcNow;
             }
-
-            // Actualizamos la hora del último sync exitoso
-            _lastSyncTime = DateTime.UtcNow;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al traer actualizaciones del servidor.");
-            IsOffline = true;
-            throw;
+            _logger.LogError(ex, "Error al obtener actualizaciones del servidor.");
         }
     }
 }

@@ -1,3 +1,5 @@
 - Fixed 500 POST /api/shifts when syncing shifts (added null checks for Movements array and corrected Postgres Id mapping).
 - Fixed missing `ShiftClosed` outbox message in `ShiftViewModel.cs` so that closing a shift actually notifies the backend.
 - Fixed a bug in `ReturnsViewModel.cs` where returning a cash order from the *current* shift would double-deduct the cash total in Expected Ending Cash.
+- Solved Unidirectional Sync Issue: Added `SyncController.cs` on the server to unify the fetch of Users, Shifts, Orders, and Products into a single `SyncPayload`. Updated `PosCore.SyncService` to parse this payload and resolve conflicts locally.
+- Added `LastUpdated` timestamps across `User` and `Order` models to allow tracking incremental state updates correctly from Cloud -> POS.

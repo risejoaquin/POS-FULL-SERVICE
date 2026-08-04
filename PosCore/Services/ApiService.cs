@@ -54,6 +54,18 @@ public class ApiService : IApiService
         }
     }
 
+    public async Task<PosCore.Models.SyncPayload?> GetAllChangesAsync(DateTime since)
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<PosCore.Models.SyncPayload>($"api/sync/changes?since={Uri.EscapeDataString(since.ToString("O"))}", _jsonOptions);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
     public async Task<List<Product>> GetChangesAsync(DateTime since)
     {
         try
