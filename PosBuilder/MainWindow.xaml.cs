@@ -152,25 +152,17 @@ namespace PosBuilder
                     {
                         var err = await response.Content.ReadAsStringAsync();
                         MessageBox.Show(
-                            "Fallo al aprovisionar usuarios en la nube (Error " + (int)response.StatusCode + ").
-
-" +
-                            "Esto ocurre porque la API remota (Railway) aún no ha sido actualizada con el nuevo código.
-
-" +
-                            "PASO REQUERIDO:
-Debe desplegar los cambios de 'PosServer' a Railway.", 
+                            "Fallo al aprovisionar usuarios en la nube (Error " + (int)response.StatusCode + ").\n\n" +
+                            "Esto ocurre porque la API remota (Railway) aún no ha sido actualizada con el nuevo código.\n\n" +
+                            "PASO REQUERIDO:\nDebe desplegar los cambios de 'PosServer' a Railway.", 
                             "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        $"No se pudo conectar a la API para aprovisionar: {ex.Message}
-
-" +
-                        "PASO REQUERIDO:
-Debe desplegar la carpeta 'PosServer' a su servidor (Railway).", 
+                        $"No se pudo conectar a la API para aprovisionar: {ex.Message}\n\n" +
+                        "PASO REQUERIDO:\nDebe desplegar la carpeta 'PosServer' a su servidor (Railway).", 
                         "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 MainOverlay.Show("Compilando binarios de cliente POS (PosCore). Esto puede tomar unos segundos...");
