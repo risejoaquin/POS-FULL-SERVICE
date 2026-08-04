@@ -20,7 +20,25 @@ public class ApiService : IApiService
     public ApiService(HttpClient httpClient, IOptions<AppSettings> settings)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(settings.Value.ApiSettings.BaseUrl);
+        var baseUrl = settings.Value.ApiSettings?.BaseUrl;
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            baseUrl = "https://pos-full-service-production.up.railway.app/";
+        }
+        else if (!baseUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        {
+            baseUrl = "https://" + baseUrl.TrimStart('/');
+        }
+        
+        try 
+        {
+            _httpClient.BaseAddress = new Uri(baseUrl);
+        } 
+        catch (Exception ex) 
+        {
+            Serilog.Log.Error(ex, $"Error creating Uri for BaseUrl: '{baseUrl}'");
+            _httpClient.BaseAddress = new Uri("https://pos-full-service-production.up.railway.app/");
+        }
     }
 
     public async Task<List<Product>> GetProductsAsync()

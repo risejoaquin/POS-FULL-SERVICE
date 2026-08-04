@@ -19,7 +19,26 @@ public class LicenseService
     {
         _httpClient = httpClient;
         _settings = settings.Value;
-        _httpClient.BaseAddress = new Uri(_settings.ApiSettings.BaseUrl);
+        
+        var baseUrl = _settings.ApiSettings?.BaseUrl;
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            baseUrl = "https://pos-full-service-production.up.railway.app/";
+        }
+        else if (!baseUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        {
+            baseUrl = "https://" + baseUrl.TrimStart('/');
+        }
+        
+        try 
+        {
+            _httpClient.BaseAddress = new Uri(baseUrl);
+        } 
+        catch (Exception ex) 
+        {
+            Serilog.Log.Error(ex, $"Error creating Uri for BaseUrl: '{baseUrl}'");
+            _httpClient.BaseAddress = new Uri("https://pos-full-service-production.up.railway.app/");
+        }
     }
 
     public async Task<bool> ValidateLicenseAsync()
