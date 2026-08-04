@@ -74,6 +74,8 @@ public class AuthController : ControllerBase
     [HttpPost("provision")]
     public async Task<IActionResult> Provision([FromBody] ProvisionRequest request)
     {
+        try
+        {
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? _configuration["Jwt:Key"] ?? "super_secret_fallback_jwt_key_1234567890";
         if (request.ProvisionKey != jwtKey)
         {
@@ -187,6 +189,11 @@ public class AuthController : ControllerBase
 
         await _dbContext.SaveChangesAsync();
         return Ok(new { Message = "Tenant aprovisionado exitosamente." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = ex.Message, Inner = ex.InnerException?.Message, StackTrace = ex.StackTrace });
+        }
     }
     private string GenerateJwtToken(string username, string tenantId)
     {

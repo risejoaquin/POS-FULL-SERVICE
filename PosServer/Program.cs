@@ -228,6 +228,9 @@ using (var scope = app.Services.CreateScope())
     try { dbContext.Database.ExecuteSqlRaw("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("UPDATE \"Users\" SET \"PasswordHash\" = crypt(\"Pin\", gen_salt('bf')) WHERE \"Pin\" IS NOT NULL AND \"Pin\" != '';"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" DROP COLUMN IF EXISTS \"Pin\";"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
     
     // Auto-seed users from environment variables if table is empty
     if (!dbContext.Users.IgnoreQueryFilters().Any())
