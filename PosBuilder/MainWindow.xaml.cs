@@ -150,12 +150,19 @@ namespace PosBuilder
                     if (!response.IsSuccessStatusCode)
                     {
                         var err = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show($"Advertencia: No se pudo registrar usuarios en la nube automáticamente: {err}", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show(
+                            "Fallo al aprovisionar usuarios en la nube (Error 500/404).\n\n" +
+                            "Esto ocurre porque la API remota (Railway) está ejecutando una versión antigua del servidor.\n\n" +
+                            "PASO REQUERIDO:\nDebe desplegar los cambios recientes de la carpeta 'PosServer' a Railway para que el inicio de sesión funcione correctamente.", 
+                            "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Advertencia: No se pudo conectar a la nube: {ex.Message}", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(
+                        $"No se pudo conectar a la API: {ex.Message}\n\n" +
+                        "PASO REQUERIDO:\nDebe desplegar la carpeta 'PosServer' a su servidor (Railway).", 
+                        "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 MainOverlay.Show("Compilando binarios de cliente POS (PosCore). Esto puede tomar unos segundos...");
                 MainOverlay.ShowLog();
