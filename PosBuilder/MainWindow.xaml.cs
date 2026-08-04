@@ -135,42 +135,42 @@ namespace PosBuilder
                 MainOverlay.Show("Registrando usuarios en la nube y generando licencia...");
                 try 
                 {
-                    if (config.DbType.Contains("PostgreSQL"))
+                    using var client = new System.Net.Http.HttpClient();
+                    client.BaseAddress = new Uri(config.ApiBaseUrl);
+                    var payload = new {
+                        ProvisionKey = config.JwtSecret,
+                        TenantId = config.TenantId,
+                        AdminUsername = config.AdminUser,
+                        AdminPassword = config.AdminPassword,
+                        EmpUsername = config.EmployeeUser,
+                        EmpPassword = config.EmployeePassword
+                    };
+                    client.DefaultRequestHeaders.Add("X-Tenant-Id", config.TenantId);
+                    var response = await client.PostAsJsonAsync("api/auth/provision", payload);
+                    
+                    if (!response.IsSuccessStatusCode)
                     {
-                        MainOverlay.Show("Ejecutando script de aprovisionamiento en la Base de Datos directamente...");
-                        string connStr = $"Host={config.DbHost};Port={config.DbPort};Database={config.DbName};Username={config.DbUser};Password={config.DbPassword};Timeout=30";
-                        if (config.DbHost.Contains("supabase") || config.DbHost.Contains("railway")) {
-                            connStr += ";SSL Mode=Require;Trust Server Certificate=True";
-                        }
-                        
-                        using var conn = new Npgsql.NpgsqlConnection(connStr);
-                        await conn.OpenAsync();
-                        
-                        string sql = generator.GenerateSqlScript(config);
-                        using var cmd = new Npgsql.NpgsqlCommand(sql, conn);
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                    else
-                    {
-                        using var client = new System.Net.Http.HttpClient();
-                        client.BaseAddress = new Uri(config.ApiBaseUrl);
-                        var payload = new {
-                            ProvisionKey = config.JwtSecret,
-                            TenantId = config.TenantId,
-                            AdminUsername = config.AdminUser,
-                            AdminPassword = config.AdminPassword,
-                            EmpUsername = config.EmployeeUser,
-                            EmpPassword = config.EmployeePassword
-                        };
-                        client.DefaultRequestHeaders.Add("X-Tenant-Id", config.TenantId);
-                        var response = await client.PostAsJsonAsync("api/auth/provision", payload);
+                        var err = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show(
+                            "Fallo al aprovisionar usuarios en la nube (Error " + (int)response.StatusCode + ").
+
+" +
+                            "Esto ocurre porque la API remota (Railway) aún no ha sido actualizada con el nuevo código.
+
+" +
+                            "PASO REQUERIDO:
+Debe desplegar los cambios de 'PosServer' a Railway.", 
+                            "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        $"Error al aprovisionar: {ex.Message}\n\n" +
-                        "PASO REQUERIDO:\nDebe desplegar la carpeta 'PosServer' a su servidor.", 
+                        $"No se pudo conectar a la API para aprovisionar: {ex.Message}
+
+" +
+                        "PASO REQUERIDO:
+Debe desplegar la carpeta 'PosServer' a su servidor (Railway).", 
                         "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 MainOverlay.Show("Compilando binarios de cliente POS (PosCore). Esto puede tomar unos segundos...");
