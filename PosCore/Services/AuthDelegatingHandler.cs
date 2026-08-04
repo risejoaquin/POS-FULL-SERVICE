@@ -37,17 +37,11 @@ public class AuthDelegatingHandler : DelegatingHandler
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 var loginWindow = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<PosCore.Views.LoginWindow>(PosCore.App.ServiceProvider!);
-                System.Windows.Application.Current.MainWindow = loginWindow;
-                loginWindow.Show();
-                
-                // Cierra la ventana principal si sigue abierta
-                foreach (System.Windows.Window window in System.Windows.Application.Current.Windows)
+                if (System.Windows.Application.Current.MainWindow != null && System.Windows.Application.Current.MainWindow.IsVisible)
                 {
-                    if (window != loginWindow)
-                    {
-                        window.Close();
-                    }
+                    loginWindow.Owner = System.Windows.Application.Current.MainWindow;
                 }
+                loginWindow.ShowDialog();
             });
         }
         return response;

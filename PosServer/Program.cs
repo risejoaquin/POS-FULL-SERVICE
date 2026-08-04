@@ -97,7 +97,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var tenantId = context.Principal?.FindFirstValue("TenantId");
                 if (!string.IsNullOrEmpty(username))
                 {
-                    var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username && (tenantId == null || u.TenantId == tenantId));
+                    var user = await dbContext.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Username == username && (tenantId == null || u.TenantId == tenantId));
                     if (user == null || !user.IsActive)
                     {
                         context.Fail("Usuario inactivo o revocado.");

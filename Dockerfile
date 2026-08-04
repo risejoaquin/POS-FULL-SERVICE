@@ -5,20 +5,16 @@ WORKDIR /src
 # Copia todo el codigo
 COPY . .
 
-# Busca el archivo del proyecto y compila, mostrando los archivos para debugging
-RUN echo "Contenido de /src:" && ls -la && \
-    if [ -d "PosServer" ]; then echo "Contenido de /src/PosServer:" && ls -la PosServer; fi && \
-    if [ -f "PosServer.csproj" ]; then \
-        echo "Found at root" && \
+# Busca el archivo del proyecto y compila (soporta si el contexto es la raiz o PosServer)
+RUN if [ -f "PosServer.csproj" ]; then \
         dotnet restore "PosServer.csproj" && \
         dotnet publish "PosServer.csproj" -c Release -o /app/publish /p:UseAppHost=false; \
     elif [ -f "PosServer/PosServer.csproj" ]; then \
-        echo "Found in PosServer/" && \
-        dotnet restore "PosServer/PosServer.csproj" && \
-        dotnet publish "PosServer/PosServer.csproj" -c Release -o /app/publish /p:UseAppHost=false; \
+        cd PosServer && \
+        dotnet restore "PosServer.csproj" && \
+        dotnet publish "PosServer.csproj" -c Release -o /app/publish /p:UseAppHost=false; \
     else \
-        echo "Could not find PosServer.csproj. File tree:" && \
-        find . && exit 1; \
+        echo "Could not find PosServer.csproj" && exit 1; \
     fi
 
 # Usa la imagen de runtime para ejecutar la aplicación
