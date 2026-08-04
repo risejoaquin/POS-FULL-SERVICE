@@ -152,7 +152,8 @@ namespace PosBuilder
                     {
                         var err = await response.Content.ReadAsStringAsync();
                         MessageBox.Show(
-                            "Fallo al aprovisionar usuarios en la nube (Error " + (int)response.StatusCode + ").\n\n" +
+                            "Fallo al aprovisionar usuarios en la nube (Error " + (int)response.StatusCode + ").\n" +
+                            "Detalles: " + err + "\n\n" +
                             "Esto ocurre porque la API remota (Railway) aún no ha sido actualizada con el nuevo código.\n\n" +
                             "PASO REQUERIDO:\nDebe desplegar los cambios de 'PosServer' a Railway.", 
                             "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
