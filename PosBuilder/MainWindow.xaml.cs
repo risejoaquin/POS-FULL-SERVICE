@@ -132,36 +132,45 @@ namespace PosBuilder
 
             if (ok1 && ok2 && ok3)
             {
-                MainOverlay.Show("Registrando usuarios en la nube...");
+                MainOverlay.Show("Registrando usuarios en la nube y generando licencia...");
                 try 
                 {
-                    using var client = new System.Net.Http.HttpClient();
-                    client.BaseAddress = new Uri(config.ApiBaseUrl);
-                    var payload = new {
-                        ProvisionKey = config.JwtSecret,
-                        TenantId = config.TenantId,
-                        AdminUsername = config.AdminUser,
-                        AdminPassword = config.AdminPassword,
-                        EmpUsername = config.EmployeeUser,
-                        EmpPassword = config.EmployeePassword
-                    };
-                    client.DefaultRequestHeaders.Add("X-Tenant-Id", config.TenantId);
-                    var response = await client.PostAsJsonAsync("api/auth/provision", payload);
-                    if (!response.IsSuccessStatusCode)
+                    if (config.DbType.Contains("PostgreSQL"))
                     {
-                        var err = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show(
-                            "Fallo al aprovisionar usuarios en la nube (Error 500/404).\n\n" +
-                            "Esto ocurre porque la API remota (Railway) está ejecutando una versión antigua del servidor.\n\n" +
-                            "PASO REQUERIDO:\nDebe desplegar los cambios recientes de la carpeta 'PosServer' a Railway para que el inicio de sesión funcione correctamente.", 
-                            "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MainOverlay.Show("Ejecutando script de aprovisionamiento en la Base de Datos directamente...");
+                        string connStr = $"Host={config.DbHost};Port={config.DbPort};Database={config.DbName};Username={config.DbUser};Password={config.DbPassword};Timeout=30";
+                        if (config.DbHost.Contains("supabase") || config.DbHost.Contains("railway")) {
+                            connStr += ";SSL Mode=Require;Trust Server Certificate=True";
+                        }
+                        
+                        using var conn = new Npgsql.NpgsqlConnection(connStr);
+                        await conn.OpenAsync();
+                        
+                        string sql = generator.GenerateSqlScript(config);
+                        using var cmd = new Npgsql.NpgsqlCommand(sql, conn);
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                    else
+                    {
+                        using var client = new System.Net.Http.HttpClient();
+                        client.BaseAddress = new Uri(config.ApiBaseUrl);
+                        var payload = new {
+                            ProvisionKey = config.JwtSecret,
+                            TenantId = config.TenantId,
+                            AdminUsername = config.AdminUser,
+                            AdminPassword = config.AdminPassword,
+                            EmpUsername = config.EmployeeUser,
+                            EmpPassword = config.EmployeePassword
+                        };
+                        client.DefaultRequestHeaders.Add("X-Tenant-Id", config.TenantId);
+                        var response = await client.PostAsJsonAsync("api/auth/provision", payload);
                     }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        $"No se pudo conectar a la API: {ex.Message}\n\n" +
-                        "PASO REQUERIDO:\nDebe desplegar la carpeta 'PosServer' a su servidor (Railway).", 
+                        $"Error al aprovisionar: {ex.Message}\n\n" +
+                        "PASO REQUERIDO:\nDebe desplegar la carpeta 'PosServer' a su servidor.", 
                         "Requiere Actualizar Servidor", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 MainOverlay.Show("Compilando binarios de cliente POS (PosCore). Esto puede tomar unos segundos...");
