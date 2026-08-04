@@ -88,23 +88,17 @@ public class CentralDbContext : DbContext
         
         modelBuilder.Entity<Product>(entity => {
             entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            entity.Property(e => e.CustomAttributes)
-                  
-                  .HasConversion(dictConverter, dictComparer);
+            entity.Property(e => e.CustomAttributes).HasColumnType("jsonb").HasConversion(dictConverter, dictComparer);
         });
 
         modelBuilder.Entity<Order>(entity => {
             entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            entity.Property(e => e.CustomAttributes)
-                  
-                  .HasConversion(dictConverter, dictComparer);
+            entity.Property(e => e.CustomAttributes).HasColumnType("jsonb").HasConversion(dictConverter, dictComparer);
         });
 
         modelBuilder.Entity<OrderItem>(entity => {
             entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            entity.Property(e => e.CustomAttributes)
-                  
-                  .HasConversion(dictConverter, dictComparer);
+            entity.Property(e => e.CustomAttributes).HasColumnType("jsonb").HasConversion(dictConverter, dictComparer);
         });
 
         modelBuilder.Entity<User>(entity => {

@@ -228,9 +228,12 @@ using (var scope = app.Services.CreateScope())
     try { dbContext.Database.ExecuteSqlRaw("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("UPDATE \"Users\" SET \"PasswordHash\" = crypt(\"Pin\", gen_salt('bf')) WHERE \"Pin\" IS NOT NULL AND \"Pin\" != '';"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" DROP COLUMN IF EXISTS \"Pin\";"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" jsonb DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ALTER COLUMN \"CustomAttributes\" TYPE jsonb USING \"CustomAttributes\"::text::jsonb;"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" jsonb DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ALTER COLUMN \"CustomAttributes\" TYPE jsonb USING \"CustomAttributes\"::text::jsonb;"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" jsonb DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ALTER COLUMN \"CustomAttributes\" TYPE jsonb USING \"CustomAttributes\"::text::jsonb;"); } catch { }
     
     // Auto-seed users from environment variables if table is empty
     if (!dbContext.Users.IgnoreQueryFilters().Any())
@@ -258,9 +261,13 @@ using (var scope = app.Services.CreateScope())
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         });
-        
         dbContext.SaveChanges();
-        
+    }
+    
+    var autoSeed = builder.Configuration["AutoSeedDemoData"];
+    if (autoSeed == "True" || Environment.GetEnvironmentVariable("AUTO_SEED") == "True")
+    {
+        var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? builder.Configuration["TENANT_ID"] ?? "tenant_001";
         var businessType = Environment.GetEnvironmentVariable("BUSINESS_TYPE") ?? builder.Configuration["BUSINESS_TYPE"] ?? "Retail";
         
         if (!dbContext.Products.IgnoreQueryFilters().Any())
