@@ -4,7 +4,7 @@ namespace PosCore.Models
 {
     public class IndustryProfile
     {
-        public string IndustryName { get; set; }
-        public List<ShortcutConfig> Shortcuts { get; set; }
+        public required string IndustryName { get; set; }
+        public required List<ShortcutConfig> Shortcuts { get; set; }
     }
 }

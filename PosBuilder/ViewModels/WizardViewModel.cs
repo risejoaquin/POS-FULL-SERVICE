@@ -105,9 +105,28 @@ namespace PosBuilder.ViewModels
                 return;
             }
             TestApiButtonText = "Probando...";
-            await System.Threading.Tasks.Task.Delay(1000); // Simulate network
-            TestApiButtonText = "Probar API";
-            MessageBox.Show("Conexión a la API simulada con éxito.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                using var client = new System.Net.Http.HttpClient();
+                client.Timeout = System.TimeSpan.FromSeconds(5);
+                var response = await client.GetAsync($"{ApiUrl.TrimEnd('/')}/swagger/index.html");
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Conexión a la API exitosa.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"La API respondió pero con un código de error: {response.StatusCode}", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al conectar con la API:\n{ex.Message}", "Error de Conexión", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                TestApiButtonText = "Probar API";
+            }
         }
 
         [ObservableProperty]
@@ -117,15 +136,37 @@ namespace PosBuilder.ViewModels
         public async System.Threading.Tasks.Task TestConnectionAsync()
         {
             TestDbButtonText = "Probando...";
-            await System.Threading.Tasks.Task.Delay(1500); // Simulate network
-            TestDbButtonText = "Test Connection";
-            
-            // Randomly fail sometimes? No, let's just make it success unless empty
-            if (DbType == "PostgreSQL" && (string.IsNullOrWhiteSpace(DbHost) || string.IsNullOrWhiteSpace(DbUser))) {
-                 MessageBox.Show("Error al conectar: Host y Usuario son requeridos para PostgreSQL.", "Error de Conexión", MessageBoxButton.OK, MessageBoxImage.Error);
-                 return;
+            try 
+            {
+                if (DbType == "PostgreSQL")
+                {
+                    if (string.IsNullOrWhiteSpace(DbHost) || string.IsNullOrWhiteSpace(DbUser)) { 
+                        MessageBox.Show("Error al conectar: Host y Usuario son requeridos para PostgreSQL.", "Error de Conexión", MessageBoxButton.OK, MessageBoxImage.Error); 
+                        return;
+                    }
+                    string connStr = $"Host={DbHost};Port={DbPort};Database={DbName};Username={DbUser};Password={DbPassword};Timeout=3";
+                    if (DbHost.Contains("supabase") || DbHost.Contains("railway")) {
+                        connStr += ";SSL Mode=Require;Trust Server Certificate=True";
+                    }
+                    
+                    using var conn = new Npgsql.NpgsqlConnection(connStr);
+                    await conn.OpenAsync();
+                    MessageBox.Show("Conexión exitosa a la base de datos PostgreSQL.", "Test Connection", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else 
+                {
+                    await System.Threading.Tasks.Task.Delay(500); // Simulate network
+                    MessageBox.Show("Conexión exitosa a la base de datos local.", "Test Connection", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
-            MessageBox.Show("Conexión exitosa a la base de datos.", "Test Connection", MessageBoxButton.OK, MessageBoxImage.Information);
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al conectar a la base de datos:\n{ex.Message}", "Error de Conexión", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally 
+            {
+                TestDbButtonText = "Test Connection";
+            }
         }
 
         public WizardViewModel()

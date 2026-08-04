@@ -19,14 +19,15 @@ namespace PosCore
             LoadShortcuts();
         }
 
-        public void LoadShortcuts(string industry = null)
+        public void LoadShortcuts(string? industry = null)
         {
             if (industry == null && File.Exists(_userConfigPath))
             {
                 var userJson = File.ReadAllText(_userConfigPath);
                 try {
-                    CurrentShortcuts = JsonSerializer.Deserialize<List<ShortcutConfig>>(userJson);
-                    return;
+                    CurrentShortcuts = JsonSerializer.Deserialize<List<ShortcutConfig>>(userJson) ?? new List<ShortcutConfig>();
+                    if (CurrentShortcuts.Count > 0)
+                        return;
                 } catch { }
             }
 
@@ -35,14 +36,17 @@ namespace PosCore
                 var json = File.ReadAllText(_profilesPath);
                 var profiles = JsonSerializer.Deserialize<List<IndustryProfile>>(json);
                 
-                var profile = industry != null 
-                    ? profiles.FirstOrDefault(p => p.IndustryName == industry) 
-                    : profiles.FirstOrDefault(); // default to first
-
-                if (profile != null)
+                if (profiles != null)
                 {
-                    CurrentShortcuts = profile.Shortcuts;
-                    return;
+                    var profile = industry != null 
+                        ? profiles.FirstOrDefault(p => p.IndustryName == industry) 
+                        : profiles.FirstOrDefault(); // default to first
+
+                    if (profile != null)
+                    {
+                        CurrentShortcuts = profile.Shortcuts;
+                        return;
+                    }
                 }
             }
 

@@ -75,7 +75,7 @@ namespace PosCore.Services
             var border = new Border
             {
                 Background = Brushes.White,
-                BorderBrush = (SolidColorBrush)new BrushConverter().ConvertFromString(colorHex),
+                BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFromString(colorHex) ?? Brushes.Transparent),
                 BorderThickness = new Thickness(4, 0, 0, 0),
                 CornerRadius = new CornerRadius(4),
                 Margin = new Thickness(10),

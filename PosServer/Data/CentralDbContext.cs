@@ -60,7 +60,7 @@ public class CentralDbContext : DbContext
         );
 
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.Username)
+            .HasIndex(u => new { u.Username, u.TenantId })
             .IsUnique();
         modelBuilder.Entity<User>()
             .HasIndex(u => u.TenantId);

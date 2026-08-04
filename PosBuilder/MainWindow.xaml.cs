@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -131,6 +132,31 @@ namespace PosBuilder
 
             if (ok1 && ok2 && ok3)
             {
+                MainOverlay.Show("Registrando usuarios en la nube...");
+                try 
+                {
+                    using var client = new System.Net.Http.HttpClient();
+                    client.BaseAddress = new Uri(config.ApiBaseUrl);
+                    var payload = new {
+                        ProvisionKey = config.JwtSecret,
+                        TenantId = config.TenantId,
+                        AdminUsername = config.AdminUser,
+                        AdminPassword = config.AdminPassword,
+                        EmpUsername = config.EmployeeUser,
+                        EmpPassword = config.EmployeePassword
+                    };
+                    client.DefaultRequestHeaders.Add("X-Tenant-Id", config.TenantId);
+                    var response = await client.PostAsJsonAsync("api/auth/provision", payload);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var err = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Advertencia: No se pudo registrar usuarios en la nube automáticamente: {err}", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Advertencia: No se pudo conectar a la nube: {ex.Message}", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
                 MainOverlay.Show("Compilando binarios de cliente POS (PosCore). Esto puede tomar unos segundos...");
                 MainOverlay.ShowLog();
                 try 

@@ -79,7 +79,7 @@ namespace PosCore
             return checkDigit == expectedCheck;
         }
 
-        public Product LookupProduct(string code)
+        public Product? LookupProduct(string code)
         {
             // Búsqueda case-insensitive en caché local (simulado con la BD en este caso)
             if (string.IsNullOrWhiteSpace(code)) return null;

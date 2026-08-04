@@ -48,13 +48,13 @@ namespace PosCore.Views
         {
             if (CmbIndustry.SelectedItem is ComboBoxItem item)
             {
-                string industry = item.Content.ToString();
-                var tempManager = new ShortcutManager();
-                // delete the user config locally so we can load the raw profile
-                var userConfigPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "user_shortcuts.json");
-                
-                tempManager.LoadShortcuts(industry);
-                LoadToGrid(tempManager.CurrentShortcuts);
+                string? industry = item.Content?.ToString();
+                if (industry != null)
+                {
+                    var tempManager = new ShortcutManager();
+                    tempManager.LoadShortcuts(industry);
+                    LoadToGrid(tempManager.CurrentShortcuts);
+                }
             }
         }
 
