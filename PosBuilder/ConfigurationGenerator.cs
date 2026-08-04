@@ -35,9 +35,13 @@ namespace PosBuilder
                 Security = new
                 {
                     ManagerPin = "" // Dejar vacío intencionalmente
+                },
+                License = new 
+                {
+                    LicenseKey = $"VAL-{model.TenantId}-123", // Generada para coincidir con la de BD
+                    LastValidationDate = (string)null
                 }
             };
-
             var options = new JsonSerializerOptions { WriteIndented = true };
             return JsonSerializer.Serialize(config, options);
         }

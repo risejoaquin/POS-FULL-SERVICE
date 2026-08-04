@@ -18,6 +18,7 @@ namespace PosBuilder
             string safeAdminPin = EscapeSql(adminPin);
             string safeEmpUser = EscapeSql(empUser);
             string safeEmpPin = EscapeSql(empPin);
+            string safeLicenseKey = $"VAL-{safeTenantId}-123";
 
             return $@"-- Configuración inicial para {safeStoreName} ({safeTenantId})
 
@@ -33,7 +34,7 @@ ON CONFLICT (""Username"", ""TenantId"") DO NOTHING;
 -- Agregar Licencia (válida por 1 año por defecto)
 INSERT INTO ""Licenses"" (""LicenseKey"", ""TenantId"", ""Description"", ""IsActive"", ""MaxTerminals"", ""ValidUntil"")
 VALUES 
-(gen_random_uuid()::text, '{safeTenantId}', 'Licencia Inicial {safeStoreName}', true, 3, CURRENT_TIMESTAMP + interval '1 year');
+('{safeLicenseKey}', '{safeTenantId}', 'Licencia Inicial {safeStoreName}', true, 3, CURRENT_TIMESTAMP + interval '1 year');
 
 -- Datos de Prueba (Productos y Modificadores)
 INSERT INTO ""Products"" (""Name"", ""Barcode"", ""Price"", ""StockQuantity"", ""MinStockThreshold"", ""Category"", ""TenantId"", ""CustomAttributes"") VALUES
