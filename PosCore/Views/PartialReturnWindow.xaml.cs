@@ -9,7 +9,7 @@ namespace PosCore.Views
     {
         public OrderItem OriginalItem { get; set; } = null!;
         public bool IsSelected { get; set; }
-        public string ProductName => OriginalItem.Product.Name;
+        public string ProductName => OriginalItem.Product?.Name ?? "Producto Eliminado";
         public decimal UnitPrice => OriginalItem.UnitPrice;
         public int MaxQuantity => OriginalItem.Quantity;
         public int ReturnQuantity { get; set; }

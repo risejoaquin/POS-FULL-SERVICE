@@ -41,7 +41,8 @@ namespace PosServer.Controllers
             {
                 user.Id = 0;
                 user.CreatedAt = DateTime.UtcNow;
-                if (!string.IsNullOrEmpty(user.Pin)) user.PasswordHash = user.Pin;
+                if (!string.IsNullOrEmpty(user.Pin)) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Pin);
+                else if (!string.IsNullOrEmpty(user.PasswordHash)) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
                 _context.Users.Add(user);
             }
             else
@@ -49,8 +50,8 @@ namespace PosServer.Controllers
                 existing.Role = user.Role;
                 existing.IsActive = user.IsActive;
                 // Asumiremos que si viene password, lo actualizamos.
-                if (!string.IsNullOrEmpty(user.PasswordHash)) existing.PasswordHash = user.PasswordHash;
-                if (!string.IsNullOrEmpty(user.Pin)) existing.PasswordHash = user.Pin; // Map Pin to PasswordHash in cloud
+                if (!string.IsNullOrEmpty(user.PasswordHash)) existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+                if (!string.IsNullOrEmpty(user.Pin)) existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Pin);
                 
                 _context.Users.Update(existing);
             }

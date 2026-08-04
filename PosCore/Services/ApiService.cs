@@ -72,7 +72,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"api/products/{barcode}");
+            var response = await _httpClient.DeleteAsync($"api/products/{Uri.EscapeDataString(barcode)}");
             return response.IsSuccessStatusCode;
         }
         catch (Exception)
@@ -125,7 +125,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"api/users/{username}");
+            var response = await _httpClient.DeleteAsync($"api/users/{Uri.EscapeDataString(username)}");
             return response.IsSuccessStatusCode;
         }
         catch (Exception)
@@ -157,7 +157,11 @@ public class ApiService : IApiService
             {
                 return await response.Content.ReadFromJsonAsync<LoginResponse>(_jsonOptions);
             }
-            return null;
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                throw new UnauthorizedAccessException("Credenciales inválidas en la nube.");
+            }
+            return null; // For other errors, might fallback
         }
         catch (Exception)
         {

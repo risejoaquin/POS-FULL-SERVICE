@@ -280,6 +280,7 @@ public partial class MainViewModel : ObservableObject
             Cart.Add(new OrderItem
             {
                 ProductId = product.Id,
+                ProductBarcode = product.Barcode,
                 Product = product,
                 Quantity = 1,
                 UnitPrice = product.Price

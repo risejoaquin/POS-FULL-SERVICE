@@ -86,6 +86,12 @@ public partial class LoginViewModel : ObservableObject
                 return;
             }
         }
+        catch (UnauthorizedAccessException uex)
+        {
+            ErrorMessage = uex.Message;
+            IsLoading = false;
+            return; // DO NOT fallback if cloud explicitly rejected
+        }
         catch (Exception ex) { Serilog.Log.Error(ex, "Fallback to local error"); /* Fallback to local */ }
 
         // 2. Fallback: check local database
