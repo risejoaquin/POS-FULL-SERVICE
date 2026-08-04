@@ -36,7 +36,10 @@ namespace PosServer.Controllers
             if (existing == null)
             {
                 shift.Id = 0; // Postgres ID
-                foreach (var mov in shift.Movements) { mov.Id = 0; mov.TenantId = tenantId; }
+                if (shift.Movements != null)
+                {
+                    foreach (var mov in shift.Movements) { mov.Id = 0; mov.ShiftId = 0; mov.TenantId = tenantId; }
+                }
                 _context.CashRegisterShifts.Add(shift);
             }
             else
@@ -51,14 +54,19 @@ namespace PosServer.Controllers
                 existing.IsClosed = shift.IsClosed;
 
                 // Sync movements
-                foreach (var mov in shift.Movements)
+                if (shift.Movements != null)
                 {
-                    if (!existing.Movements.Any(m => m.Type == mov.Type && m.Amount == mov.Amount && m.CreatedAt == mov.CreatedAt))
+                    existing.Movements ??= new List<CashMovement>();
+                    foreach (var mov in shift.Movements)
                     {
+                        if (!existing.Movements.Any(m => m.Type == mov.Type && m.Amount == mov.Amount && m.CreatedAt == mov.CreatedAt))
+                        {
                         mov.Id = 0;
+                        mov.ShiftId = existing.Id;
                         mov.TenantId = tenantId;
                         existing.Movements.Add(mov);
                     }
+                }
                 }
                 
                 _context.CashRegisterShifts.Update(existing);

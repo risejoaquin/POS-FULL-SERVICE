@@ -144,7 +144,7 @@ public partial class ReturnsViewModel : ObservableObject
 
             // Restar dinero de caja si fue en efectivo
             var currentShift = await _dbContext.CashRegisterShifts.FirstOrDefaultAsync(s => !s.IsClosed);
-            if (currentShift != null && order.PaymentDetails.Contains("Efectivo"))
+            if (currentShift != null && order.PaymentDetails.Contains("Efectivo") && order.OrderDate < currentShift.OpenedAt)
             {
                 var cashMovement = new CashMovement
                 {

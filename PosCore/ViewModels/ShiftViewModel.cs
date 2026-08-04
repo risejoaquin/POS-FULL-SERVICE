@@ -150,6 +150,9 @@ public partial class ShiftViewModel : ObservableObject
         CurrentShift.Difference = Difference;
         CurrentShift.IsClosed = true;
 
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+        _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "ShiftClosed", Payload = System.Text.Json.JsonSerializer.Serialize(CurrentShift, jsonOptions), CreatedAt = DateTime.Now });
+
         _dbContext.SaveChanges();
 
         MessageBox.Show($"Turno cerrado.\nEsperado: {ExpectedEndingCash:C}\nContado: {ActualEndingCash:C}\nDiferencia: {Difference:C}", "Arqueo de Caja", MessageBoxButton.OK, MessageBoxImage.Information);

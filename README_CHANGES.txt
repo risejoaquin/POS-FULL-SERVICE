@@ -1,0 +1,3 @@
+- Fixed 500 POST /api/shifts when syncing shifts (added null checks for Movements array and corrected Postgres Id mapping).
+- Fixed missing `ShiftClosed` outbox message in `ShiftViewModel.cs` so that closing a shift actually notifies the backend.
+- Fixed a bug in `ReturnsViewModel.cs` where returning a cash order from the *current* shift would double-deduct the cash total in Expected Ending Cash.
