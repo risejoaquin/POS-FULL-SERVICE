@@ -20,26 +20,11 @@ public static class SecureConfigManager
         var settings = JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new AppSettings();
 
         bool needsSave = false;
-
         
         // Secure SecretKey
         if (!string.IsNullOrEmpty(settings.ApiSettings.SecretKey) && !settings.ApiSettings.SecretKey.StartsWith(DPAPI_PREFIX))
         {
             settings.ApiSettings.SecretKey = DPAPI_PREFIX + EncryptString(settings.ApiSettings.SecretKey);
-            needsSave = true;
-        }
-
-        // Secure BaseUrl
-        if (!string.IsNullOrEmpty(settings.ApiSettings.BaseUrl) && !settings.ApiSettings.BaseUrl.StartsWith(DPAPI_PREFIX))
-        {
-            settings.ApiSettings.BaseUrl = DPAPI_PREFIX + EncryptString(settings.ApiSettings.BaseUrl);
-            needsSave = true;
-        }
-
-        // Secure ConnectionString
-        if (!string.IsNullOrEmpty(settings.DatabaseSettings.ConnectionString) && !settings.DatabaseSettings.ConnectionString.StartsWith(DPAPI_PREFIX))
-        {
-            settings.DatabaseSettings.ConnectionString = DPAPI_PREFIX + EncryptString(settings.DatabaseSettings.ConnectionString);
             needsSave = true;
         }
 
@@ -50,21 +35,29 @@ public static class SecureConfigManager
 
         // Return a decrypted copy for memory
         var decryptedSettings = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(settings))!;
-        
-        
+                
         if (!string.IsNullOrEmpty(decryptedSettings.ApiSettings.SecretKey) && decryptedSettings.ApiSettings.SecretKey.StartsWith(DPAPI_PREFIX))
         {
             decryptedSettings.ApiSettings.SecretKey = DecryptString(decryptedSettings.ApiSettings.SecretKey.Substring(DPAPI_PREFIX.Length));
         }
 
-        if (decryptedSettings.ApiSettings.BaseUrl.StartsWith(DPAPI_PREFIX))
+        if (decryptedSettings.ApiSettings.BaseUrl != null && decryptedSettings.ApiSettings.BaseUrl.StartsWith(DPAPI_PREFIX))
         {
             decryptedSettings.ApiSettings.BaseUrl = DecryptString(decryptedSettings.ApiSettings.BaseUrl.Substring(DPAPI_PREFIX.Length));
+            if (string.IsNullOrEmpty(decryptedSettings.ApiSettings.BaseUrl))
+                decryptedSettings.ApiSettings.BaseUrl = "https://pos-full-service-production.up.railway.app/";
         }
 
-        if (decryptedSettings.DatabaseSettings.ConnectionString.StartsWith(DPAPI_PREFIX))
+        if (decryptedSettings.DatabaseSettings.ConnectionString != null && decryptedSettings.DatabaseSettings.ConnectionString.StartsWith(DPAPI_PREFIX))
         {
             decryptedSettings.DatabaseSettings.ConnectionString = DecryptString(decryptedSettings.DatabaseSettings.ConnectionString.Substring(DPAPI_PREFIX.Length));
+            if (string.IsNullOrEmpty(decryptedSettings.DatabaseSettings.ConnectionString))
+                decryptedSettings.DatabaseSettings.ConnectionString = "Data Source=pos_local.db";
+        }
+        
+        if (string.IsNullOrEmpty(decryptedSettings.ApiSettings.BaseUrl))
+        {
+             decryptedSettings.ApiSettings.BaseUrl = "https://pos-full-service-production.up.railway.app/";
         }
 
         return decryptedSettings;
