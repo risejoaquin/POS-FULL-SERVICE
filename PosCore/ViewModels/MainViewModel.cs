@@ -168,6 +168,13 @@ public partial class MainViewModel : ObservableObject
 
     private readonly SyncService _syncService;
     private readonly TicketPrinterService _ticketPrinterService;
+    
+    [ObservableProperty]
+    private string _currentUserRole = string.Empty;
+    
+    [ObservableProperty]
+    private string _currentUsername = string.Empty;
+
     private readonly PosCore.Services.SessionManager _sessionManager;
 
     [RelayCommand]
@@ -183,8 +190,12 @@ public partial class MainViewModel : ObservableObject
         _settings = settings.Value;
         _syncService = syncService;
         _ticketPrinterService = ticketPrinterService;
+        
         _sessionManager = sessionManager;
-        IsAdmin = _sessionManager.Role != null && _sessionManager.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+        IsAdmin = _sessionManager.Role != null && (_sessionManager.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || _sessionManager.Role.Equals("Administrador", StringComparison.OrdinalIgnoreCase));
+        CurrentUserRole = _sessionManager.Role ?? "Administrador";
+        CurrentUsername = _sessionManager.Username ?? "Usuario";
+
 
         _syncService.OnSyncCompleted += () => 
         {

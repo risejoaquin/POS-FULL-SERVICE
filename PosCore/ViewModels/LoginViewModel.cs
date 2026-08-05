@@ -27,12 +27,79 @@ public partial class LoginViewModel : ObservableObject
     public Action? RequestClose { get; set; }
 
     private readonly PosCore.Data.PosDbContext _dbContext;
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<PosCore.Models.User> _availableUsers = new();
+
+    [ObservableProperty]
+    private PosCore.Models.User? _selectedUser;
+
+    partial void OnSelectedUserChanged(PosCore.Models.User? value)
+    {
+        if (value != null)
+        {
+            Username = value.Username;
+            Password = "";
+        }
+    }
+
+    [RelayCommand]
+    private void AppendPin(string digit)
+    {
+        if (Password.Length < 4)
+        {
+            Password += digit;
+            if (Password.Length == 4)
+            {
+                LoginCommand.Execute(null);
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ClearPin()
+    {
+        if (Password.Length > 0)
+        {
+            Password = Password.Substring(0, Password.Length - 1);
+        }
+    }
+
+    [RelayCommand]
+    private void GoBack()
+    {
+        SelectedUser = null;
+        Username = string.Empty;
+        Password = string.Empty;
+        ErrorMessage = string.Empty;
+    }
+
 
     public LoginViewModel(IApiService apiService, SessionManager sessionManager, PosCore.Data.PosDbContext dbContext)
     {
+
         _apiService = apiService;
         _sessionManager = sessionManager;
         _dbContext = dbContext;
+
+        LoadUsers();
+    }
+
+    private void LoadUsers()
+    {
+        try
+        {
+            var users = System.Linq.Enumerable.ToList(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.IgnoreQueryFilters(_dbContext.Users));
+            if (users.Count == 0)
+            {
+                // Add dummy admin if empty for preview purposes
+                users.Add(new PosCore.Models.User { Username = "admin", Role = "Administrador" });
+                users.Add(new PosCore.Models.User { Username = "carlos", Role = "Cajero" });
+                users.Add(new PosCore.Models.User { Username = "laura", Role = "Supervisor" });
+            }
+            foreach (var u in users) AvailableUsers.Add(u);
+        }
+        catch { }
+
     }
 
     [RelayCommand]

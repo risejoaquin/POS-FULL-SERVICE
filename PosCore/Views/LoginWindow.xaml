@@ -1,38 +1,273 @@
 <Window x:Class="PosCore.Views.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PosCore.Views"
-        mc:Ignorable="d"
-        Title="Iniciar Sesión - POS Express" Height="450" Width="450" 
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#F3F4F6">
+        Title="OasisDrinks - Login" Height="768" Width="1024"
+        WindowStartupLocation="CenterScreen" Background="#0d4722" WindowState="Maximized">
     <Window.Resources>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <Style x:Key="NumpadButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="70"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F9FAFB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
-    
+
     <Grid>
-        <Border Background="White" CornerRadius="12" Margin="30" Padding="30" BorderBrush="#E5E7EB" BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="2" Opacity="0.05" />
-            </Border.Effect>
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Bienvenido a POS" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="#1F2937"/>
-                <TextBlock Text="Ingrese sus credenciales para continuar" FontSize="14" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,0,0,30"/>
-                
-                <TextBlock Text="Usuario" FontSize="14" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8"/>
-                <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Height="45" Margin="0,0,0,20" Padding="12,0" FontSize="16" 
-                         BorderBrush="#D1D5DB" BorderThickness="1" Background="#F9FAFB" Foreground="#111827" VerticalContentAlignment="Center"/>
-                
-                <TextBlock Text="Contraseña / PIN" FontSize="14" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8"/>
-                <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Height="45" Margin="0,0,0,20" Padding="12,0" FontSize="16" 
-                         BorderBrush="#D1D5DB" BorderThickness="1" Background="#F9FAFB" Foreground="#111827" VerticalContentAlignment="Center"/>
-                
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="14" Margin="0,0,0,20" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Medium"/>
-                
-                <Button Content="Iniciar Sesión" Command="{Binding LoginCommand}" Height="50" Background="#3B82F6" Foreground="White" FontSize="16" FontWeight="Bold" BorderThickness="0" Cursor="Hand" />
-                
-                <ProgressBar IsIndeterminate="True" Height="4" Margin="0,20,0,0" Foreground="#3B82F6" Background="#E5E7EB" BorderThickness="0" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <!-- Top Right Clock -->
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="30">
+            <TextBlock Text="05:23 p.m." FontSize="42" FontWeight="Bold" Foreground="White" FontFamily="Consolas" HorizontalAlignment="Right"/>
+            <TextBlock Text="Martes, 4 De Agosto De 2026" FontSize="14" Foreground="#D1D5DB" HorizontalAlignment="Right"/>
+        </StackPanel>
+        
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            
+            <!-- Logo Section -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,30">
+                <Border Background="#10B981" Width="80" Height="80" CornerRadius="20" HorizontalAlignment="Center" Margin="0,0,0,15">
+                    <TextBlock Text="O" FontSize="48" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="OasisDrinks" FontSize="36" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                <TextBlock Text="Sistema Punto de Venta" FontSize="16" Foreground="#A7F3D0" HorizontalAlignment="Center"/>
             </StackPanel>
-        </Border>
+
+            <!-- Card -->
+            <Border Background="White" CornerRadius="20" Width="550" MinHeight="450" Padding="40">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="40" ShadowDepth="10" Opacity="0.15"/>
+                </Border.Effect>
+                
+                <Grid>
+                    <!-- STATE 1: User List -->
+                    <StackPanel x:Name="UserListPanel">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedUser}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        
+                        <TextBlock Text="SELECCIONA TU PERFIL" FontSize="14" FontWeight="Bold" Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0,0,0,30" LetterSpacing="1"/>
+                        
+                        <ListBox ItemsSource="{Binding AvailableUsers}" SelectedItem="{Binding SelectedUser}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="0,0,0,15"/>
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="border" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="12" Padding="20,15" Cursor="Hand">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- Icon -->
+                                                        <Border Width="48" Height="48" CornerRadius="24" Background="#F3F4F6" Margin="0,0,20,0">
+                                                            <TextBlock Text="👤" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <!-- Text -->
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Username}" FontSize="18" FontWeight="Bold" Foreground="#111827" Margin="0,0,0,4"/>
+                                                            <TextBlock Text="{Binding Role}" FontSize="14" Foreground="#6B7280"/>
+                                                        </StackPanel>
+                                                        <!-- Arrow -->
+                                                        <TextBlock Grid.Column="2" Text=">" FontSize="20" Foreground="#D1D5DB" VerticalAlignment="Center" FontWeight="Bold"/>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="border" Property="BorderBrush" Value="#10B981"/>
+                                                        <Setter TargetName="border" Property="Background" Value="#F0FDF4"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                        
+                        <TextBlock Text="💡 Credenciales de prueba — admin: 1234 · carlos: 0000 · laura: 5678" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+                    </StackPanel>
+
+                    <!-- STATE 2: PIN Entry -->
+                    <Grid x:Name="PinPanel">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedUser}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Grid Grid.Row="0" Margin="0,0,0,40">
+                            <Button Command="{Binding GoBackCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="5">
+                                <TextBlock Text="←" FontSize="24" Foreground="#6B7280" FontWeight="Bold"/>
+                            </Button>
+                            
+                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                <Border Width="40" Height="40" CornerRadius="20" Background="#F3F4F6" Margin="0,0,15,0">
+                                    <TextBlock Text="👤" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedUser.Username}" FontSize="18" FontWeight="Bold" Foreground="#111827"/>
+                                    <TextBlock Text="{Binding SelectedUser.Role}" FontSize="14" Foreground="#6B7280"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Numpad & PIN -->
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center">
+                            <TextBlock Text="Ingresa tu PIN de 4 dígitos" FontSize="14" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                            
+                            <!-- Dots for PIN length -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,30">
+                                
+                                <Ellipse Width="12" Height="12" Margin="8">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#10B981"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="0">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <Ellipse Width="12" Height="12" Margin="8">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#10B981"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="0">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="1">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <Ellipse Width="12" Height="12" Margin="8">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#10B981"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="0">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="1">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="2">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <Ellipse Width="12" Height="12" Margin="8">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#10B981"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="0">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="1">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="2">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Password.Length}" Value="3">
+                                                    <Setter Property="Fill" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="14" Margin="0,0,0,10" HorizontalAlignment="Center" FontWeight="Medium"/>
+                            
+                            <!-- Numpad Grid -->
+                            <Grid Width="300">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Button Grid.Row="0" Grid.Column="0" Content="1" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="1"/>
+                                <Button Grid.Row="0" Grid.Column="1" Content="2" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="2"/>
+                                <Button Grid.Row="0" Grid.Column="2" Content="3" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="3"/>
+                                
+                                <Button Grid.Row="1" Grid.Column="0" Content="4" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="4"/>
+                                <Button Grid.Row="1" Grid.Column="1" Content="5" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="5"/>
+                                <Button Grid.Row="1" Grid.Column="2" Content="6" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="6"/>
+                                
+                                <Button Grid.Row="2" Grid.Column="0" Content="7" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="7"/>
+                                <Button Grid.Row="2" Grid.Column="1" Content="8" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="8"/>
+                                <Button Grid.Row="2" Grid.Column="2" Content="9" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="9"/>
+                                
+                                <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource NumpadButton}" Command="{Binding AppendPinCommand}" CommandParameter="0"/>
+                                <Button Grid.Row="3" Grid.Column="2" Content="⌫" Style="{StaticResource NumpadButton}" Foreground="#EF4444" Background="#FEF2F2" BorderBrush="#FEE2E2" Command="{Binding ClearPinCommand}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+            
+            <TextBlock Text="OasisDrinks POS v2.0 • © 2026" FontSize="12" Foreground="#A7F3D0" HorizontalAlignment="Center" Margin="0,30,0,0"/>
+        </StackPanel>
     </Grid>
 </Window>
