@@ -1,4 +1,4 @@
-<Window x:Class="PosBuilder.Views.SuccessModal"
+content = """<Window x:Class="PosBuilder.Views.SuccessModal"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Generación Completada" Height="800" Width="1300"
@@ -44,3 +44,8 @@
         </StackPanel>
     </Grid>
 </Window>
+"""
+with open('PosBuilder/Views/SuccessModal.xaml', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("SuccessModal replaced.")

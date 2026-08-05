@@ -1,4 +1,4 @@
-<Window x:Class="PosBuilder.MainWindow"
+content = """<Window x:Class="PosBuilder.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PosBuilder"
@@ -8,6 +8,8 @@
         WindowStartupLocation="CenterScreen" Background="#0B1121"
         FontFamily="Segoe UI">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         
         <Style TargetType="Button" x:Key="NavButton">
             <Setter Property="Background" Value="#2563EB"/>
@@ -161,7 +163,7 @@
                             </Border>
                             
                             <!-- Content -->
-                            <StackPanel Grid.Row="1" Margin="15">
+                            <StackPanel Grid.Row="1" Padding="15">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15" HorizontalAlignment="Center">
                                     <Border Background="#2563EB" CornerRadius="4" Padding="10,4" Margin="0,0,5,0">
                                         <TextBlock Text="Venta" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
@@ -240,46 +242,23 @@
                     
                     <!-- Modules Box -->
                     <Border Background="White" CornerRadius="12" Padding="15">
-                        <Border.Resources>
-                            <Style TargetType="Ellipse" x:Key="ModuleStatusIcon">
-                                <Setter Property="Width" Value="12"/>
-                                <Setter Property="Height" Value="12"/>
-                                <Setter Property="Margin" Value="0,0,8,0"/>
-                                <Setter Property="Fill" Value="#E2E8F0"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=Tag}" Value="True">
-                                        <Setter Property="Fill" Value="#10B981"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                            <Style TargetType="TextBlock" x:Key="ModuleStatusText">
-                                <Setter Property="FontSize" Value="12"/>
-                                <Setter Property="Foreground" Value="#94A3B8"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=Tag}" Value="True">
-                                        <Setter Property="Foreground" Value="#334155"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Resources>
                         <StackPanel>
                             <TextBlock Text="Módulos" Foreground="#64748B" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                            
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6" Tag="{Binding ModuleInventory}">
-                                <Ellipse Style="{StaticResource ModuleStatusIcon}"/>
-                                <TextBlock Text="Inventario" Style="{StaticResource ModuleStatusText}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Ellipse Width="12" Height="12" Fill="#10B981" Margin="0,0,8,0"/>
+                                <TextBlock Text="Inventario" Foreground="#334155" FontSize="12"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6" Tag="{Binding ModuleReports}">
-                                <Ellipse Style="{StaticResource ModuleStatusIcon}"/>
-                                <TextBlock Text="Reportes" Style="{StaticResource ModuleStatusText}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Ellipse Width="12" Height="12" Fill="#10B981" Margin="0,0,8,0"/>
+                                <TextBlock Text="Reportes" Foreground="#334155" FontSize="12"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6" Tag="{Binding ModuleCredit}">
-                                <Ellipse Style="{StaticResource ModuleStatusIcon}"/>
-                                <TextBlock Text="Crédito / Vales" Style="{StaticResource ModuleStatusText}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Ellipse Width="12" Height="12" Fill="#E2E8F0" Margin="0,0,8,0"/>
+                                <TextBlock Text="Crédito / Vales" Foreground="#94A3B8" FontSize="12"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Tag="{Binding ModuleMultiStore}">
-                                <Ellipse Style="{StaticResource ModuleStatusIcon}"/>
-                                <TextBlock Text="Multi-Sucursal" Style="{StaticResource ModuleStatusText}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="#E2E8F0" Margin="0,0,8,0"/>
+                                <TextBlock Text="Multi-Sucursal" Foreground="#94A3B8" FontSize="12"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -302,7 +281,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Button Content="&lt; Anterior" Command="{Binding PreviousCommand}" Background="Transparent" Foreground="#94A3B8" FontWeight="SemiBold" Margin="0,0,20,0" Padding="0" Cursor="Hand" Visibility="{Binding CanGoPrevious, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <ProgressBar Value="{Binding CurrentStepIndex}" Maximum="6" Width="300" Height="4" Background="#1E293B" Foreground="#2563EB" BorderThickness="0" VerticalAlignment="Center"/>
-                    <Button Content="Siguiente &gt;" Command="{Binding NextCommand}" Background="#2563EB" Foreground="White" FontWeight="Bold" Padding="15,8" Margin="20,0,0,0" Cursor="Hand" Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
+                    <Button Content="Siguiente &gt;" Command="{Binding NextCommand}" Background="#2563EB" Foreground="White" FontWeight="Bold" Padding="15,8" Margin="20,0,0,0" Cursor="Hand" Visibility="{Binding IsLastStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border Background="{TemplateBinding Background}" CornerRadius="6">
@@ -327,3 +306,7 @@
         <controls:LoadingOverlay x:Name="MainOverlay" Grid.RowSpan="3"/>
     </Grid>
 </Window>
+"""
+with open('PosBuilder/MainWindow.xaml', 'w', encoding='utf-8') as f:
+    f.write(content)
+print("MainWindow.xaml updated")

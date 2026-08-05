@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace PosBuilder.Models
 {
     public class ConfigModel
@@ -22,5 +24,6 @@ namespace PosBuilder.Models
         public string EmployeeUser { get; set; } = "";
         public string EmployeePassword { get; set; } = "";
         public string Environment { get; set; } = "";
+        public List<UserModel> ExtraUsers { get; set; } = new List<UserModel>();
     }
 }

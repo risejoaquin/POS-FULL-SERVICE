@@ -1,4 +1,4 @@
-<UserControl x:Class="PosBuilder.Views.Controls.ColorPickerControl"
+content = """<UserControl x:Class="PosBuilder.Views.Controls.ColorPickerControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -40,4 +40,6 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
     </StackPanel>
-</UserControl>
+</UserControl>"""
+with open('PosBuilder/Views/Controls/ColorPickerControl.xaml', 'w', encoding='utf-8') as f:
+    f.write(content)

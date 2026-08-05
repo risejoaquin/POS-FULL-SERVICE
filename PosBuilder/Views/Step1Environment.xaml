@@ -6,8 +6,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="400">
     <StackPanel Margin="20">
-        <TextBlock Text="Paso 1: Entorno y Comercio" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
-        
         <TextBlock Text="Nombre del Comercio (Tenant)" FontWeight="SemiBold" Margin="0,0,0,5"/>
         <ComboBox ToolTip="Nombre del inquilino (ej: miempresa). Se usa para configurar el aislamiento de datos." Text="{Binding TenantName, UpdateSourceTrigger=PropertyChanged}" IsEditable="True" Padding="8" Margin="0,0,0,15" FontSize="14">
             <ComboBoxItem Content="Mi Tienda"/>
@@ -17,9 +15,19 @@
         
         <TextBlock Text="Tipo de Negocio" FontWeight="SemiBold" Margin="0,0,0,5"/>
         <ComboBox ToolTip="Selecciona el tipo de negocio para generar la base de datos adecuada." Text="{Binding BusinessType, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15" FontSize="14">
-            <ComboBoxItem Content="Retail"/>
-            <ComboBoxItem Content="Hospitality"/>
-            <ComboBoxItem Content="Services"/>
+            <ComboBoxItem Content="Abarrotes / Minimarket"/>
+            <ComboBoxItem Content="Cafetería"/>
+            <ComboBoxItem Content="Ferretería"/>
+            <ComboBoxItem Content="Restaurante / Comida Rápida"/>
+            <ComboBoxItem Content="Boutique / Ropa"/>
+            <ComboBoxItem Content="Farmacia"/>
+            <ComboBoxItem Content="Papelería"/>
+            <ComboBoxItem Content="Zapatería"/>
+            <ComboBoxItem Content="Electrónica / Tecnología"/>
+            <ComboBoxItem Content="Peluquería / Barbería"/>
+            <ComboBoxItem Content="Taller Mecánico"/>
+            <ComboBoxItem Content="Servicios Profesionales"/>
+            <ComboBoxItem Content="Otro"/>
         </ComboBox>
 
         <TextBlock Text="Entorno" FontWeight="SemiBold" Margin="0,0,0,5"/>

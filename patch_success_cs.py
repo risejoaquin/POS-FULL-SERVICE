@@ -1,4 +1,6 @@
-using System;
+import re
+
+content = """using System;
 using System.Diagnostics;
 using System.Windows;
 
@@ -39,3 +41,6 @@ namespace PosBuilder.Views
         }
     }
 }
+"""
+with open('PosBuilder/Views/SuccessModal.xaml.cs', 'w', encoding='utf-8') as f:
+    f.write(content)

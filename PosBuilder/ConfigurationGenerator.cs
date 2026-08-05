@@ -88,6 +88,7 @@ namespace PosBuilder
                 ADMIN_PASSWORD = model.AdminPassword,
                 EMP_USER = model.EmployeeUser,
                 EMP_PASSWORD = model.EmployeePassword,
+                EXTRA_USERS = model.ExtraUsers,
                 TENANT_ID = model.TenantId,
                 BUSINESS_TYPE = model.BusinessType
             };
@@ -96,13 +97,7 @@ namespace PosBuilder
         }
         public string GenerateSqlScript(ConfigModel model)
         {
-            return SqlGenerator.GenerateTenantSql(
-                model.CompanyName, 
-                model.TenantId, 
-                model.AdminUser, 
-                model.AdminPassword, 
-                model.EmployeeUser, 
-                model.EmployeePassword);
+            return SqlGenerator.GenerateTenantSql(model);
         }
 
         public async Task<bool> WriteWithIntegrityValidationAsync(string path, string content, int retries = 3)

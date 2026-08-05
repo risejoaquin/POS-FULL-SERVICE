@@ -1,3 +1,5 @@
+using PosBuilder.Models;
+
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -15,10 +17,21 @@ namespace PosBuilder.ViewModels
         private int _currentStepIndex = 0;
 
         [ObservableProperty]
+        private string _currentStepTitle;
+        
+        [ObservableProperty]
+        private string _currentStepSubTitle;
+
+        [ObservableProperty]
+        private string _currentStepCategory;
+
+
+
+        [ObservableProperty]
         private string _tenantName = "Mi Tienda";
 
         [ObservableProperty]
-        private string _businessType = "Retail";
+        private string _businessType = "Abarrotes / Minimarket";
 
         [ObservableProperty]
         private string _environment = "Development";
@@ -74,8 +87,27 @@ namespace PosBuilder.ViewModels
         [ObservableProperty]
         private string _employeeUser = "cajero";
 
+
         [ObservableProperty]
         private string _employeePassword = "";
+
+        public ObservableCollection<UserModel> ExtraUsers { get; set; } = new ObservableCollection<UserModel>();
+
+        [RelayCommand]
+        public void AddUser()
+        {
+            ExtraUsers.Add(new UserModel { Username = "Nuevo Usuario", Role = "Empleado" });
+        }
+
+        [RelayCommand]
+        public void RemoveUser(UserModel user)
+        {
+            if (user != null && ExtraUsers.Contains(user))
+            {
+                ExtraUsers.Remove(user);
+            }
+        }
+
 
         [ObservableProperty]
         private bool _moduleInventory = true;

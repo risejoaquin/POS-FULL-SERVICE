@@ -64,6 +64,13 @@ namespace PosBuilder
             if (_viewModel.CurrentStepIndex >= 0 && _viewModel.CurrentStepIndex < _steps.Length)
             {
                 StepContentControl.Content = _steps[_viewModel.CurrentStepIndex];
+                
+                var categories = new string[] { "Comercio y API", "Motor y conexión", "JWT & tokens", "Identidad visual", "Cuentas iniciales", "Funcionalidades", "Generar POS" };
+                var titles = new string[] { "Entorno y Comercio", "Base de Datos", "Seguridad JWT", "Branding", "Usuarios Iniciales", "Módulos del Sistema", "Resumen y Generación" };
+                
+                _viewModel.CurrentStepSubTitle = $"PASO {_viewModel.CurrentStepIndex + 1} DE 7";
+                _viewModel.CurrentStepCategory = categories[_viewModel.CurrentStepIndex];
+                _viewModel.CurrentStepTitle = titles[_viewModel.CurrentStepIndex];
             }
 
             foreach (var item in StepIndicators)
@@ -71,17 +78,17 @@ namespace PosBuilder
                 if (item.Index < _viewModel.CurrentStepIndex)
                 {
                     item.Icon = "✔";
-                    item.Color = Brushes.Green;
+                    item.Color = (Brush)new BrushConverter().ConvertFrom("#10B981");
                 }
                 else if (item.Index == _viewModel.CurrentStepIndex)
                 {
-                    item.Icon = "●";
-                    item.Color = Brushes.Blue;
+                    item.Icon = (item.Index + 1).ToString();
+                    item.Color = (Brush)new BrushConverter().ConvertFrom("#3B82F6");
                 }
                 else
                 {
-                    item.Icon = "○";
-                    item.Color = Brushes.Gray;
+                    item.Icon = (item.Index + 1).ToString();
+                    item.Color = (Brush)new BrushConverter().ConvertFrom("#334155");
                 }
             }
         }
@@ -109,12 +116,30 @@ namespace PosBuilder
                 AdminPassword = _viewModel.AdminPassword,
                 EmployeeUser = _viewModel.EmployeeUser,
                 EmployeePassword = _viewModel.EmployeePassword,
+                ExtraUsers = new System.Collections.Generic.List<PosBuilder.Models.UserModel>(_viewModel.ExtraUsers),
                 Environment = _viewModel.Environment
             };
 
             var generator = new ConfigurationGenerator();
             
+
             string outputDir = System.IO.Path.Combine(System.Environment.CurrentDirectory, "Output");
+            
+            if (!System.IO.Directory.Exists(outputDir))
+                System.IO.Directory.CreateDirectory(outputDir);
+
+            if (!string.IsNullOrWhiteSpace(config.LogoPath) && System.IO.File.Exists(config.LogoPath))
+            {
+                try
+                {
+                    string ext = System.IO.Path.GetExtension(config.LogoPath);
+                    string destPath = System.IO.Path.Combine(outputDir, "logo" + ext);
+                    System.IO.File.Copy(config.LogoPath, destPath, true);
+                    config.LogoPath = "logo" + ext; // Set to relative path
+                }
+                catch (Exception) { }
+            }
+
             
             string appSettingsPath = System.IO.Path.Combine(outputDir, "appsettings.json");
             string envPath = System.IO.Path.Combine(outputDir, "railway.env.example");

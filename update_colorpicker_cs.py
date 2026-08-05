@@ -1,4 +1,4 @@
-using System;
+content = """using System;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -119,3 +119,6 @@ namespace PosBuilder.Views.Controls
         public SolidColorBrush Brush { get; set; }
     }
 }
+"""
+with open('PosBuilder/Views/Controls/ColorPickerControl.xaml.cs', 'w', encoding='utf-8') as f:
+    f.write(content)

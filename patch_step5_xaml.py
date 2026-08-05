@@ -1,4 +1,4 @@
-<UserControl x:Class="PosBuilder.Views.Step5Users"
+content = """<UserControl x:Class="PosBuilder.Views.Step5Users"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:models="clr-namespace:PosBuilder.Models">
@@ -128,3 +128,8 @@
         </StackPanel>
     </ScrollViewer>
 </UserControl>
+"""
+with open('PosBuilder/Views/Step5Users.xaml', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Step5Users.xaml updated")
