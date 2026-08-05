@@ -21,7 +21,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="CATÁLOGO DE PRODUCTOS" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" Margin="10,0,0,10" LetterSpacing="1"/>
+            <TextBlock Text="CATÁLOGO DE PRODUCTOS" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" Margin="10,0,0,10"/>
             <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="5,0">
                 <StackPanel Orientation="Horizontal">
                     <Button Content="Todos" Background="#6B7280" Foreground="White" Margin="5,0" Padding="15,6" BorderThickness="0" FontWeight="Bold" FontSize="13">

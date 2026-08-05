@@ -75,7 +75,7 @@
                             </Style>
                         </StackPanel.Style>
                         
-                        <TextBlock Text="SELECCIONA TU PERFIL" FontSize="14" FontWeight="Bold" Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0,0,0,30" LetterSpacing="1"/>
+                        <TextBlock Text="SELECCIONA TU PERFIL" FontSize="14" FontWeight="Bold" Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0,0,0,30"/>
                         
                         <ListBox ItemsSource="{Binding AvailableUsers}" SelectedItem="{Binding SelectedUser}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemContainerStyle>

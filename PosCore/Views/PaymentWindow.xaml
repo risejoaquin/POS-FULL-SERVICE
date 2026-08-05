@@ -45,7 +45,7 @@
                 <TextBlock Text="Total a Cobrar:" FontSize="18" Foreground="#6B7280" FontWeight="SemiBold"/>
                 <TextBlock x:Name="TotalText" Text="$113.68" FontSize="48" FontWeight="Black" Foreground="#111827" Margin="0,0,0,30"/>
                 
-                <TextBlock Text="MÉTODO DE PAGO" FontSize="12" Foreground="#9CA3AF" FontWeight="Bold" LetterSpacing="1" Margin="0,0,0,15"/>
+                <TextBlock Text="MÉTODO DE PAGO" FontSize="12" Foreground="#9CA3AF" FontWeight="Bold" Margin="0,0,0,15"/>
                 
                 <Button x:Name="BtnEfectivo" Content="Efectivo" Background="#10B981" Foreground="White" Height="60" BorderThickness="0" Margin="0,0,0,10" FontWeight="Bold" FontSize="18" Click="BtnPayEfectivo_Click">
                     <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="12"/></Style></Button.Resources>
@@ -67,7 +67,7 @@
                     <DropShadowEffect Color="Black" BlurRadius="20" ShadowDepth="5" Opacity="0.05"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="CANTIDAD RECIBIDA" FontSize="12" Foreground="#9CA3AF" FontWeight="Bold" LetterSpacing="1" HorizontalAlignment="Center"/>
+                    <TextBlock Text="CANTIDAD RECIBIDA" FontSize="12" Foreground="#9CA3AF" FontWeight="Bold" HorizontalAlignment="Center"/>
                     <TextBox x:Name="InputAmountBox" Text="0.00" FontSize="42" FontWeight="Bold" Foreground="#0d4722" BorderThickness="0" Background="Transparent" HorizontalAlignment="Center" Margin="0,10,0,20"/>
                     
                     <Grid Height="250">

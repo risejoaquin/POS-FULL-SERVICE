@@ -34,7 +34,7 @@
 
         
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="ACCIONES RÁPIDAS" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" Margin="5,0,0,10" LetterSpacing="1"/>
+            <TextBlock Text="ACCIONES RÁPIDAS" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" Margin="5,0,0,10"/>
             <Button Command="{Binding OpenShiftCommand}" Background="#EEF2FF" Foreground="#4F46E5" Margin="0,0,0,10" Height="50" BorderThickness="0" Cursor="Hand">
                 <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="10"/></Style></Button.Resources>
                 <Grid Width="250">
@@ -74,7 +74,7 @@
         
         <!-- Shortcuts 3x3 -->
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
-            <TextBlock Text="ATAJOS" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" Margin="5,0,0,5" LetterSpacing="1"/>
+            <TextBlock Text="ATAJOS" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" Margin="5,0,0,5"/>
             <ItemsControl ItemsSource="{Binding Shortcuts}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

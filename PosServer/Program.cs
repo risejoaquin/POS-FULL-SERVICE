@@ -225,6 +225,12 @@ using (var scope = app.Services.CreateScope())
     }
 
     try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"PasswordHash\" text DEFAULT '';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastUpdated\" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;"); } catch (Exception e) { Console.WriteLine("Migration error: " + e.Message); }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"LastUpdated\" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"LastUpdated\" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"LastUpdated\" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"CashRegisterShifts\" ADD COLUMN IF NOT EXISTS \"LastUpdated\" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"ProductModifiers\" ADD COLUMN IF NOT EXISTS \"LastUpdated\" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("UPDATE \"Users\" SET \"PasswordHash\" = crypt(\"Pin\", gen_salt('bf')) WHERE \"Pin\" IS NOT NULL AND \"Pin\" != '';"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" DROP COLUMN IF EXISTS \"Pin\";"); } catch { }

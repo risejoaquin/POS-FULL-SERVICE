@@ -97,10 +97,6 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-
-                            <TextBlock Text="{Binding CurrentUser.Role, TargetNullValue='Administrador'}" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="14"/>
-                        </StackPanel>
-                    </Border>
                 </StackPanel>
             </Grid>
         </Border>
