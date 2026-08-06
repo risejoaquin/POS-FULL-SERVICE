@@ -28,19 +28,30 @@ public partial class LoginViewModel : ObservableObject
 
     private readonly PosCore.Data.PosDbContext _dbContext;
 
-    public LoginViewModel(IApiService apiService, SessionManager sessionManager, PosCore.Data.PosDbContext dbContext)
+    [ObservableProperty]
+    private string _companyName = "POS Express";
+
+    [ObservableProperty]
+    private string _logoPath = "";
+
+    public LoginViewModel(IApiService apiService, SessionManager sessionManager, PosCore.Data.PosDbContext dbContext, Microsoft.Extensions.Options.IOptions<PosCore.Models.AppSettings> appSettings)
     {
         _apiService = apiService;
         _sessionManager = sessionManager;
         _dbContext = dbContext;
+        var settings = appSettings.Value;
+        _companyName = settings.WhiteLabel.CompanyName;
+        _logoPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, settings.WhiteLabel.LogoPath);
     }
 
     [RelayCommand]
     private async Task LoginAsync()
     {
+        Serilog.Log.Information("LoginAsync called. User: {User}, PasswordLength: {Len}", Username, Password?.Length ?? 0);
         if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
         {
             ErrorMessage = "Ingrese usuario y contraseña";
+            Serilog.Log.Warning("Login failed locally: empty fields");
             return;
         }
 

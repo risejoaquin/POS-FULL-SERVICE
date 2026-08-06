@@ -19,7 +19,10 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<PosServer.Services.ITenantService, PosServer.Services.TenantService>();
 
@@ -224,16 +227,13 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"DB Init Error: {ex.Message}");
     }
 
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"PasswordHash\" text DEFAULT '';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN \"PasswordHash\" text DEFAULT '';"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); } catch { }
     try { dbContext.Database.ExecuteSqlRaw("UPDATE \"Users\" SET \"PasswordHash\" = crypt(\"Pin\", gen_salt('bf')) WHERE \"Pin\" IS NOT NULL AND \"Pin\" != '';"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" DROP COLUMN IF EXISTS \"Pin\";"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" jsonb DEFAULT '{}';"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ALTER COLUMN \"CustomAttributes\" TYPE jsonb USING \"CustomAttributes\"::text::jsonb;"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" jsonb DEFAULT '{}';"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ALTER COLUMN \"CustomAttributes\" TYPE jsonb USING \"CustomAttributes\"::text::jsonb;"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"CustomAttributes\" jsonb DEFAULT '{}';"); } catch { }
-    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ALTER COLUMN \"CustomAttributes\" TYPE jsonb USING \"CustomAttributes\"::text::jsonb;"); } catch { }
+    // try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" DROP COLUMN \"Pin\";"); } catch { } // SQLite has issues dropping columns
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Products\" ADD COLUMN \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
+    try { dbContext.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN \"CustomAttributes\" text DEFAULT '{}';"); } catch { }
     
     // Auto-seed users from environment variables if table is empty
     if (!dbContext.Users.IgnoreQueryFilters().Any())

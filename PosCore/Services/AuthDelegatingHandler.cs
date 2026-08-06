@@ -33,6 +33,11 @@ public class AuthDelegatingHandler : DelegatingHandler
         var response = await base.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
+            if (request.RequestUri != null && request.RequestUri.AbsolutePath.EndsWith("login", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return response;
+            }
+
             _sessionManager.ClearSession();
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {

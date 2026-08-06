@@ -23,7 +23,7 @@
         <KeyBinding Key="F8" Command="{Binding OpenInventoryCommand}" />
     </Window.InputBindings>
 
-    <Grid Background="#F3F4F6">
+    <Grid Background="{StaticResource BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="60"/>
@@ -37,7 +37,7 @@
             </Grid.ColumnDefinitions>
             
             <!-- Columna 0: Búsqueda y Productos -->
-            <controls:ProductsPanelControl Grid.Column="0" Margin="0" />
+            <controls:ProductsPanelControl x:Name="ProductsPanel" Grid.Column="0" Margin="0" />
             
             <!-- Columna 1: Carrito de Compra -->
             <controls:CartPanelControl Grid.Column="1" Margin="0" />

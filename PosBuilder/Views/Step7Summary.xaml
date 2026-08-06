@@ -11,14 +11,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Información General" FontWeight="Bold" Margin="0,0,0,10" Foreground="#3B82F6"/>
+                    <TextBlock Text="Información General" FontWeight="Bold" Margin="0,0,0,10" Foreground="{StaticResource PrimaryBrush}"/>
                     <TextBlock Text="{Binding TenantName, StringFormat='Comercio: {0}'}" FontSize="14" Margin="0,0,0,5"/>
                     <TextBlock Text="{Binding Environment, StringFormat='Entorno: {0}'}" FontSize="14" Margin="0,0,0,5"/>
                     <TextBlock Text="{Binding ApiUrl, StringFormat='API URL: {0}'}" FontSize="14" Margin="0,0,0,5" TextTrimming="CharacterEllipsis" MaxWidth="200" HorizontalAlignment="Left" ToolTip="{Binding ApiUrl}"/>
                     <TextBlock Text="{Binding BrandingName, StringFormat='Nombre POS: {0}'}" FontSize="14" Margin="0,0,0,5"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
-                    <TextBlock Text="Configuración Técnica" FontWeight="Bold" Margin="0,0,0,10" Foreground="#3B82F6"/>
+                    <TextBlock Text="Configuración Técnica" FontWeight="Bold" Margin="0,0,0,10" Foreground="{StaticResource PrimaryBrush}"/>
                     <TextBlock Text="{Binding DbType, StringFormat='Base de Datos: {0}'}" FontSize="14" Margin="0,0,0,5"/>
                     <TextBlock Text="Usuarios: Administrador, Empleado" FontSize="14" Margin="0,0,0,5"/>
                     <TextBlock Text="Seguridad: JWT Configurado" FontSize="14" Margin="0,0,0,5"/>

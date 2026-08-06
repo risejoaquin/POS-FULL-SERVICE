@@ -7,7 +7,7 @@
         <TextBox ToolTip="Nombre de la marca o empresa que aparecerá en el POS." Text="{Binding BrandingName, UpdateSourceTrigger=PropertyChanged}" Padding="15,12" Margin="0,0,0,25" FontSize="14" BorderBrush="#E2E8F0" BorderThickness="1">
             <TextBox.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="6"/>
+                    <Setter Property="CornerRadius" Value="8"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>

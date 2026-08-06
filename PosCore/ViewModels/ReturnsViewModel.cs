@@ -20,6 +20,10 @@ public partial class ReturnsViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<Order> _recentOrders = new();
 
+    [ObservableProperty]
+    private string _notificationMessage = string.Empty;
+
+
     public ReturnsViewModel(PosDbContext dbContext, TicketPrinterService ticketPrinterService)
     {
         _dbContext = dbContext;
@@ -56,6 +60,10 @@ public partial class ReturnsViewModel : ObservableObject
         {
             RecentOrders.Add(o);
         }
+
+        NotificationMessage = "Lista actualizada: " + DateTime.Now.ToString("HH:mm:ss");
+        await Task.Delay(3000);
+        if (NotificationMessage.StartsWith("Lista actualizada")) NotificationMessage = string.Empty;
     }
 
 

@@ -10,27 +10,27 @@
         WindowStartupLocation="CenterOwner">
         <Window.Resources>
     </Window.Resources>
-    <Grid Background="#F3F4F6">
+    <Grid Background="{StaticResource BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="White" Padding="20" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Devoluciones de Órdenes" FontSize="24" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Command="{Binding LoadOrdersCommand}" Content="Actualizar Lista" Padding="15,8" Background="#3B82F6" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <TextBlock Text="Devoluciones de Órdenes" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"><TextBlock Text="{Binding NotificationMessage}" Foreground="{StaticResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/><Button Command="{Binding LoadOrdersCommand}" Content="Actualizar Lista" Padding="15,8" Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0" Cursor="Hand"/></StackPanel>
             </Grid>
         </Border>
 
         <!-- Orders List -->
-        <Border Grid.Row="1" Margin="20" Background="White" CornerRadius="8" Padding="20">
-            <DataGrid ItemsSource="{Binding RecentOrders}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" Background="Transparent" BorderThickness="0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB">
+        <Border Grid.Row="1" Margin="20" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="20">
+            <DataGrid ItemsSource="{Binding RecentOrders}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" Background="Transparent" BorderThickness="0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}">
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#F9FAFB"/>
@@ -54,10 +54,10 @@
                 
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate>
-                        <Border Background="#F9FAFB" Padding="15" Margin="5" CornerRadius="4" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <Border Background="{StaticResource BackgroundBrush}" Padding="15" Margin="5" CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Artículos de la Orden:" FontWeight="Bold" Margin="0,0,0,10" Foreground="#374151"/>
-                                <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F3F4F6">
+                                <TextBlock Text="Artículos de la Orden:" FontWeight="Bold" Margin="0,0,0,10" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Producto" Binding="{Binding Product.Name}" Width="2*"/>
                                         <DataGridTextColumn Header="Cant." Binding="{Binding Quantity}" Width="*"/>
@@ -67,10 +67,10 @@
                                 </DataGrid>
                                 
                                 <StackPanel Orientation="Horizontal" Margin="0,15,0,0" Visibility="{Binding IsReturned, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock Text="Motivo de Devolución: " FontWeight="SemiBold" Foreground="#991B1B"/>
-                                    <TextBlock Text="{Binding ReturnReason}" Foreground="#991B1B" Margin="0,0,20,0"/>
-                                    <TextBlock Text="Autorizado por: " FontWeight="SemiBold" Foreground="#991B1B"/>
-                                    <TextBlock Text="{Binding AuthorizedBy}" Foreground="#991B1B"/>
+                                    <TextBlock Text="Motivo de Devolución: " FontWeight="SemiBold" Foreground="{StaticResource ErrorBrush}"/>
+                                    <TextBlock Text="{Binding ReturnReason}" Foreground="{StaticResource ErrorBrush}" Margin="0,0,20,0"/>
+                                    <TextBlock Text="Autorizado por: " FontWeight="SemiBold" Foreground="{StaticResource ErrorBrush}"/>
+                                    <TextBlock Text="{Binding AuthorizedBy}" Foreground="{StaticResource ErrorBrush}"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -85,8 +85,8 @@
                     <DataGridTemplateColumn Header="Estado" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border Padding="8,4" CornerRadius="4" HorizontalAlignment="Left" x:Name="StatusBorder" Background="#D1FAE5">
-                                    <TextBlock x:Name="StatusText" Text="Completada" Foreground="#065F46" FontWeight="Medium"/>
+                                <Border Padding="8,4" CornerRadius="8" HorizontalAlignment="Left" x:Name="StatusBorder" Background="#D1FAE5">
+                                    <TextBlock x:Name="StatusText" Text="Completada" Foreground="{StaticResource SuccessBrush}" FontWeight="Medium"/>
                                 </Border>
                                 
                                 <DataTemplate.Triggers>
@@ -109,21 +109,21 @@
                                     <Button x:Name="BtnReturn" Content="Devolver Todo" 
                                             Command="{Binding DataContext.ReturnOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                             CommandParameter="{Binding}"
-                                            Padding="10,6" Background="#EF4444" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Margin="0,0,5,0"/>
+                                            Padding="10,6" Background="{StaticResource ErrorBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Margin="0,0,5,0"/>
                                     <Button x:Name="BtnPartialReturn" Content="Devolver Parcial" 
                                             Command="{Binding DataContext.PartialReturnOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                             CommandParameter="{Binding}"
-                                            Padding="10,6" Background="#F59E0B" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Margin="0,0,5,0"/>
+                                            Padding="10,6" Background="{StaticResource WarningBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Margin="0,0,5,0"/>
                                     
                                     <Button x:Name="BtnReprint" Content="Ticket" 
                                             Command="{Binding DataContext.ReprintOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                             CommandParameter="{Binding}"
-                                            Padding="10,6" Background="#3B82F6" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Margin="0,0,5,0"/>
+                                            Padding="10,6" Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Margin="0,0,5,0"/>
                                     
-                                    <Button x:Name="BtnReprintReturn" Content="Nota Crédito" 
+                                    <Button x:Name="BtnReprintReturn" Content="Nota de Crédito" 
                                             Command="{Binding DataContext.ReprintReturnCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                             CommandParameter="{Binding}"
-                                            Padding="10,6" Background="#8B5CF6" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Visibility="Collapsed"/>
+                                            Padding="10,6" Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Visibility="Collapsed"/>
                                 </StackPanel>
 
                                 

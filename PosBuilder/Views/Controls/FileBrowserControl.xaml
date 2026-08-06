@@ -33,7 +33,7 @@
                 </StackPanel>
                 
                 <StackPanel x:Name="LoadingState" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
-                    <ProgressBar x:Name="LoadingProgress" IsIndeterminate="True" Width="150" Height="4" Margin="0,0,0,10" Foreground="#3B82F6"/>
+                    <ProgressBar x:Name="LoadingProgress" IsIndeterminate="True" Width="150" Height="4" Margin="0,0,0,10" Foreground="{StaticResource PrimaryBrush}"/>
                     <TextBlock Text="Procesando archivo..." Foreground="#64748B" FontSize="12" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>

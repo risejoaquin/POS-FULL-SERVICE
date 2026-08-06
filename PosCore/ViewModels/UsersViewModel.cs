@@ -29,9 +29,12 @@ public partial class UsersViewModel : ObservableObject
 
     public ObservableCollection<string> Roles { get; } = new ObservableCollection<string> { "Cashier", "Admin" };
 
-    public UsersViewModel(PosDbContext dbContext)
+    private readonly PosCore.Services.SessionManager _sessionManager;
+
+    public UsersViewModel(PosDbContext dbContext, PosCore.Services.SessionManager sessionManager)
     {
         _dbContext = dbContext;
+        _sessionManager = sessionManager;
         LoadUsers();
     }
 
@@ -53,7 +56,7 @@ public partial class UsersViewModel : ObservableObject
         
         if (NewPin.Length < 4)
         {
-            MessageBox.Show("El PIN debe tener al menos 4 dígitos.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("La contraseña debe tener al menos 4 dígitos.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -119,8 +122,12 @@ public partial class UsersViewModel : ObservableObject
     private void ResetPin(User user)
     {
         if (user == null) return;
-        var dialog = new PosCore.Views.ManagerOverrideWindow("Restablecer PIN de usuario", _dbContext);
-        if (dialog.ShowDialog() == true && dialog.IsAuthorized)
+        bool authorized = _sessionManager.Role == "Admin";
+        if (!authorized) {
+            var dialog = new PosCore.Views.ManagerOverrideWindow("Restablecer Contraseña de usuario", _dbContext);
+            authorized = dialog.ShowDialog() == true && dialog.IsAuthorized;
+        }
+        if (authorized)
         {
             user.Pin = "1234";
             _dbContext.Users.Update(user);
@@ -128,7 +135,7 @@ public partial class UsersViewModel : ObservableObject
             _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "UserUpdated", Payload = System.Text.Json.JsonSerializer.Serialize(user, jsonOptions), CreatedAt = DateTime.Now });
             _dbContext.SaveChanges();
             LoadUsers();
-            MessageBox.Show($"El PIN de {user.Username} ha sido restablecido a '1234'.", "PIN Restablecido", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"La contraseña de {user.Username} ha sido restablecido a '1234'.", "Contraseña Restablecida", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 

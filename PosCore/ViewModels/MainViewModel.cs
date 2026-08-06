@@ -226,6 +226,11 @@ public partial class MainViewModel : ObservableObject
             var lowerQuery = SearchQuery.ToLower();
             query = query.Where(p => p.Name.ToLower().Contains(lowerQuery) || p.Barcode.ToLower().Contains(lowerQuery));
         }
+        
+        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Todas")
+        {
+            query = query.Where(p => p.Category == SelectedCategory);
+        }
 
         var allProducts = await DbContext.Products.ToListAsync();
         

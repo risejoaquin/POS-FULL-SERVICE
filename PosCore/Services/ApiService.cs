@@ -14,7 +14,8 @@ public class ApiService : IApiService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
     };
 
     public ApiService(HttpClient httpClient, IOptions<AppSettings> settings)

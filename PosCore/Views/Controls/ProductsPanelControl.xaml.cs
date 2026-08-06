@@ -12,6 +12,12 @@ namespace PosCore.Views.Controls
             InitializeComponent();
         }
 
+        public void FocusSearch()
+        {
+            SearchBox.Focus();
+            SearchBox.SelectAll();
+        }
+
         private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)

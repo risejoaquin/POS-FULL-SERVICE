@@ -31,6 +31,12 @@ namespace PosCore.Views
         
         private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.F1)
+            {
+                ProductsPanel.FocusSearch();
+                e.Handled = true;
+                return;
+            }
             if (Keyboard.Modifiers == ModifierKeys.Alt)
             {
                 int index = -1;

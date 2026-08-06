@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Reportes Avanzados" Height="750" Width="1000" WindowStartupLocation="CenterOwner" Background="#F3F4F6">
+        Title="Reportes Avanzados" Height="750" Width="1000" WindowStartupLocation="CenterOwner" Background="{StaticResource BackgroundBrush}">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -22,18 +22,18 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
-            <TextBlock Text="Reportes Avanzados" FontSize="28" FontWeight="Bold" Foreground="#1F2937" VerticalAlignment="Center"/>
+            <TextBlock Text="Reportes Avanzados" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
             
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="Desde:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="#4B5563"/>
-                <DatePicker SelectedDate="{Binding StartDate}" Width="110" Margin="0,0,15,0" Background="White"/>
+                <TextBlock Text="Desde:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                <DatePicker SelectedDate="{Binding StartDate}" Width="110" Margin="0,0,15,0" Background="{StaticResource SurfaceBrush}"/>
                 
-                <TextBlock Text="Hasta:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="#4B5563"/>
-                <DatePicker SelectedDate="{Binding EndDate}" Width="110" Margin="0,0,15,0" Background="White"/>
+                <TextBlock Text="Hasta:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                <DatePicker SelectedDate="{Binding EndDate}" Width="110" Margin="0,0,15,0" Background="{StaticResource SurfaceBrush}"/>
                 
-                <Button Content="Filtrar" Command="{Binding LoadDataCommand}" Width="80" Padding="5,8" Background="#10B981" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
-                <Button Content="Excel" Command="{Binding ExportToCsvCommand}" Width="60" Padding="5,8" Background="#3B82F6" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
-                <Button Content="PDF" Command="{Binding ExportEndOfDayPdfCommand}" Width="60" Padding="5,8" Background="#EF4444" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Filtrar" Command="{Binding LoadDataCommand}" Width="80" Padding="5,8" Background="{StaticResource SuccessBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
+                <Button Content="Excel" Command="{Binding ExportToCsvCommand}" Width="60" Padding="5,8" Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
+                <Button Content="PDF" Command="{Binding ExportEndOfDayPdfCommand}" Width="60" Padding="5,8" Background="{StaticResource ErrorBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
             </StackPanel>
         </Grid>
         
@@ -44,17 +44,17 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,10,0">
+            <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,10,0">
                 <StackPanel>
-                    <TextBlock Text="Ingresos del Periodo" FontSize="16" Foreground="#6B7280"/>
-                    <TextBlock Text="{Binding PeriodTotalRevenue, StringFormat={}{0:C}}" FontSize="28" FontWeight="Bold" Foreground="#10B981" Margin="0,5,0,0"/>
+                    <TextBlock Text="Ingresos del Periodo" FontSize="16" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding PeriodTotalRevenue, StringFormat={}{0:C}}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
             
-            <Border Grid.Column="1" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="20" Margin="10,0,0,0">
+            <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="10,0,0,0">
                 <StackPanel>
-                    <TextBlock Text="Órdenes del Periodo" FontSize="16" Foreground="#6B7280"/>
-                    <TextBlock Text="{Binding PeriodTotalOrders}" FontSize="28" FontWeight="Bold" Foreground="#3B82F6" Margin="0,5,0,0"/>
+                    <TextBlock Text="Órdenes del Periodo" FontSize="16" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding PeriodTotalOrders}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -82,15 +82,15 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Background="#10B981" Width="30" VerticalAlignment="Bottom" Height="{Binding ChartHeight}" CornerRadius="4,4,0,0" />
-                                    <TextBlock Grid.Row="1" Text="{Binding Date, StringFormat='dd/MM'}" HorizontalAlignment="Center" Margin="0,5,0,0" FontSize="11" Foreground="#6B7280"/>
+                                    <Border Background="{StaticResource SuccessBrush}" Width="30" VerticalAlignment="Bottom" Height="{Binding ChartHeight}" CornerRadius="4,4,0,0" />
+                                    <TextBlock Grid.Row="1" Text="{Binding Date, StringFormat='dd/MM'}" HorizontalAlignment="Center" Margin="0,5,0,0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding DailySales}" AutoGenerateColumns="False" IsReadOnly="True"
-                              Background="White" RowHeight="40" AlternatingRowBackground="#F9FAFB" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB" HeadersVisibility="Column" BorderBrush="#E5E7EB" BorderThickness="1">
+                              Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Fecha" Binding="{Binding Date, StringFormat='dd/MM/yyyy'}" Width="*"/>
                             <DataGridTextColumn Header="Órdenes" Binding="{Binding TotalOrders}" Width="*"/>
@@ -103,7 +103,7 @@
             
             <TabItem Header="Productos Más Vendidos" FontSize="16">
                 <DataGrid ItemsSource="{Binding TopProducts}" AutoGenerateColumns="False" IsReadOnly="True" Margin="4,10,4,0"
-                          Background="White" RowHeight="40" AlternatingRowBackground="#F9FAFB" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB" HeadersVisibility="Column" BorderBrush="#E5E7EB" BorderThickness="1">
+                          Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Producto" Binding="{Binding ProductName}" Width="2*"/>
                         <DataGridTextColumn Header="Cantidad Vendida" Binding="{Binding QuantitySold}" Width="*"/>
@@ -114,7 +114,7 @@
 
             <TabItem Header="Métodos de Pago" FontSize="16">
                 <DataGrid ItemsSource="{Binding PaymentMethods}" AutoGenerateColumns="False" IsReadOnly="True" Margin="4,10,4,0"
-                          Background="White" RowHeight="40" AlternatingRowBackground="#F9FAFB" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB" HeadersVisibility="Column" BorderBrush="#E5E7EB" BorderThickness="1">
+                          Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Método" Binding="{Binding Method}" Width="2*"/>
                         <DataGridTextColumn Header="Transacciones" Binding="{Binding TransactionCount}" Width="*"/>
@@ -125,7 +125,7 @@
 
             <TabItem Header="Historial de Arqueos" FontSize="16">
                 <DataGrid ItemsSource="{Binding ShiftHistory}" AutoGenerateColumns="False" IsReadOnly="True" Margin="4,10,4,0"
-                          Background="White" RowHeight="40" AlternatingRowBackground="#F9FAFB" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB" HeadersVisibility="Column" BorderBrush="#E5E7EB" BorderThickness="1">
+                          Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Apertura" Binding="{Binding OpenedAt, StringFormat='dd/MM/yyyy HH:mm'}" Width="*"/>
                         <DataGridTextColumn Header="Cierre" Binding="{Binding ClosedAt, StringFormat='dd/MM/yyyy HH:mm'}" Width="*"/>
@@ -138,7 +138,7 @@
 
             <TabItem Header="Movimientos de Caja" FontSize="16">
                 <DataGrid ItemsSource="{Binding CashMovements}" AutoGenerateColumns="False" IsReadOnly="True" Margin="4,10,4,0"
-                          Background="White" RowHeight="40" AlternatingRowBackground="#F9FAFB" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB" HeadersVisibility="Column" BorderBrush="#E5E7EB" BorderThickness="1">
+                          Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Fecha" Binding="{Binding CreatedAt, StringFormat='dd/MM/yyyy HH:mm'}" Width="*"/>
                         <DataGridTextColumn Header="Tipo" Binding="{Binding Type}" Width="*"/>
@@ -150,7 +150,7 @@
             
             <TabItem Header="Alerta: Bajo Stock" FontSize="16">
                 <DataGrid ItemsSource="{Binding LowStockProducts}" AutoGenerateColumns="False" IsReadOnly="True" Margin="4,10,4,0"
-                          Background="White" RowHeight="40" AlternatingRowBackground="#FEF2F2" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7EB" HeadersVisibility="Column" BorderBrush="#E5E7EB" BorderThickness="1">
+                          Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="#FEF2F2" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Código" Binding="{Binding Barcode}" Width="*"/>
                         <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="2*"/>

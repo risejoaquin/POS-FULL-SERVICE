@@ -3,35 +3,36 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PosCore.Views"
+        xmlns:local="clr-namespace:PosCore.Views" xmlns:helpers="clr-namespace:PosCore.Helpers"
         mc:Ignorable="d"
-        Title="Iniciar Sesión - POS Express" Height="450" Width="450" 
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#F3F4F6">
+        Title="{Binding CompanyName, StringFormat='Iniciar Sesión - {0}'}" Height="450" Width="450" 
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
     </Window.Resources>
     
     <Grid>
-        <Border Background="White" CornerRadius="12" Margin="30" Padding="30" BorderBrush="#E5E7EB" BorderThickness="1">
+        <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Margin="30" Padding="30" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
             <Border.Effect>
-                <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="2" Opacity="0.05" />
+                <DropShadowEffect Color="#020617" BlurRadius="16" ShadowDepth="4" Opacity="0.06" Direction="270" />
             </Border.Effect>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Bienvenido a POS" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="#1F2937"/>
-                <TextBlock Text="Ingrese sus credenciales para continuar" FontSize="14" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                <Image Source="{Binding LogoPath}" MaxHeight="60" Margin="0,0,0,10" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding CompanyName, StringFormat='Bienvenido a {0}'}" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Ingrese sus credenciales para continuar" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,30"/>
                 
-                <TextBlock Text="Usuario" FontSize="14" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8"/>
+                <TextBlock Text="Usuario" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
                 <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Height="45" Margin="0,0,0,20" Padding="12,0" FontSize="16" 
-                         BorderBrush="#D1D5DB" BorderThickness="1" Background="#F9FAFB" Foreground="#111827" VerticalContentAlignment="Center"/>
+                         BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextPrimaryBrush}" VerticalContentAlignment="Center"/>
                 
-                <TextBlock Text="Contraseña / PIN" FontSize="14" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8"/>
-                <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Height="45" Margin="0,0,0,20" Padding="12,0" FontSize="16" 
-                         BorderBrush="#D1D5DB" BorderThickness="1" Background="#F9FAFB" Foreground="#111827" VerticalContentAlignment="Center"/>
+                <TextBlock Text="Contraseña" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                <PasswordBox helpers:PasswordBoxHelper.BindPassword="True" helpers:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="45" Margin="0,0,0,20" Padding="12,0" FontSize="16" 
+                         BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextPrimaryBrush}" VerticalContentAlignment="Center"/>
                 
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="14" Margin="0,0,0,20" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Medium"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource ErrorBrush}" FontSize="14" Margin="0,0,0,20" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Medium"/>
                 
-                <Button Content="Iniciar Sesión" Command="{Binding LoginCommand}" Height="50" Background="#3B82F6" Foreground="White" FontSize="16" FontWeight="Bold" BorderThickness="0" Cursor="Hand" />
+                <Button Content="Iniciar Sesión" Command="{Binding LoginCommand}" Height="50" Background="{StaticResource PrimaryBrush}" Foreground="White" FontSize="16" FontWeight="Bold" BorderThickness="0" Cursor="Hand" />
                 
-                <ProgressBar IsIndeterminate="True" Height="4" Margin="0,20,0,0" Foreground="#3B82F6" Background="#E5E7EB" BorderThickness="0" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <ProgressBar IsIndeterminate="True" Height="4" Margin="0,20,0,0" Foreground="{StaticResource PrimaryBrush}" Background="{StaticResource BorderBrush}" BorderThickness="0" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StackPanel>
         </Border>
     </Grid>

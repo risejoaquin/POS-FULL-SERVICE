@@ -189,6 +189,7 @@ public partial class InventoryViewModel : ObservableObject
         if (EditingProduct != null)
         {
             EditingProduct.Barcode = "GEN-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            OnPropertyChanged(nameof(EditingProduct));
         }
     }
 

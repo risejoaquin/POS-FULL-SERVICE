@@ -18,7 +18,7 @@ namespace PosBuilder.Views
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Application.Current.Shutdown();
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)

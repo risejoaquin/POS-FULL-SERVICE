@@ -168,7 +168,8 @@ namespace PosBuilder
                         AdminUsername = config.AdminUser,
                         AdminPassword = config.AdminPassword,
                         EmpUsername = config.EmployeeUser,
-                        EmpPassword = config.EmployeePassword
+                        EmpPassword = config.EmployeePassword,
+                        ExtraUsers = config.ExtraUsers
                     };
                     client.DefaultRequestHeaders.Add("X-Tenant-Id", config.TenantId);
                     var response = await client.PostAsJsonAsync("api/auth/provision", payload);

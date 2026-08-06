@@ -20,7 +20,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                         </Border>
                     </ControlTemplate>
@@ -43,7 +43,7 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <Border Grid.Row="0" Background="#111827" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{StaticResource TextPrimaryBrush}" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
             <Grid Margin="20,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Path Data="M 2,4 L 18,4 L 18,16 L 2,16 Z" Fill="#3B82F6" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
@@ -68,7 +68,7 @@
             </Grid.ColumnDefinitions>
             
             <!-- Left Sidebar -->
-            <Border Grid.Column="0" Background="#111827" BorderBrush="#1E293B" BorderThickness="0,0,1,0" Padding="15,20">
+            <Border Grid.Column="0" Background="{StaticResource TextPrimaryBrush}" BorderBrush="#1E293B" BorderThickness="0,0,1,0" Padding="15,20">
                 <ItemsControl x:Name="StepList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -83,7 +83,7 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <Border Width="24" Height="24" CornerRadius="12" Background="{Binding Color}" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Border Width="24" Height="24" CornerRadius="8" Background="{Binding Color}" Margin="0,0,12,0" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Icon}" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
@@ -121,16 +121,16 @@
                     
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock Text="{Binding CurrentStepSubTitle}" Foreground="#64748B" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <Border Background="#1E3A8A" CornerRadius="12" Padding="10,4">
+                        <Border Background="#1E3A8A" CornerRadius="8" Padding="10,4">
                             <TextBlock Text="{Binding CurrentStepCategory}" Foreground="#60A5FA" FontSize="11" FontWeight="Bold"/>
                         </Border>
                     </StackPanel>
                     
                     <TextBlock Grid.Row="1" Text="{Binding CurrentStepTitle}" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,25"/>
                     
-                    <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="30" VerticalAlignment="Top">
+                    <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="30" VerticalAlignment="Top">
                         <Border.Effect>
-                            <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="15" ShadowDepth="4"/>
+                            <DropShadowEffect Color="#020617" BlurRadius="16" ShadowDepth="4" Opacity="0.06" Direction="270" />
                         </Border.Effect>
                         <ContentControl x:Name="StepContentControl" />
                     </Border>
@@ -143,7 +143,7 @@
                     <TextBlock Text="VISTA PREVIA EN TIEMPO REAL" FontSize="12" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,15"/>
                     
                     <!-- Mobile Preview Mock -->
-                    <Border Background="White" CornerRadius="12" Padding="0" Margin="0,0,0,15" ClipToBounds="True">
+                    <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="0" Margin="0,0,0,15" ClipToBounds="True">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -163,13 +163,13 @@
                             <!-- Content -->
                             <StackPanel Grid.Row="1" Margin="15">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15" HorizontalAlignment="Center">
-                                    <Border Background="#2563EB" CornerRadius="4" Padding="10,4" Margin="0,0,5,0">
+                                    <Border Background="#2563EB" CornerRadius="8" Padding="10,4" Margin="0,0,5,0">
                                         <TextBlock Text="Venta" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
                                     </Border>
-                                    <Border Background="#F1F5F9" CornerRadius="4" Padding="10,4" Margin="0,0,5,0">
+                                    <Border Background="#F1F5F9" CornerRadius="8" Padding="10,4" Margin="0,0,5,0">
                                         <TextBlock Text="Caja" Foreground="#64748B" FontSize="11" FontWeight="SemiBold"/>
                                     </Border>
-                                    <Border Background="#F1F5F9" CornerRadius="4" Padding="10,4">
+                                    <Border Background="#F1F5F9" CornerRadius="8" Padding="10,4">
                                         <TextBlock Text="Inventario" Foreground="#64748B" FontSize="11" FontWeight="SemiBold"/>
                                     </Border>
                                 </StackPanel>
@@ -214,7 +214,7 @@
                     </Border>
                     
                     <!-- Config Box -->
-                    <Border Background="White" CornerRadius="12" Padding="15" Margin="0,0,0,10">
+                    <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="15" Margin="0,0,0,10">
                         <StackPanel>
                             <TextBlock Text="Configuración" Foreground="#64748B" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,10"/>
                             
@@ -239,7 +239,7 @@
                     </Border>
                     
                     <!-- Modules Box -->
-                    <Border Background="White" CornerRadius="12" Padding="15">
+                    <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="15">
                         <Border.Resources>
                             <Style TargetType="Ellipse" x:Key="ModuleStatusIcon">
                                 <Setter Property="Width" Value="12"/>
@@ -289,7 +289,7 @@
         </Grid>
         
         <!-- Footer -->
-        <Border Grid.Row="2" Background="#111827" BorderBrush="#1E293B" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Background="{StaticResource TextPrimaryBrush}" BorderBrush="#1E293B" BorderThickness="0,1,0,0">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/>
@@ -305,7 +305,7 @@
                     <Button Content="Siguiente &gt;" Command="{Binding NextCommand}" Background="#2563EB" Foreground="White" FontWeight="Bold" Padding="15,8" Margin="20,0,0,0" Cursor="Hand" Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="8">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                                 </Border>
                             </ControlTemplate>
@@ -314,7 +314,7 @@
                     <Button Content="Generar POS" Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}" Background="#2563EB" Foreground="White" FontWeight="Bold" Padding="15,8" Margin="20,0,0,0" Cursor="Hand" Click="Generate_Click">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="8">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                                 </Border>
                             </ControlTemplate>
