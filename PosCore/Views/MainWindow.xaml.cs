@@ -25,6 +25,20 @@ namespace PosCore.Views
         public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
+        if (DataContext is ViewModels.MainViewModel vm)
+        {
+            vm.OnFocusSearchRequested += () => 
+            {
+                // We need to find the SearchBox inside ProductsPanel
+                var searchBox = ProductsPanel.FindName("SearchBox") as System.Windows.Controls.TextBox;
+                if (searchBox != null)
+                {
+                    searchBox.Focus();
+                    searchBox.SelectAll();
+                }
+            };
+        }
+
             DataContext = viewModel;
         }
 

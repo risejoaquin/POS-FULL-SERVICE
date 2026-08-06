@@ -1,0 +1,41 @@
+<Window x:Class="PosCore.Views.ProductModifiersConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configurar Modificadores" Height="600" Width="800"
+        WindowStartupLocation="CenterOwner" Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Text="Grupos de Modificadores Disponibles" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,15"/>
+        
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <GroupBox Header="Modificadores Globales" Grid.Column="0">
+                <ListBox x:Name="AllModifiersList" DisplayMemberPath="Name"/>
+            </GroupBox>
+            
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <Button Content="→" Width="30" Height="30" Margin="0,0,0,10" Click="BtnAddModifier_Click" Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0"/>
+                <Button Content="←" Width="30" Height="30" Click="BtnRemoveModifier_Click" Background="{StaticResource ErrorBrush}" Foreground="White" BorderThickness="0"/>
+            </StackPanel>
+            
+            <GroupBox Header="Modificadores del Producto" Grid.Column="2">
+                <ListBox x:Name="ProductModifiersList" DisplayMemberPath="Name"/>
+            </GroupBox>
+        </Grid>
+        
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Cancelar" Width="100" Height="40" Background="{StaticResource BorderBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" Click="BtnCancel_Click"/>
+            <Button Content="Guardar" Width="120" Height="40" Background="{StaticResource SuccessBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Click="BtnSave_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

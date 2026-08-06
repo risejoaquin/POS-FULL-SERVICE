@@ -133,7 +133,8 @@ namespace PosBuilder
                 try
                 {
                     string ext = System.IO.Path.GetExtension(config.LogoPath);
-                    string destPath = System.IO.Path.Combine(outputDir, "logo" + ext);
+                    string destPath = System.IO.Path.Combine(outputDir, "PosClient", "logo" + ext);
+                    if (!System.IO.Directory.Exists(System.IO.Path.Combine(outputDir, "PosClient"))) System.IO.Directory.CreateDirectory(System.IO.Path.Combine(outputDir, "PosClient"));
                     System.IO.File.Copy(config.LogoPath, destPath, true);
                     config.LogoPath = "logo" + ext; // Set to relative path
                 }

@@ -122,7 +122,7 @@ public partial class UsersViewModel : ObservableObject
     private void ResetPin(User user)
     {
         if (user == null) return;
-        bool authorized = _sessionManager.Role == "Admin";
+        bool authorized = _sessionManager.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || _sessionManager.Role.Equals("Administrador", StringComparison.OrdinalIgnoreCase);
         if (!authorized) {
             var dialog = new PosCore.Views.ManagerOverrideWindow("Restablecer Contraseña de usuario", _dbContext);
             authorized = dialog.ShowDialog() == true && dialog.IsAuthorized;

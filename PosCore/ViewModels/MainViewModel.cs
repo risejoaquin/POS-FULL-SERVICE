@@ -131,6 +131,12 @@ public partial class MainViewModel : ObservableObject
     private decimal _total;
 
     [ObservableProperty]
+    private decimal _subTotal;
+
+    [ObservableProperty]
+    private decimal _taxes;
+
+    [ObservableProperty]
     private string _customerName = string.Empty;
 
     [ObservableProperty]

@@ -109,6 +109,7 @@
                     <TextBox Text="{Binding NotasCocina, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,25" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Modificadores" Command="{Binding ConfigureModifiersCommand}" Width="120" Height="40" Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
                         <Button Content="Cancelar" Command="{Binding CancelEditCommand}" Width="100" Height="40" Background="{StaticResource BorderBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
                         <Button Content="Guardar" Command="{Binding SaveProductCommand}" Width="120" Height="40" Background="{StaticResource SuccessBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
                     </StackPanel>

@@ -79,6 +79,12 @@ namespace PosBuilder
                 }
             }
 
+            
+            sb.AppendLine($"INSERT INTO \"ProductModifiers\" (\"Id\", \"Name\", \"IsRequired\", \"MinSelections\", \"MaxSelections\", \"TenantId\") VALUES (1, 'Tipo de Leche', true, 1, 1, '{model.TenantId}') ON CONFLICT DO NOTHING;");
+            sb.AppendLine($"INSERT INTO \"ModifierOptions\" (\"ProductModifierId\", \"Name\", \"PriceAdjustment\", \"IsDefault\", \"TenantId\") VALUES (1, 'Entera', 0, true, '{model.TenantId}'), (1, 'Deslactosada', 5, false, '{model.TenantId}'), (1, 'Almendra', 10, false, '{model.TenantId}') ON CONFLICT DO NOTHING;");
+            sb.AppendLine($"INSERT INTO \"ProductModifiers\" (\"Id\", \"Name\", \"IsRequired\", \"MinSelections\", \"MaxSelections\", \"TenantId\") VALUES (2, 'Extras', false, 0, 3, '{model.TenantId}') ON CONFLICT DO NOTHING;");
+            sb.AppendLine($"INSERT INTO \"ModifierOptions\" (\"ProductModifierId\", \"Name\", \"PriceAdjustment\", \"IsDefault\", \"TenantId\") VALUES (2, 'Shot Espresso', 15, false, '{model.TenantId}'), (2, 'Crema Batida', 12, false, '{model.TenantId}') ON CONFLICT DO NOTHING;");
+
             return sb.ToString();
         }
     }

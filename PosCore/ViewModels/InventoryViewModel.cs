@@ -184,11 +184,26 @@ public partial class InventoryViewModel : ObservableObject
 
 
     [RelayCommand]
+    
+    [RelayCommand]
+    private void ConfigureModifiers()
+    {
+        if (EditingProduct == null || EditingProduct.Id == 0)
+        {
+            _ = _notificationService.ShowWarning("Guarde el producto primero antes de configurar modificadores.");
+            return;
+        }
+        var window = new Views.ProductModifiersConfigWindow(EditingProduct, _dbContext);
+        window.ShowDialog();
+    }
+
+    [RelayCommand]
     private void GenerateBarcode()
     {
         if (EditingProduct != null)
         {
-            EditingProduct.Barcode = "GEN-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            var random = new Random();
+            EditingProduct.Barcode = "750" + random.Next(100000000, 999999999).ToString();
             OnPropertyChanged(nameof(EditingProduct));
         }
     }
