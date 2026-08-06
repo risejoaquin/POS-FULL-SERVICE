@@ -1,9 +1,7 @@
-
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace PosCore.Views
 {
@@ -22,30 +20,32 @@ namespace PosCore.Views
 
         private string _inputBuffer = "";
         private decimal _tendered = 0m;
-        private string _selectedMethod = "Efectivo";
 
         public PaymentWindow(decimal total)
         {
             this.KeyDown += PaymentWindow_KeyDown;
+
             InitializeComponent();
             Total = total;
             TotalText.Text = total.ToString("C");
-            BtnExact.Content = total.ToString("C");
+            
+            PaymentsList.ItemsSource = Payments;
+            
             UpdateState();
-            SelectMethod("Efectivo", BtnEfectivo);
         }
+
         
         private void PaymentWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key >= System.Windows.Input.Key.D0 && e.Key <= System.Windows.Input.Key.D9)
             {
                 int val = (int)e.Key - (int)System.Windows.Input.Key.D0;
-                AppendNumpad(val.ToString());
+                if (_inputBuffer.Length < 8) { _inputBuffer += val.ToString(); UpdateState(); }
             }
             else if (e.Key >= System.Windows.Input.Key.NumPad0 && e.Key <= System.Windows.Input.Key.NumPad9)
             {
                 int val = (int)e.Key - (int)System.Windows.Input.Key.NumPad0;
-                AppendNumpad(val.ToString());
+                if (_inputBuffer.Length < 8) { _inputBuffer += val.ToString(); UpdateState(); }
             }
             else if (e.Key == System.Windows.Input.Key.Back)
             {
@@ -53,7 +53,7 @@ namespace PosCore.Views
             }
             else if (e.Key == System.Windows.Input.Key.Enter)
             {
-                BtnComplete_Click(this, null!);
+                BtnPay_Click(this, null!);
             }
             else if (e.Key == System.Windows.Input.Key.Escape)
             {
@@ -61,67 +61,104 @@ namespace PosCore.Views
             }
         }
 
-        private void AppendNumpad(string val)
+        private void UpdateState()
         {
-            if (val == ".")
+            // Parse input buffer
+            if (string.IsNullOrEmpty(_inputBuffer))
             {
-                if (!_inputBuffer.Contains(".")) _inputBuffer += ".";
+                _tendered = 0;
             }
             else
             {
-                if (_inputBuffer == "0" && val != ".") _inputBuffer = val;
-                else if (_inputBuffer.Length < 10) _inputBuffer += val;
+                if (decimal.TryParse(_inputBuffer, out decimal cents))
+                {
+                    _tendered = cents / 100m;
+                }
             }
+
+            TenderedText.Text = _tendered.ToString("C");
+
+            // Calculate totals
+            decimal totalPaid = Payments.Sum(p => p.Amount);
+            decimal remaining = Total - totalPaid;
+
+            if (remaining < 0) remaining = 0;
+            RemainingText.Text = remaining.ToString("C");
+
+            if (totalPaid >= Total && Total > 0)
+            {
+                ChangeText.Text = $"Cambio: {(totalPaid - Total).ToString("C")}";
+                ChangeText.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ChangeText.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void BtnNum_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Content is string num)
+            {
+                if (_inputBuffer.Length < 8)
+                {
+                    _inputBuffer += num;
+                    UpdateState();
+                }
+            }
+        }
+
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        {
+            _inputBuffer = "";
             UpdateState();
         }
-
-        private void UpdateState()
+        
+        private void BtnExact_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(_inputBuffer)) _tendered = 0;
-            else decimal.TryParse(_inputBuffer, out _tendered);
-            InputAmountBox.Text = _tendered.ToString("N2");
-        }
-
-        private void BtnNumpad_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Content is string num) AppendNumpad(num);
-        }
-
-        private void BtnNumpadDel_Click(object sender, RoutedEventArgs e)
-        {
-            if (_inputBuffer.Length > 0) { _inputBuffer = _inputBuffer.Substring(0, _inputBuffer.Length - 1); UpdateState(); }
-        }
-
-        private void BtnQuickAmount_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Content is string amountStr)
+            decimal totalPaid = Payments.Sum(p => p.Amount);
+            decimal remaining = Total - totalPaid;
+            if (remaining > 0)
             {
-                string clean = amountStr.Replace("$", "").Replace(",", "");
-                _inputBuffer = clean;
+                _tendered = remaining;
+                _inputBuffer = ((long)(remaining * 100)).ToString();
                 UpdateState();
             }
         }
 
-        private void ResetMethods()
+        private void BtnAddPayment_Click(object sender, RoutedEventArgs e)
         {
-            BtnEfectivo.Background = Brushes.White; BtnEfectivo.Foreground = new SolidColorBrush(Color.FromRgb(75, 85, 99));
-            BtnTarjeta.Background = Brushes.White; BtnTarjeta.Foreground = new SolidColorBrush(Color.FromRgb(75, 85, 99));
-            BtnTransferencia.Background = Brushes.White; BtnTransferencia.Foreground = new SolidColorBrush(Color.FromRgb(75, 85, 99));
-            BtnVale.Background = Brushes.White; BtnVale.Foreground = new SolidColorBrush(Color.FromRgb(75, 85, 99));
+            if (sender is Button btn && btn.Tag is string method)
+            {
+                if (_tendered <= 0)
+                {
+                    // Si no hay monto ingresado, sugerir el restante
+                    decimal totalPaid = Payments.Sum(p => p.Amount);
+                    decimal remaining = Total - totalPaid;
+                    if (remaining > 0)
+                    {
+                        _tendered = remaining;
+                    }
+                    else
+                    {
+                        return; // Ya está pagado
+                    }
+                }
+
+                Payments.Add(new PaymentEntry { Method = method, Amount = _tendered });
+                _inputBuffer = ""; // reset buffer
+                UpdateState();
+            }
         }
 
-        private void SelectMethod(string method, Button btn)
+        private void BtnRemovePayment_Click(object sender, RoutedEventArgs e)
         {
-            _selectedMethod = method;
-            ResetMethods();
-            btn.Background = new SolidColorBrush(Color.FromRgb(16, 185, 129));
-            btn.Foreground = Brushes.White;
+            if (sender is Button btn && btn.Tag is PaymentEntry entry)
+            {
+                Payments.Remove(entry);
+                UpdateState();
+            }
         }
-
-        private void BtnPayEfectivo_Click(object sender, RoutedEventArgs e) => SelectMethod("Efectivo", BtnEfectivo);
-        private void BtnPayTarjeta_Click(object sender, RoutedEventArgs e) => SelectMethod("Tarjeta", BtnTarjeta);
-        private void BtnPayTransferencia_Click(object sender, RoutedEventArgs e) => SelectMethod("Transferencia", BtnTransferencia);
-        private void BtnPayVale_Click(object sender, RoutedEventArgs e) => SelectMethod("Vale", BtnVale);
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
@@ -129,28 +166,41 @@ namespace PosCore.Views
             Close();
         }
 
+        
         public decimal TipAmount { get; private set; } = 0;
         private bool _isProcessing = false;
+        
+        private void BtnAddTip_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tendered > 0)
+            {
+                TipAmount = _tendered;
+                TipText.Text = $"Propina: {TipAmount:C}";
+                TipText.Visibility = Visibility.Visible;
+                _inputBuffer = "";
+                UpdateState();
+            }
+        }
 
-        private void BtnComplete_Click(object sender, RoutedEventArgs e)
+        
+        private void BtnPay_Click(object sender, RoutedEventArgs e)
         {
             if (_isProcessing) return;
             
-            if (_tendered == 0) _tendered = Total; // Auto fill exact amount if they just clicked complete
-            
-            if (_tendered < Total && _selectedMethod == "Efectivo")
+            decimal totalPaid = Payments.Sum(p => p.Amount);
+            if (totalPaid < Total)
             {
-                MessageBox.Show($"Faltan {(Total - _tendered).ToString("C")} por pagar.", "Pago Incompleto", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Faltan {(Total - totalPaid).ToString("C")} por pagar.", "Pago Incompleto", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
-            Payments.Clear();
-            Payments.Add(new PaymentEntry { Method = _selectedMethod, Amount = _tendered >= Total ? Total : _tendered });
-
+            
             _isProcessing = true;
+            if (sender is Button btn) { btn.IsEnabled = false; }
+            
             IsPaid = true;
             DialogResult = true;
             Close();
         }
+
     }
 }

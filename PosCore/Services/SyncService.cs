@@ -173,37 +173,6 @@ public class SyncService
                         else
                         {
                             _logger.LogWarning($"Fallo al sincronizar Mensaje ID {message.Id}. Intento {message.RetryCount}. Aplicando Backoff indefinido.");
-                            if (payload.Orders != null && payload.Orders.Any())
-                {
-                    foreach (var cloudOrder in payload.Orders)
-                    {
-                        var localOrder = await dbContext.Orders
-                            .Include(o => o.Items)
-                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
-                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
-                        {
-                            cloudOrder.Id = 0;
-                            if (cloudOrder.Items != null) {
-                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
-                            }
-                            dbContext.Orders.Add(cloudOrder);
-                        }
-                        else if (localOrder != null)
-                        {
-                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
-                            {
-                                localOrder.IsReturned = cloudOrder.IsReturned;
-                                localOrder.ReturnReason = cloudOrder.ReturnReason;
-                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
-                                localOrder.TotalAmount = cloudOrder.TotalAmount;
-                                localOrder.LastUpdated = cloudOrder.LastUpdated;
-                                dbContext.Orders.Update(localOrder);
-                            }
-                        }
-                    }
-                }
-
-                await dbContext.SaveChangesAsync();
                             await Task.Delay((int)Math.Pow(2, message.RetryCount) * 1000);
                             break;
                         }
@@ -220,69 +189,8 @@ public class SyncService
                         else
                         {
                             _logger.LogWarning($"Excepcion al sincronizar Mensaje ID {message.Id}: {ex.Message}");
-                            if (payload.Orders != null && payload.Orders.Any())
-                {
-                    foreach (var cloudOrder in payload.Orders)
-                    {
-                        var localOrder = await dbContext.Orders
-                            .Include(o => o.Items)
-                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
-                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
-                        {
-                            cloudOrder.Id = 0;
-                            if (cloudOrder.Items != null) {
-                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
-                            }
-                            dbContext.Orders.Add(cloudOrder);
-                        }
-                        else if (localOrder != null)
-                        {
-                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
-                            {
-                                localOrder.IsReturned = cloudOrder.IsReturned;
-                                localOrder.ReturnReason = cloudOrder.ReturnReason;
-                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
-                                localOrder.TotalAmount = cloudOrder.TotalAmount;
-                                localOrder.LastUpdated = cloudOrder.LastUpdated;
-                                dbContext.Orders.Update(localOrder);
-                            }
-                        }
-                    }
-                }
-
-                await dbContext.SaveChangesAsync();
                             await Task.Delay((int)Math.Pow(2, message.RetryCount) * 1000);
                             break;
-                        }
-                    }
-                }
-
-                if (payload.Orders != null && payload.Orders.Any())
-                {
-                    foreach (var cloudOrder in payload.Orders)
-                    {
-                        var localOrder = await dbContext.Orders
-                            .Include(o => o.Items)
-                            .FirstOrDefaultAsync(o => o.ClientSideId == cloudOrder.ClientSideId);
-                        if (localOrder == null && !string.IsNullOrEmpty(cloudOrder.ClientSideId))
-                        {
-                            cloudOrder.Id = 0;
-                            if (cloudOrder.Items != null) {
-                                foreach (var item in cloudOrder.Items) { item.Id = 0; item.OrderId = 0; }
-                            }
-                            dbContext.Orders.Add(cloudOrder);
-                        }
-                        else if (localOrder != null)
-                        {
-                            if (cloudOrder.LastUpdated > localOrder.LastUpdated)
-                            {
-                                localOrder.IsReturned = cloudOrder.IsReturned;
-                                localOrder.ReturnReason = cloudOrder.ReturnReason;
-                                localOrder.AuthorizedBy = cloudOrder.AuthorizedBy;
-                                localOrder.TotalAmount = cloudOrder.TotalAmount;
-                                localOrder.LastUpdated = cloudOrder.LastUpdated;
-                                dbContext.Orders.Update(localOrder);
-                            }
                         }
                     }
                 }

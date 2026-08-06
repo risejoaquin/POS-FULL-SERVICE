@@ -9,6 +9,7 @@ public interface IApiService
 {
     Task<List<Product>> GetProductsAsync();
     Task<List<Product>> GetChangesAsync(DateTime since);
+    Task<SyncPayload?> GetAllChangesAsync(DateTime since);
     
     Task<bool> DeleteProductAsync(string barcode);
 
