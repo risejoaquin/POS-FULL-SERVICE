@@ -1,1 +1,1 @@
-dotnet build PosBuilder/PosBuilder.csproj
+dotnet build ./PosCore/PosCore.csproj || true

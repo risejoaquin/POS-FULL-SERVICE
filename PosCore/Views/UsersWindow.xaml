@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Gestión de Usuarios" Height="500" Width="700" WindowStartupLocation="CenterOwner" Background="{StaticResource BackgroundBrush}">
+        Title="Gestión de Usuarios" MinHeight="500" SizeToContent="WidthAndHeight" MinWidth="700" WindowStartupLocation="CenterOwner" Background="{StaticResource BackgroundBrush}">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -47,23 +47,29 @@
 
         <!-- Users List -->
         <DataGrid Grid.Row="2" ItemsSource="{Binding Users}" AutoGenerateColumns="False" IsReadOnly="True" 
-                  Background="{StaticResource SurfaceBrush}" RowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                  Background="{StaticResource SurfaceBrush}" MinRowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" HeadersVisibility="Column" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Usuario" Binding="{Binding Username}" Width="2*"/>
                 <DataGridTextColumn Header="Rol" Binding="{Binding Role}" Width="*"/>
-                <DataGridTextColumn Header="Contraseña" Binding="{Binding Pin}" Width="*"/>
+                <DataGridTemplateColumn Header="Contraseña" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="••••••••" VerticalAlignment="Center" Margin="5,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 
                 <DataGridTemplateColumn Header="Acciones" Width="260">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
+                            <WrapPanel>
                                 <Button Content="Editar" Command="{Binding DataContext.EditUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"
                                         Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" Padding="10,5" Margin="5"/>
                                 <Button Content="Reset Contraseña" Command="{Binding DataContext.ResetPinCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"
                                         Background="{StaticResource WarningBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" Padding="10,5" Margin="5"/>
                                 <Button Content="Eliminar" Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"
                                         Background="{StaticResource ErrorBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" Padding="10,5" Margin="5"/>
-                            </StackPanel>
+                            </WrapPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

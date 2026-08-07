@@ -70,6 +70,20 @@ public partial class LoginViewModel : ObservableObject
                 _sessionManager.Role = string.IsNullOrEmpty(result.Role) ? "User" : result.Role;
                 _sessionManager.SaveSession();
 
+                // Migrate local data to the new cloud tenant ID
+                var oldTenantId = "TENANT_001";
+                var newTenantId = _sessionManager.CurrentTenantId;
+                
+                var productsToMigrate = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.IgnoreQueryFilters(_dbContext.Products)
+                    .Where(p => p.TenantId == oldTenantId || p.TenantId == "LOCAL").ToList();
+                foreach(var p in productsToMigrate) p.TenantId = newTenantId;
+
+                var suppliesToMigrate = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.IgnoreQueryFilters(_dbContext.Supplies)
+                    .Where(p => p.TenantId == oldTenantId || p.TenantId == "LOCAL").ToList();
+                foreach(var s in suppliesToMigrate) s.TenantId = newTenantId;
+
+                _dbContext.SaveChanges();
+
                 // Save or update local user so offline works next time
                 var existingUser = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.IgnoreQueryFilters(_dbContext.Users).FirstOrDefault(u => u.Username.ToLower() == Username.ToLower());
                 if (existingUser != null)

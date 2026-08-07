@@ -34,6 +34,36 @@ public partial class InventoryViewModel : ObservableObject
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
+    [ObservableProperty]
+    private string _variantes = string.Empty;
+
+    [ObservableProperty]
+    private string _notasCocina = string.Empty;
+
+    private void MapCustomAttributesToUI()
+    {
+        if (EditingProduct != null)
+        {
+            if (EditingProduct.CustomAttributes != null)
+            {
+                if (EditingProduct.CustomAttributes.TryGetValue("Variantes", out var val1) && val1 != null)
+                    Variantes = val1.ToString() ?? "";
+                else
+                    Variantes = "";
+
+                if (EditingProduct.CustomAttributes.TryGetValue("NotasCocina", out var val2) && val2 != null)
+                    NotasCocina = val2.ToString() ?? "";
+                else
+                    NotasCocina = "";
+            }
+            else
+            {
+                Variantes = "";
+                NotasCocina = "";
+            }
+        }
+    }
+
 
     partial void OnSearchQueryChanged(string value)
     {
@@ -82,8 +112,9 @@ public partial class InventoryViewModel : ObservableObject
     [RelayCommand]
     private void AddProduct()
     {
-        EditingProduct = new Product { StockQuantity = 0, Price = 0, MinStockThreshold = 10 };
+        EditingProduct = new Product { StockQuantity = 0, Price = 0, MinStockThreshold = 10, CustomAttributes = new System.Collections.Generic.Dictionary<string, object>() };
         IsEditing = true;
+        MapCustomAttributesToUI();
     }
 
     [RelayCommand]
@@ -100,15 +131,23 @@ public partial class InventoryViewModel : ObservableObject
             StockQuantity = SelectedProduct.StockQuantity,
             MinStockThreshold = SelectedProduct.MinStockThreshold,
             TenantId = SelectedProduct.TenantId,
-            LastUpdated = SelectedProduct.LastUpdated
+            LastUpdated = SelectedProduct.LastUpdated,
+            Category = SelectedProduct.Category,
+            ImagePath = SelectedProduct.ImagePath,
+            CustomAttributes = SelectedProduct.CustomAttributes != null ? new System.Collections.Generic.Dictionary<string, object>(SelectedProduct.CustomAttributes) : new System.Collections.Generic.Dictionary<string, object>()
         };
         
         IsEditing = true;
+        MapCustomAttributesToUI();
     }
 
     [RelayCommand]
     private async Task SaveProductAsync()
     {
+        if (EditingProduct.CustomAttributes == null) EditingProduct.CustomAttributes = new System.Collections.Generic.Dictionary<string, object>();
+        EditingProduct.CustomAttributes["Variantes"] = Variantes;
+        EditingProduct.CustomAttributes["NotasCocina"] = NotasCocina;
+
         if (string.IsNullOrWhiteSpace(EditingProduct.Name) || string.IsNullOrWhiteSpace(EditingProduct.Barcode))
         {
             MessageBox.Show("El nombre y el código de barras son obligatorios.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -146,6 +185,9 @@ public partial class InventoryViewModel : ObservableObject
                     existing.Price = EditingProduct.Price;
                     existing.StockQuantity = EditingProduct.StockQuantity;
                     existing.MinStockThreshold = EditingProduct.MinStockThreshold;
+                    existing.Category = EditingProduct.Category;
+                    existing.ImagePath = EditingProduct.ImagePath;
+                    existing.CustomAttributes = EditingProduct.CustomAttributes;
                     existing.LastUpdated = DateTime.UtcNow; // Set explicitly before saving to outbox
                     _dbContext.Products.Update(existing);
                     
@@ -184,16 +226,33 @@ public partial class InventoryViewModel : ObservableObject
 
 
     [RelayCommand]
-    
+    private void OpenSupplies()
+    {
+        var window = new Views.SuppliesWindow(_dbContext);
+        window.ShowDialog();
+    }
+
+    [RelayCommand]
+    private void ConfigureRecipe()
+    {
+        if (SelectedProduct == null || SelectedProduct.Id == 0)
+        {
+            System.Windows.MessageBox.Show("Seleccione un producto guardado de la lista para configurar su receta.", "Aviso", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+        var window = new Views.ProductRecipeWindow(SelectedProduct, _dbContext);
+        window.ShowDialog();
+    }
+
     [RelayCommand]
     private void ConfigureModifiers()
     {
-        if (EditingProduct == null || EditingProduct.Id == 0)
+        if (SelectedProduct == null || SelectedProduct.Id == 0)
         {
-            _ = _notificationService.ShowWarning("Guarde el producto primero antes de configurar modificadores.");
+            System.Windows.MessageBox.Show("Seleccione un producto guardado de la lista para configurar modificadores.", "Aviso", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
-        var window = new Views.ProductModifiersConfigWindow(EditingProduct, _dbContext);
+        var window = new Views.ProductModifiersConfigWindow(SelectedProduct, _dbContext);
         window.ShowDialog();
     }
 

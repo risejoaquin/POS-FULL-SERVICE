@@ -26,6 +26,10 @@ public class PosDbContext : DbContext
     public DbSet<ProductModifier> ProductModifiers { get; set; }
     public DbSet<ModifierOption> ModifierOptions { get; set; }
     public DbSet<ProductModifierLink> ProductModifierLinks { get; set; }
+    
+    // Insumos y Recetas
+    public DbSet<Supply> Supplies { get; set; }
+    public DbSet<RecipeItem> RecipeItems { get; set; }
 
     public PosDbContext(DbContextOptions<PosDbContext> options, SessionManager sessionManager) : base(options)
     {
@@ -83,6 +87,8 @@ public class PosDbContext : DbContext
         modelBuilder.Entity<ProductModifier>().HasQueryFilter(e => e.TenantId == _sessionManager.CurrentTenantId);
         modelBuilder.Entity<ModifierOption>().HasQueryFilter(e => e.TenantId == _sessionManager.CurrentTenantId);
         modelBuilder.Entity<ProductModifierLink>().HasQueryFilter(e => e.TenantId == _sessionManager.CurrentTenantId);
+        modelBuilder.Entity<Supply>().HasQueryFilter(e => e.TenantId == _sessionManager.CurrentTenantId);
+        modelBuilder.Entity<RecipeItem>().HasQueryFilter(e => e.TenantId == _sessionManager.CurrentTenantId);
     }
     
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

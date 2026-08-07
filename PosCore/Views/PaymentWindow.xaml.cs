@@ -85,14 +85,17 @@ namespace PosCore.Views
             if (remaining < 0) remaining = 0;
             RemainingText.Text = remaining.ToString("C");
 
-            if (totalPaid >= Total && Total > 0)
+            decimal potentialTotalPaid = totalPaid + _tendered;
+
+            if (potentialTotalPaid > Total)
             {
-                ChangeText.Text = $"Cambio: {(totalPaid - Total).ToString("C")}";
-                ChangeText.Visibility = Visibility.Visible;
+                ChangeText.Text = (potentialTotalPaid - Total).ToString("C");
+                ChangeText.Foreground = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFrom("#059669");
             }
             else
             {
-                ChangeText.Visibility = Visibility.Hidden;
+                ChangeText.Text = "$0.00";
+                ChangeText.Foreground = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFrom("#94A3B8");
             }
         }
 

@@ -1,7 +1,7 @@
 <Window x:Class="PosCore.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Configuración de Atajos" Height="450" Width="600" WindowStartupLocation="CenterOwner"
+        Title="Configuración de Atajos" MinHeight="450" SizeToContent="WidthAndHeight" MinWidth="600" WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundBrush}">
     <Grid Margin="15">
         <Grid.RowDefinitions>
@@ -19,19 +19,30 @@
             </ComboBox>
         </StackPanel>
         
-        <DataGrid x:Name="GridShortcuts" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="{StaticResource SurfaceBrush}" RowHeight="35" FontSize="14" BorderBrush="{StaticResource BorderBrush}">
+        <DataGrid x:Name="GridShortcuts" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="{StaticResource SurfaceBrush}" MinRowHeight="35" FontSize="14" BorderBrush="{StaticResource BorderBrush}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="130" />
-                <DataGridTextColumn Header="Ícono" Binding="{Binding Icon}" Width="60" />
-                <DataGridTextColumn Header="Color (Hex)" Binding="{Binding Color}" Width="90" />
-                <DataGridTextColumn Header="Acción" Binding="{Binding Action}" Width="120" />
-                <DataGridTextColumn Header="Descripción" Binding="{Binding Description}" Width="*" />
+                <DataGridTextColumn Header="Nombre" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="130" />
+                <DataGridTextColumn Header="Ícono" Binding="{Binding Icon, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+                <DataGridTextColumn Header="Color (Hex)" Binding="{Binding Color, UpdateSourceTrigger=PropertyChanged}" Width="90" />
+                <DataGridComboBoxColumn Header="Acción" SelectedItemBinding="{Binding Action, UpdateSourceTrigger=PropertyChanged}" Width="140">
+                    <DataGridComboBoxColumn.ElementStyle>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="ItemsSource" Value="{Binding AvailableActions, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="ItemsSource" Value="{Binding AvailableActions, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Descripción" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
         
         <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button Content="Cancelar" Width="90" Height="35" Margin="0,0,10,0" FontSize="14" Click="BtnCancel_Click" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
-            <Button Content="Guardar" Width="90" Height="35" Background="{StaticResource PrimaryBrush}" Foreground="White" FontSize="14" FontWeight="Bold" BorderThickness="0" Click="BtnSave_Click"/>
+            <Button Content="Cancelar" MinWidth="90" Padding="15,0" Height="35" Margin="0,0,10,0" FontSize="14" Click="BtnCancel_Click" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+            <Button Content="Guardar" MinWidth="90" Padding="15,0" Height="35" Background="{StaticResource PrimaryBrush}" Foreground="White" FontSize="14" FontWeight="Bold" BorderThickness="0" Click="BtnSave_Click"/>
         </StackPanel>
     </Grid>
 </Window>

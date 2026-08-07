@@ -59,6 +59,9 @@ public partial class ReportsViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<Product> _lowStockProducts = new();
+    
+    [ObservableProperty]
+    private ObservableCollection<Supply> _lowStockSupplies = new();
 
     [ObservableProperty]
     private ObservableCollection<PaymentMethodSummary> _paymentMethods = new();
@@ -322,6 +325,19 @@ public partial class ReportsViewModel : ObservableObject
                         else
                         {
                             column.Item().Text("No hay productos con bajo stock.");
+                        }
+                        
+                        column.Item().PaddingTop(10).Text("Insumos con Bajo Stock:").Bold();
+                        if (LowStockSupplies.Any())
+                        {
+                            foreach (var sup in LowStockSupplies)
+                            {
+                                column.Item().Text($"- {sup.Name}: {sup.Stock:N2} {sup.UnitOfMeasure}").FontColor(Colors.Orange.Medium);
+                            }
+                        }
+                        else
+                        {
+                            column.Item().Text("No hay insumos con bajo stock.");
                         }
                     });
 

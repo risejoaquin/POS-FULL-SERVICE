@@ -6,7 +6,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Devoluciones y Notas de Crédito" Height="600" Width="900"
+        Title="Devoluciones y Notas de Crédito" MinHeight="600" SizeToContent="WidthAndHeight" MinWidth="900"
         WindowStartupLocation="CenterOwner">
         <Window.Resources>
     </Window.Resources>
@@ -105,7 +105,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 
-                                <StackPanel Orientation="Horizontal">
+                                <WrapPanel>
                                     <Button x:Name="BtnReturn" Content="Devolver Todo" 
                                             Command="{Binding DataContext.ReturnOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                             CommandParameter="{Binding}"
@@ -124,7 +124,7 @@
                                             Command="{Binding DataContext.ReprintReturnCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                             CommandParameter="{Binding}"
                                             Padding="10,6" Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left" Visibility="Collapsed"/>
-                                </StackPanel>
+                                </WrapPanel>
 
                                 
                                 <DataTemplate.Triggers>

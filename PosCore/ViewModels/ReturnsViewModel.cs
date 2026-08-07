@@ -119,11 +119,27 @@ public partial class ReturnsViewModel : ObservableObject
                 origItem.Quantity -= retItem.ReturnQuantity;
                 
                 // Restaurar stock
-                var product = await _dbContext.Products.FindAsync(origItem.ProductId);
+                var product = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(
+                    _dbContext.Products.Include(p => p.RecipeItems).ThenInclude(r => r.Supply), 
+                    p => p.Id == origItem.ProductId);
+                    
                 if (product != null)
                 {
                     product.StockQuantity += retItem.ReturnQuantity;
                     product.LastUpdated = DateTime.Now;
+                    
+                    // Restore supplies
+                    if (product.RecipeItems != null && product.RecipeItems.Any())
+                    {
+                        foreach (var recipeItem in product.RecipeItems)
+                        {
+                            if (recipeItem.Supply != null)
+                            {
+                                recipeItem.Supply.Stock += recipeItem.Quantity * retItem.ReturnQuantity;
+                                _dbContext.Supplies.Update(recipeItem.Supply);
+                            }
+                        }
+                    }
                     
                     var jsonOptionsProd = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
                     _dbContext.OutboxMessages.Add(new OutboxMessage
@@ -154,19 +170,38 @@ public partial class ReturnsViewModel : ObservableObject
             var currentShift = await _dbContext.CashRegisterShifts.FirstOrDefaultAsync(s => !s.IsClosed);
             if (currentShift != null && order.PaymentDetails.Contains("Efectivo") && order.OrderDate < currentShift.OpenedAt)
             {
-                var cashMovement = new CashMovement
+                decimal cashPaid = 0;
+                var payments = order.PaymentDetails.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in payments)
                 {
-                    ShiftId = currentShift.Id,
-                    Amount = -totalRefund,
-                    Type = "Salida",
-                    Reason = $"Devolución Parcial Orden #{order.Id} - {reasonWindow.SelectedReason}",
-                    CreatedAt = DateTime.Now
-                };
-                _dbContext.CashMovements.Add(cashMovement);
-                var jsonOptionsShift = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
-                currentShift.Movements ??= new System.Collections.Generic.List<CashMovement>();
-                currentShift.Movements.Add(cashMovement);
-                _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "CashMovementCreated", Payload = System.Text.Json.JsonSerializer.Serialize(currentShift, jsonOptionsShift), CreatedAt = DateTime.Now });
+                    if (p.StartsWith("Efectivo: "))
+                    {
+                        var amountStr = p.Substring("Efectivo: ".Length);
+                        if (decimal.TryParse(amountStr, System.Globalization.NumberStyles.Currency, null, out decimal amount))
+                        {
+                            cashPaid += amount;
+                        }
+                    }
+                }
+                decimal refundAmount = Math.Min(totalRefund, cashPaid);
+                
+                if (refundAmount > 0)
+                {
+                    var cashMovement = new CashMovement
+                    {
+                        ShiftId = currentShift.Id,
+                        Amount = -refundAmount,
+                        Type = "Salida",
+                        Reason = $"Devolución Parcial Orden #{order.Id} - {reasonWindow.SelectedReason}",
+                        CreatedAt = DateTime.Now
+                    };
+                    _dbContext.CashMovements.Add(cashMovement);
+                    
+                    var jsonOptionsShift = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
+                    currentShift.Movements ??= new System.Collections.Generic.List<CashMovement>();
+                    currentShift.Movements.Add(cashMovement);
+                    _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "CashMovementCreated", Payload = System.Text.Json.JsonSerializer.Serialize(currentShift, jsonOptionsShift), CreatedAt = DateTime.Now });
+                }
             }
             var jsonOptionsOrder = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
             _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "OrderReturned", Payload = System.Text.Json.JsonSerializer.Serialize(order, jsonOptionsOrder), CreatedAt = DateTime.Now });
@@ -218,12 +253,29 @@ public partial class ReturnsViewModel : ObservableObject
 
                 // Restar dinero de caja si fue en efectivo
                 var currentShift = await _dbContext.CashRegisterShifts.FirstOrDefaultAsync(s => !s.IsClosed);
-                if (currentShift != null && order.PaymentDetails.Contains("Efectivo"))
+                if (currentShift != null && order.PaymentDetails.Contains("Efectivo") && order.OrderDate < currentShift.OpenedAt)
+            {
+                decimal cashPaid = 0;
+                var payments = order.PaymentDetails.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in payments)
+                {
+                    if (p.StartsWith("Efectivo: "))
+                    {
+                        var amountStr = p.Substring("Efectivo: ".Length);
+                        if (decimal.TryParse(amountStr, System.Globalization.NumberStyles.Currency, null, out decimal amount))
+                        {
+                            cashPaid += amount;
+                        }
+                    }
+                }
+                decimal refundAmount = Math.Min(order.TotalAmount, cashPaid);
+                
+                if (refundAmount > 0)
                 {
                     var cashMovement = new CashMovement
                     {
                         ShiftId = currentShift.Id,
-                        Amount = -order.TotalAmount,
+                        Amount = -refundAmount,
                         Type = "Salida",
                         Reason = $"Devolución Orden #{order.Id} - {reasonWindow.SelectedReason}",
                         CreatedAt = DateTime.Now
@@ -235,6 +287,7 @@ public partial class ReturnsViewModel : ObservableObject
                     currentShift.Movements.Add(cashMovement);
                     _dbContext.OutboxMessages.Add(new OutboxMessage { EventType = "CashMovementCreated", Payload = System.Text.Json.JsonSerializer.Serialize(currentShift, jsonOptionsShift), CreatedAt = DateTime.Now });
                 }
+            }
 
                 // Devolver stock
 

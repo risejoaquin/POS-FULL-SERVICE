@@ -1,7 +1,7 @@
 <Window x:Class="PosCore.Views.SuspendedOrdersWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Órdenes Suspendidas" Height="400" Width="600"
+        Title="Órdenes Suspendidas" MinHeight="400" SizeToContent="WidthAndHeight" MinWidth="600"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid Background="{StaticResource SurfaceBrush}" Margin="20">
         <Grid.RowDefinitions>
@@ -21,12 +21,12 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Count, StringFormat='Orden con {0} artículos'}" FontSize="16" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="Retomar" Width="100" Height="30" Background="{StaticResource SuccessBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="BtnResume_Click" Tag="{Binding}"/>
+                        <Button Grid.Column="1" Content="Retomar" MinWidth="100" Padding="15,0" Height="30" Background="{StaticResource SuccessBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="BtnResume_Click" Tag="{Binding}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
         
-        <Button Grid.Row="2" Content="Cerrar" Width="100" Height="35" HorizontalAlignment="Right" Background="{StaticResource BorderBrush}" BorderThickness="0" Click="BtnClose_Click"/>
+        <Button Grid.Row="2" Content="Cerrar" MinWidth="100" Padding="15,0" Height="35" HorizontalAlignment="Right" Background="{StaticResource BorderBrush}" BorderThickness="0" Click="BtnClose_Click"/>
     </Grid>
 </Window>

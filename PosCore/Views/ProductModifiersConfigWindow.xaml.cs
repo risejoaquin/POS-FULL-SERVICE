@@ -12,7 +12,7 @@ namespace PosCore.Views
     {
         private PosDbContext _dbContext;
         private Product _product;
-        private List<ProductModifier> _allModifiers;
+        private List<ProductModifier> _allModifiers = new();
         private List<ProductModifier> _productModifiers = new();
 
         public ProductModifiersConfigWindow(Product product, PosDbContext dbContext)

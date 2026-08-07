@@ -6,7 +6,7 @@
         xmlns:viewmodels="clr-namespace:PosCore.ViewModels"
         xmlns:converters="clr-namespace:PosCore.Converters"
         mc:Ignorable="d"
-        Title="Arqueo y Control de Turnos - POS Express" Height="500" Width="450"
+        Title="Arqueo y Control de Turnos - POS Express" MinHeight="500" SizeToContent="WidthAndHeight" MinWidth="450"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
 

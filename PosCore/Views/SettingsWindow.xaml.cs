@@ -9,12 +9,27 @@ namespace PosCore.Views
     {
         private ShortcutManager _manager;
         public List<ShortcutConfig> Shortcuts { get; set; }
+        public List<string> AvailableActions { get; set; } = new List<string>
+        {
+            "None",
+            "OpenShift",
+            "OpenReturns",
+            "OpenReports",
+            "OpenUsers",
+            "OpenInventory",
+            "SuspendOrder",
+            "ResumeOrder",
+            "TechSupport",
+            "OpenSettings",
+            "OpenDiscount"
+        };
         
         public SettingsWindow(ShortcutManager manager)
         {
             _manager = manager;
             Shortcuts = new List<ShortcutConfig>();
             InitializeComponent();
+            this.DataContext = this;
             
             // Try loading default on first open based on selection or manager
             LoadToGrid(_manager.CurrentShortcuts);

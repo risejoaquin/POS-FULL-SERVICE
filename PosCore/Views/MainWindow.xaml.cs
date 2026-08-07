@@ -51,26 +51,6 @@ namespace PosCore.Views
                 e.Handled = true;
                 return;
             }
-            if (Keyboard.Modifiers == ModifierKeys.Alt)
-            {
-                int index = -1;
-                if (e.SystemKey >= Key.D1 && e.SystemKey <= Key.D9)
-                    index = e.SystemKey - Key.D1;
-                else if (e.SystemKey >= Key.NumPad1 && e.SystemKey <= Key.NumPad9)
-                    index = e.SystemKey - Key.NumPad1;
-                
-                if (index >= 0 && DataContext is MainViewModel vm)
-                {
-                    if (index < vm.Shortcuts.Count)
-                    {
-                        var shortcut = vm.Shortcuts[index];
-                        vm.ExecuteShortcutCommand.Execute(shortcut.Action);
-                    }
-                    e.Handled = true;
-                    return;
-                }
-            }
-
 
             // Ignore modifiers and tab/etc if needed, but we'll focus on letters/digits
             if (e.Key == Key.Enter)

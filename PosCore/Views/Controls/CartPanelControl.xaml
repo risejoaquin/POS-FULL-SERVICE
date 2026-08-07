@@ -20,22 +20,31 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding Cart}" AutoGenerateColumns="False" CanUserAddRows="False" 
                   HeadersVisibility="Column" Background="{StaticResource SurfaceBrush}" RowBackground="{StaticResource SurfaceBrush}" AlternatingRowBackground="{StaticResource BackgroundBrush}"
                   BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}"
-                  RowHeight="50">
+                  MinRowHeight="50">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Cant" Width="100">
+                <DataGridTemplateColumn Header="Cant" Width="110">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Button Content="-" Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Width="25" Height="25" Background="{StaticResource BackgroundBrush}" BorderThickness="0" FontWeight="Bold" Cursor="Hand"/>
+                                <Button Content="-" Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" MinWidth="25" Padding="15,0" Height="25" Background="#F3F4F6" Foreground="#4B5563" BorderBrush="#D1D5DB" BorderThickness="1" FontWeight="Bold" FontSize="16" Cursor="Hand"/>
                                 <TextBlock Text="{Binding Quantity}" Width="30" TextAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                <Button Content="+" Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Width="25" Height="25" Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0" FontWeight="Bold" Cursor="Hand"/>
+                                <Button Content="+" Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" MinWidth="25" Padding="15,0" Height="25" Background="#E0F2FE" Foreground="#0369A1" BorderBrush="#BAE6FD" BorderThickness="1" FontWeight="Bold" FontSize="16" Cursor="Hand"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-
-                <DataGridTextColumn Header="Descripción" Binding="{Binding Name}" Width="*" IsReadOnly="True"/>
-                <DataGridTextColumn Header="P. Unit" Binding="{Binding Price, StringFormat=C}" Width="100" IsReadOnly="True">
+                <DataGridTemplateColumn Header="Descripción" Width="*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel VerticalAlignment="Center" Margin="5,0">
+                                <TextBlock Text="{Binding Product.Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Notes}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Visibility="{Binding HasNotes, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <TextBlock Text="{Binding Discount, StringFormat='- {0:C} Descuento'}" FontSize="11" Foreground="{StaticResource ErrorBrush}" Visibility="{Binding HasDiscount, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="P. Unit" Binding="{Binding UnitPrice, StringFormat=C}" Width="80" IsReadOnly="True">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -43,7 +52,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Subtotal" Binding="{Binding SubTotal, StringFormat=C}" Width="100" IsReadOnly="True">
+                <DataGridTextColumn Header="Subtotal" Binding="{Binding SubTotal, StringFormat=C}" Width="90" IsReadOnly="True">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -52,11 +61,10 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-
                 <DataGridTemplateColumn Header="" Width="50">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="✕" Command="{Binding DataContext.RemoveFromCartCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Width="30" Height="30" Background="#FEE2E2" Foreground="{StaticResource ErrorBrush}" BorderThickness="0" Cursor="Hand" FontWeight="Bold">
+                            <Button Content="✕" Command="{Binding DataContext.RemoveFromCartCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" MinWidth="30" Padding="15,0" Height="30" Background="#FEE2E2" Foreground="#991B1B" BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="14">
                                 <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style></Button.Resources>
                             </Button>
                         </DataTemplate>
@@ -79,7 +87,7 @@
                     <TextBlock Text="Impuestos:" FontSize="16" Foreground="{StaticResource TextSecondaryBrush}"/>
                     
                     <!-- The current implementation just had Subtotal and Total and Discount. I'll bind to SubTotal to show something if needed, or leave it fixed -->
-                    <TextBlock Text="{Binding TaxAmount, StringFormat=C}" FontSize="16" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Taxes, StringFormat=C}" FontSize="16" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                 </Grid>
                 <Separator Margin="0,5"/>
                 <Grid>

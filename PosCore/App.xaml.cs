@@ -203,6 +203,10 @@ public partial class App : Application
                             );");
                     } catch (Exception ex) { Serilog.Log.Error(ex, "Ignored exception"); }
 
+                    
+                    try {
+                        dbContext.Database.ExecuteSqlRaw("ALTER TABLE Products ADD COLUMN ImagePath TEXT NOT NULL DEFAULT '';");
+                    } catch { }
                     if (dbContext.Database.GetPendingMigrations().Any())
                     {
                         dbContext.Database.Migrate();
@@ -214,12 +218,26 @@ public partial class App : Application
 
                     if (!Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.IgnoreQueryFilters(dbContext.Products).Any())
                     {
+                        var currentTenant = secureSettings.Tenant.CurrentTenantId ?? "TENANT_001";
                         dbContext.Products.AddRange(
-                            new PosCore.Models.Product { Name = "Coca Cola 600ml", Barcode = "7501055300075", Price = 18.00m, StockQuantity = 50, Category = "Bebidas", MinStockThreshold = 10, TenantId = "LOCAL", LastUpdated = System.DateTime.Now },
-                            new PosCore.Models.Product { Name = "Sabritas Sal 40g", Barcode = "7501011111111", Price = 15.00m, StockQuantity = 30, Category = "Botanas", MinStockThreshold = 10, TenantId = "LOCAL", LastUpdated = System.DateTime.Now },
-                            new PosCore.Models.Product { Name = "Agua Ciel 1L", Barcode = "7501022222222", Price = 12.00m, StockQuantity = 40, Category = "Bebidas", MinStockThreshold = 10, TenantId = "LOCAL", LastUpdated = System.DateTime.Now }
+                            new PosCore.Models.Product { Name = "Coca Cola 600ml", Barcode = "7501055300075", Price = 18.00m, StockQuantity = 50, Category = "Bebidas", MinStockThreshold = 10, TenantId = currentTenant, LastUpdated = System.DateTime.Now },
+                            new PosCore.Models.Product { Name = "Sabritas Sal 40g", Barcode = "7501011111111", Price = 15.00m, StockQuantity = 30, Category = "Botanas", MinStockThreshold = 10, TenantId = currentTenant, LastUpdated = System.DateTime.Now },
+                            new PosCore.Models.Product { Name = "Agua Ciel 1L", Barcode = "7501022222222", Price = 12.00m, StockQuantity = 40, Category = "Bebidas", MinStockThreshold = 10, TenantId = currentTenant, LastUpdated = System.DateTime.Now }
                         );
                         dbContext.SaveChanges();
+                    }
+                    else 
+                    {
+                        var currentTenant = secureSettings.Tenant.CurrentTenantId ?? "TENANT_001";
+                        var localProducts = dbContext.Products.IgnoreQueryFilters().Where(p => p.TenantId == "LOCAL").ToList();
+                        foreach (var p in localProducts)
+                        {
+                            p.TenantId = currentTenant;
+                        }
+                        if (localProducts.Any())
+                        {
+                            dbContext.SaveChanges();
+                        }
                     }
                 } catch (Exception ex) { Serilog.Log.Error(ex, "Ignored exception"); }
 

@@ -39,9 +39,6 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isDiscountApplied = false;
-
-    [ObservableProperty]
-    private decimal _subTotal = 0m;
     private readonly IApiService _apiService;
 
     // Propiedades Observables
@@ -58,6 +55,21 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<Product> _filteredProducts = new();
+
+
+    [ObservableProperty]
+    private ObservableCollection<string> _categories = new();
+
+    [ObservableProperty]
+    private string _selectedCategory = "Todas";
+
+    [RelayCommand]
+    private void FilterByCategory(string category)
+    {
+        SelectedCategory = category;
+        if (LoadProductsCommand.CanExecute(null))
+            LoadProductsCommand.Execute(null);
+    }
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -108,6 +120,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+
     private void ApplySearchFilter()
     {
         if (string.IsNullOrWhiteSpace(SearchQuery))
@@ -139,18 +152,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _customerName = string.Empty;
 
-    [ObservableProperty]
-    private ObservableCollection<string> _categories = new();
-
-    [ObservableProperty]
-    private string _selectedCategory = "Todas";
-
-    [RelayCommand]
-    private void SelectCategory(string category)
-    {
-        SelectedCategory = category;
-        LoadProductsCommand.Execute(null);
-    }
     
     [RelayCommand]
     private void ConfigurePrinter()
@@ -176,8 +177,9 @@ public partial class MainViewModel : ObservableObject
     private readonly TicketPrinterService _ticketPrinterService;
     private readonly PosCore.Services.SessionManager _sessionManager;
 
+    public event Action? OnFocusSearchRequested;
     [RelayCommand]
-    private void FocusSearch() { }
+    private void FocusSearch() { OnFocusSearchRequested?.Invoke(); }
 
     public MainViewModel(PosDbContext dbContext, IApiService apiService, IOptions<AppSettings> settings, SyncService syncService, TicketPrinterService ticketPrinterService, PosCore.Services.SessionManager sessionManager)
     {
@@ -399,6 +401,26 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void Logout()
+    {
+        var result = System.Windows.MessageBox.Show("¿Está seguro de que desea cerrar sesión?", "Cerrar sesión", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+        if (result == System.Windows.MessageBoxResult.Yes)
+        {
+            _sessionManager.ClearSession();
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                var currentApp = System.Windows.Application.Current;
+                var processPath = System.Environment.ProcessPath;
+                if (!string.IsNullOrEmpty(processPath))
+                {
+                    System.Diagnostics.Process.Start(processPath);
+                }
+                currentApp.Shutdown();
+            });
+        }
+    }
+
+    [RelayCommand]
     private void OpenInventory()
     {
         var inventoryWindow = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<PosCore.Views.InventoryWindow>(App.ServiceProvider!);
@@ -437,9 +459,13 @@ public partial class MainViewModel : ObservableObject
             await Task.Delay(1500);
 
             // Validar stock antes de continuar
+            var productsToUpdate = new System.Collections.Generic.List<(OrderItem item, Product product)>();
             foreach (var item in Cart)
             {
-                var product = await DbContext.Products.FindAsync(item.ProductId);
+                var product = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(
+                    DbContext.Products.Include(p => p.RecipeItems).ThenInclude(r => r.Supply), 
+                    p => p.Id == item.ProductId);
+                    
                 if (product != null)
                 {
                     if (product.StockQuantity < item.Quantity)
@@ -449,8 +475,31 @@ public partial class MainViewModel : ObservableObject
                         _ = ShowNotification($"Stock insuficiente para {product.Name}.", true);
                         return; // Cancela el proceso
                     }
-                    product.StockQuantity -= item.Quantity;
-                    item.Product = product;
+                    productsToUpdate.Add((item, product));
+                }
+            }
+
+            // Aplicar modificaciones
+            foreach (var update in productsToUpdate)
+            {
+                var item = update.item;
+                var product = update.product;
+                
+                product.StockQuantity -= item.Quantity;
+                item.Product = product;
+                    
+                    // Deduct supplies (Phase 3)
+                    if (product.RecipeItems != null && product.RecipeItems.Any())
+                    {
+                        foreach (var recipeItem in product.RecipeItems)
+                        {
+                            if (recipeItem.Supply != null)
+                            {
+                                recipeItem.Supply.Stock -= recipeItem.Quantity * item.Quantity;
+                                DbContext.Supplies.Update(recipeItem.Supply);
+                            }
+                        }
+                    }
                     
                     // Trigger ProductUpdated outbox message
                     var jsonOptionsProd = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles };
@@ -461,7 +510,6 @@ public partial class MainViewModel : ObservableObject
                         CreatedAt = System.DateTime.Now
                     });
                 }
-            }
 
             var paymentDetailsList = paymentWindow.Payments.Select(p => $"{p.Method}: {p.Amount:C}").ToList();
             var paymentDetailsStr = string.Join(", ", paymentDetailsList);
@@ -521,6 +569,7 @@ public partial class MainViewModel : ObservableObject
             
             CustomerName = string.Empty;
             Cart.Clear();
+            IsDiscountApplied = false;
             UpdateTotal();
             
             if (System.Windows.Application.Current.MainWindow is PosCore.Views.MainWindow mainWin)
@@ -551,8 +600,10 @@ public partial class MainViewModel : ObservableObject
         var suspendedCart = new ObservableCollection<OrderItem>(Cart);
         SuspendedOrders.Add(suspendedCart);
         
+        CustomerName = string.Empty;
         Cart.Clear();
-        UpdateTotal();
+            IsDiscountApplied = false;
+            UpdateTotal();
         _ = ShowNotification("Orden suspendida exitosamente.", false);
     }
 

@@ -1,0 +1,59 @@
+<Window x:Class="PosCore.Views.ProductRecipeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Receta (BOM) del Producto" SizeToContent="WidthAndHeight" MinWidth="700"
+        WindowStartupLocation="CenterOwner" Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock x:Name="TitleText" Text="Receta de: Producto" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+        <TextBlock Text="Agrega los insumos que se descontarán automáticamente del inventario al vender este producto." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20" TextWrapping="Wrap"/>
+        
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox x:Name="CboSupplies" Height="40" VerticalContentAlignment="Center" DisplayMemberPath="Name" Margin="0,0,10,0"/>
+            <TextBox x:Name="TxtQuantity" Grid.Column="1" Height="40" Padding="10,0" VerticalContentAlignment="Center" Margin="0,0,10,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" ToolTip="Cantidad"/>
+            <Button Grid.Column="2" Content="Agregar Insumo" Height="40" Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Click="BtnAddSupply_Click"/>
+        </Grid>
+        
+        <DataGrid x:Name="RecipeDataGrid" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="False" 
+                  Background="White" MinRowHeight="45" Height="250" ColumnHeaderHeight="40" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                  SelectionMode="Single" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Insumo" Binding="{Binding Supply.Name}" Width="*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Cantidad" Binding="{Binding Quantity, StringFormat=N3}" Width="100" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Unidad" Binding="{Binding Supply.UnitOfMeasure}" Width="80" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Costo Estimado" Binding="{Binding CostoEstimado, StringFormat=C2}" Width="120" IsReadOnly="True"/>
+                <DataGridTemplateColumn Header="Acción" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="✕ Quitar" MinWidth="60" Padding="5,0" Height="30" Background="#FEF2F2" Foreground="#991B1B" BorderThickness="0" Cursor="Hand" Click="BtnRemoveItem_Click">
+                                <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        
+        <Grid Grid.Row="3" Margin="0,20,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBlock Text="Costo Total de Receta:" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"/>
+                <TextBlock x:Name="TotalCostText" Text="$0.00" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cerrar" MinWidth="100" Padding="15,0" Height="40" Background="{StaticResource BorderBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" Click="BtnClose_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

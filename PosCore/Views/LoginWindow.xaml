@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PosCore.Views" xmlns:helpers="clr-namespace:PosCore.Helpers"
         mc:Ignorable="d"
-        Title="{Binding CompanyName, StringFormat='Iniciar Sesión - {0}'}" Height="450" Width="450" 
+        Title="{Binding CompanyName, StringFormat='Iniciar Sesión - {0}'}" MinHeight="450" SizeToContent="WidthAndHeight" MinWidth="450" 
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
     </Window.Resources>

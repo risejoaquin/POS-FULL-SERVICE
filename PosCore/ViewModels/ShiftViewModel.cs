@@ -50,10 +50,26 @@ public partial class ShiftViewModel : ObservableObject
         {
             // Calculate Expected Ending Cash
             // Start with starting cash
-            decimal cashSales = _dbContext.Orders
+            decimal cashSales = 0;
+            var cashOrders = _dbContext.Orders
                 .Where(o => o.OrderDate >= CurrentShift.OpenedAt && !o.IsReturned && o.PaymentDetails.Contains("Efectivo"))
-                .AsEnumerable()
-                .Sum(o => o.TotalAmount);
+                .AsEnumerable();
+            
+            foreach (var o in cashOrders)
+            {
+                var payments = o.PaymentDetails.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in payments)
+                {
+                    if (p.StartsWith("Efectivo: "))
+                    {
+                        var amountStr = p.Substring("Efectivo: ".Length);
+                        if (decimal.TryParse(amountStr, System.Globalization.NumberStyles.Currency, null, out decimal amount))
+                        {
+                            cashSales += amount;
+                        }
+                    }
+                }
+            }
             
             // Add cash movements (in/out)
             decimal movements = _dbContext.CashMovements
