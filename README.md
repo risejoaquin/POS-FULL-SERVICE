@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Super POS Express
 
 Super POS Express es un sistema de Punto de Venta (POS) moderno, inteligente y diseñado con una arquitectura **Offline-First**. Esto significa que las sucursales pueden seguir operando y realizando ventas incluso si pierden su conexión a internet, sincronizando los datos automáticamente una vez que la conexión se restablece.
@@ -24,9 +23,7 @@ El sistema cuenta actualmente con las siguientes funcionalidades operativas:
 *   **Devoluciones**: Proceso de devoluciones de órdenes previas, regresando la mercancía al inventario y generando "Notas de Crédito" impresas directamente en la ticketera.
 *   **Reportes y Cierres**: Generación de reportes de ventas, listado de órdenes y cierres diarios.
 *   **Módulo de Logs**: Visor integrado de registros (logs) del sistema, que permite auditar errores, sincronizaciones, eventos de red o problemas con la impresora.
-*   **Gestión de Mesas**: Módulo habilitable mediante configuración para rubros gastronómicos (habilitable en `appsettings.json`).
 *   **Offline-First y Tolerancia a Fallos**: Operación ininterrumpida sin internet. Las transacciones se guardan en un sistema *Outbox* con SQLite local, para ser sincronizadas posteriormente (`SyncService`) de manera transparente.
-*   **Marca Blanca (White-Label)**: Fácil personalización de colores, logos y nombre de empresa a través del archivo de configuración local.
 *   **Gestión Multi-Tenant**: Soporte para múltiples sucursales con identificadores únicos.
 
 ## 🛠️ Requisitos Previos
@@ -35,20 +32,6 @@ Para compilar y ejecutar este proyecto en tu entorno de desarrollo, necesitas:
 *   [Visual Studio 2022](https://visualstudio.microsoft.com/) o IDE compatible (como Rider o VS Code con la extensión de C#).
 *   PostgreSQL (para el servidor) o una cuenta en Supabase.
 *   Sistema operativo **Windows** (requerido para impresión nativa hacia ticketeras `winspool.drv`).
-
-## 📚 Documentación
-Para obtener instrucciones detalladas sobre instalación, despliegue y uso, consulta la documentación incluida en la carpeta `PosCore/Docs`:
-*   [Manual de Usuario](./PosCore/Docs/User_Manual.md)
-*   [Guía de Instalación](./PosCore/Docs/Installation_Guide.md)
-*   [Guía de Personalización](./PosCore/Docs/Customization_Guide.md)
-*   [Guía de Despliegue del Servidor](./PosCore/Docs/Deployment_Guide.md)
-*   [Guía de Pruebas y CI/CD](./INSTALLER_TESTING_GUIDE.md)
-
-## 🚀 Novedades Recientes
-*   **Correcciones en la Interfaz (WPF)**: Se solucionaron cierres inesperados (crashes) en `SettingsWindow` al inicializar los perfiles de atajos, y en `LoadingOverlay` solucionando una referencia nula al motor de animaciones y renderizado de WPF (`Rotator` en `ControlTemplate`).
-*   **Estabilidad del Servidor Central (PosServer)**: Se solucionó el error interno `500` de las APIs (`/api/license/validate`, `/api/products`) provocado por problemas de concurrencia e inyección de dependencias (`InvalidOperationException`) al resolver el `TenantId` en `CentralDbContext`. Además, se mejoró el aprovisionamiento de tablas SQL con la generación segura de esquemas (`IF NOT EXISTS`) y un manejador de excepciones global.
-*   **Compatibilidad Supabase**: Se ha solucionado el error 500 en Login y sincronización, corrigiendo el guardado de fechas (UTC/Local) en PostgreSQL (`Npgsql.EnableLegacyTimestampBehavior`) y compatibilidad con Transaction Pooler, añadiendo compatibilidad nativa con Transaction Pooler (pgbouncer) de Supabase en `PosServer` desactivando Prepared Statements cuando se detecta el pooler.
-*   **Sincronización Inteligente**: Corrección de bugs en Backoff y sincronización de OutboxMessages.
 
 ## 💻 Cómo Ejecutar en Desarrollo
 
@@ -65,20 +48,3 @@ Para obtener instrucciones detalladas sobre instalación, despliegue y uso, cons
    - `Printer:PortName`: Nombre de la impresora (Ej. `POS-80` o `COM1`).
 3. Ejecuta la aplicación: `dotnet run`
    - Se abrirá la interfaz gráfica (WPF). Al iniciar sesión, se creará la BD local y se descargarán los catálogos.
-
-## 📦 Empaquetado y Producción
-El proyecto incluye un script en PowerShell (`PosCore/build_and_package.ps1`) y un flujo de GitHub Actions (`.github/workflows/build-release.yml`) para compilar un único ejecutable (Self-Contained) y generar un instalador `.exe` utilizando Inno Setup y Squirrel.
-Consulta la [Guía de Pruebas e Instalador](./INSTALLER_TESTING_GUIDE.md) para más detalles.
-=======
-<div align="center">
-
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-
-  <h1>Built with AI Studio</h2>
-
-  <p>The fastest path from prompt to production with Gemini.</p>
-
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
->>>>>>> 15e527dd6342397113fd4ae82fbbb959b415d938

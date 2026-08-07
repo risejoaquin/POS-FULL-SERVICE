@@ -1,6 +1,0 @@
-Barcode,Name,Category,Price,StockQuantity,MinStockThreshold
-75010001,Café Americano,Bebidas,35.00,100,10
-75010002,Capuchino,Bebidas,45.00,50,5
-75010003,Galleta Chispas,Postres,15.00,30,10
-75010004,Agua Natural,Bebidas,20.00,200,20
-75010005,Rebanada Pastel,Postres,55.00,15,5
