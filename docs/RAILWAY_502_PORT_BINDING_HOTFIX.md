@@ -55,3 +55,13 @@ Then the app should be reachable through the Railway public domain.
 - No checkout behavior change.
 - No inventory behavior change.
 - No public API contract change.
+
+
+## Verifier Hotfix V2
+
+RAILWAY 502 verifier syntax hotfix V2. PowerShell markers use single-quoted strings so paths like `/app/start-posserver.sh` and `${PORT}` are treated as literal text.
+
+
+## RAILWAY 502 verifier forbidden-string hotfix V3
+
+The Dockerfiles no longer contain the exact forbidden build-time PORT expansion string, even in comments. Runtime binding remains delegated to `scripts/railway/start-posserver.sh`.

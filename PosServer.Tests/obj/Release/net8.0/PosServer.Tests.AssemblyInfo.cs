@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PosServer.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae57a243e47f3b6663b7e0506e9bd96208c31881")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3e6351fd7ee9846a91766779b215c04996f4e3c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("PosServer.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PosServer.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

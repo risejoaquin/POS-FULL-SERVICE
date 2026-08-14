@@ -27,7 +27,7 @@ COPY --from=build /app/publish .
 COPY scripts/railway/start-posserver.sh /app/start-posserver.sh
 RUN chmod +x /app/start-posserver.sh
 
-# Railway injects PORT at runtime. Do not use ENV ASPNETCORE_URLS=http://+:${PORT}
-# because Docker expands ${PORT} at build time and produces an invalid/empty binding.
+# Railway injects PORT at runtime through the startup script.
+# Do not set ASPNETCORE_URLS here with a build-time PORT placeholder.
 EXPOSE 8080
 ENTRYPOINT ["/app/start-posserver.sh"]
