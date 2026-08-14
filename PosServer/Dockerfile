@@ -1,9 +1,10 @@
 # Railway deployment Dockerfile for PosServer (.NET 8)
-# Location: PosServer/Dockerfile.
-# Expected Railway settings:
-#   Root Directory: empty or /
-#   Dockerfile Path: PosServer/Dockerfile
-# Build context must be repository root so this file can copy sibling projects.
+# Location: PosServer/Dockerfile
+# Required Railway setting:
+#   Root Directory: empty
+# Config-as-code:
+#   railway.json at repository root sets dockerfilePath = PosServer/Dockerfile
+# Build context must be repository root because PosServer depends on sibling projects.
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
@@ -19,7 +20,7 @@ RUN dotnet restore PosServer/PosServer.csproj
 # Copy the rest of the source tree.
 COPY . .
 
-# Publish the API only. Do not publish Windows desktop projects here.
+# Publish only the API service. Do not publish Windows desktop projects here.
 RUN dotnet publish PosServer/PosServer.csproj \
     --configuration Release \
     --output /app/publish \
@@ -30,7 +31,7 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-# Railway provides PORT at runtime. Fallback to 8080 for local Docker runs.
+# Railway injects PORT at runtime. The shell wrapper maps it to ASPNETCORE_URLS.
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 EXPOSE 8080
 
