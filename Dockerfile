@@ -1,6 +1,7 @@
-# Optional root Dockerfile mirror for platforms that only autodetect Dockerfile at repo root.
-# Railway Option A uses railway.json -> PosServer/Dockerfile.
-# Keep this file as a fallback. It uses the same diagnostic-friendly build flow.
+# Railway root Dockerfile fallback.
+# Build context MUST be repository root.
+# Runtime port binding is handled by scripts/railway/start-posserver.sh,
+# because Railway injects PORT at runtime, not at Docker build time.
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
@@ -23,6 +24,10 @@ RUN dotnet publish PosServer/PosServer.csproj -c Release -o /app/publish /p:UseA
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:${PORT}
+COPY scripts/railway/start-posserver.sh /app/start-posserver.sh
+RUN chmod +x /app/start-posserver.sh
+
+# Railway injects PORT at runtime. Do not use ENV ASPNETCORE_URLS=http://+:${PORT}
+# because Docker expands ${PORT} at build time and produces an invalid/empty binding.
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "PosServer.dll"]
+ENTRYPOINT ["/app/start-posserver.sh"]
