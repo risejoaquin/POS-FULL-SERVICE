@@ -26,3 +26,8 @@ Expected production responses:
 
 Next phase after closure:
 - MACROFASE 13D - Auth and Tenant Boundary Production Validation
+
+
+## V2 Metrics Short-Circuit Hotfix
+
+`/metrics` and `/health/metrics` are short-circuited before endpoint routing so production returns deterministic 404 instead of leaking HTTP 500.

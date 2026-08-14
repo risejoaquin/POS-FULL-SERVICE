@@ -182,6 +182,35 @@ Console.WriteLine($"POS Server runtime audit: RailwayRuntime={isRailwayRuntime}"
 Console.WriteLine($"POS Server runtime audit: ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "<not set>"}");
 Console.WriteLine($"POS Server runtime audit: PORT={Environment.GetEnvironmentVariable("PORT") ?? "<not set>"}");
 
+// MACROFASE 13C V2: Short-circuit hardened public diagnostic routes before endpoint routing.
+// This prevents duplicate /metrics or /health/metrics mappings from reaching controller/minimal endpoint resolution.
+app.Use(async (context, next) =>
+{
+    var requestPath = context.Request.Path.Value ?? string.Empty;
+
+    if (requestPath.Equals("/metrics", StringComparison.OrdinalIgnoreCase) ||
+        requestPath.Equals("/health/metrics", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            code = "METRICS_NOT_PUBLIC",
+            message = "Metrics are not exposed publicly in production.",
+            timestamp = DateTime.UtcNow
+        });
+        return;
+    }
+
+    if (requestPath.Equals("/favicon.ico", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status204NoContent;
+        return;
+    }
+
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 app.UseCors("AllowAll");
 app.UseRateLimiter();

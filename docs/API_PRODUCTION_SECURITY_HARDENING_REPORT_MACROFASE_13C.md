@@ -38,3 +38,8 @@ Protected routes without JWT previously could return 400 from TenantMiddleware b
 Marker: Protected unauthenticated API response normalized to 401
 
 No business write endpoint is executed by the validation script.
+
+
+## V2 Metrics Short-Circuit Hotfix
+
+`/metrics` and `/health/metrics` are short-circuited before endpoint routing so production returns deterministic 404 instead of leaking HTTP 500.

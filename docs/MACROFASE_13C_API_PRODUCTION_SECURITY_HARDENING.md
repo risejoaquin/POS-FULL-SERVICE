@@ -24,3 +24,8 @@ Acceptance markers:
 - Swagger production gate: ENABLE_SWAGGER
 - Metrics public exposure hardened: /metrics and /health/metrics return 404
 - Protected unauthenticated API response normalized to 401
+
+
+## V2 Metrics Short-Circuit Hotfix
+
+`/metrics` and `/health/metrics` are short-circuited before endpoint routing so production returns deterministic 404 instead of leaking HTTP 500.
