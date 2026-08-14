@@ -1,7 +1,7 @@
 # Railway deployment Dockerfile for PosServer (.NET 8)
 # Location: PosServer/Dockerfile.
 # Expected Railway settings:
-#   Root Directory: /
+#   Root Directory: empty or /
 #   Dockerfile Path: PosServer/Dockerfile
 # Build context must be repository root so this file can copy sibling projects.
 

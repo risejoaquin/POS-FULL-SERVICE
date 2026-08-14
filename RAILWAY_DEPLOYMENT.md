@@ -1,61 +1,81 @@
-# Railway Deployment — PosServer Dockerfile
+# Railway Deployment — PosServer Dockerfile Context Hotfix
 
-## Purpose
+## Current failure fixed by this package
 
-This repository now includes a root-level `Dockerfile` for Railway deployment of `PosServer`.
-
-Railway previously failed with:
+Railway is finding the Dockerfile, but the build context is wrong:
 
 ```text
-couldn't locate the dockerfile at path Dockerfile in code archive
-  - not found at PosServer/Dockerfile
-  - not found at Dockerfile
+load build definition from PosServer/Dockerfile
+failed to calculate checksum: "/PosServer/PosServer.csproj": not found
 ```
 
-The fix is to keep `Dockerfile` at the repository root, next to `Pos.sln`, because `PosServer` depends on sibling projects:
+This means the Dockerfile path is now correct, but Railway is building from `/PosServer` instead of the repository root.
+
+## Required Railway settings
+
+Use this exact configuration:
 
 ```text
-PosDomain
-PosApplication
-PosInfrastructure
-PosServer
+Root Directory: empty or /
+Dockerfile Path: PosServer/Dockerfile
 ```
 
-## Railway settings
-
-Recommended Railway configuration:
+Do not use:
 
 ```text
-Root Directory: /
-Dockerfile Path: Dockerfile
+Root Directory: /PosServer
 ```
 
-If Railway auto-detects the Dockerfile at root, no custom Dockerfile path is required.
+`PosServer` is not standalone. It has project references to sibling projects:
 
-## Local validation
+```text
+../PosApplication/PosApplication.csproj
+../PosInfrastructure/PosInfrastructure.csproj
+```
 
-From the repository root:
+Those projects require repository-root build context.
+
+## Files included
+
+```text
+railway.json
+Dockerfile
+PosServer/Dockerfile
+.dockerignore
+VERIFY_RAILWAY_BUILD_CONTEXT_UPDATED.ps1
+```
+
+The root `Dockerfile` and `PosServer/Dockerfile` both publish only `PosServer` and avoid publishing Windows desktop projects.
+
+## Expected build progression after fixing Root Directory
+
+The Railway build should progress past:
+
+```text
+COPY PosServer/PosServer.csproj PosServer/
+```
+
+and continue to:
+
+```text
+dotnet restore PosServer/PosServer.csproj
+dotnet publish PosServer/PosServer.csproj
+```
+
+## Local Docker validation
+
+If Docker is installed locally, run from repository root:
 
 ```powershell
-docker build -t posserver-railway-test .
+docker build -f PosServer/Dockerfile -t posserver-railway-test .
 docker run --rm -p 8080:8080 -e PORT=8080 posserver-railway-test
-```
-
-Then validate the API health endpoint, depending on the route implemented by `PosServer`:
-
-```powershell
-curl http://localhost:8080/health
-```
-
-or:
-
-```powershell
-curl http://localhost:8080/api/health
 ```
 
 ## Guardrails
 
-This hotfix only adds deployment packaging files. It does not change:
+This hotfix only changes deployment packaging and Railway configuration files.
+
+It does not change:
 
 ```text
 business logic
@@ -64,32 +84,7 @@ inventory mutation behavior
 public API contracts
 database schema
 migrations
-Railway variables
+Railway secrets
 Supabase data
-production secrets
-```
-
-## Update: Dockerfile inside PosServer
-
-If Railway is configured to look for the Dockerfile inside the API project folder, use:
-
-```text
-Root Directory: /
-Dockerfile Path: PosServer/Dockerfile
-```
-
-The build context must remain the repository root because the API depends on sibling projects:
-
-```text
-PosDomain/
-PosApplication/
-PosInfrastructure/
-PosServer/
-```
-
-Local Docker validation, if Docker is installed:
-
-```powershell
-docker build -f PosServer/Dockerfile -t posserver-railway-test .
-docker run --rm -p 8080:8080 -e PORT=8080 posserver-railway-test
+production data
 ```
