@@ -12,6 +12,7 @@ using System.Net;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.IO;
 using System;
 
@@ -164,6 +165,23 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 
+var isRailwayRuntime =
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")) ||
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_PROJECT_ID")) ||
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_SERVICE_ID"));
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    KnownNetworks = { },
+    KnownProxies = { }
+});
+
+Console.WriteLine($"POS Server runtime audit: Environment={app.Environment.EnvironmentName}");
+Console.WriteLine($"POS Server runtime audit: RailwayRuntime={isRailwayRuntime}");
+Console.WriteLine($"POS Server runtime audit: ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "<not set>"}");
+Console.WriteLine($"POS Server runtime audit: PORT={Environment.GetEnvironmentVariable("PORT") ?? "<not set>"}");
+
 // Configure the HTTP request pipeline.
 app.UseCors("AllowAll");
 app.UseRateLimiter();
@@ -213,7 +231,28 @@ app.UseSwaggerUI();
 
 app.UseMiddleware<PosServer.Middlewares.CorrelationIdMiddleware>();
 app.UseMiddleware<PosServer.Middlewares.ExceptionHandlingMiddleware>();
-app.MapGet("/", () => "POS Server is running!");
+
+app.MapGet("/", (IHostEnvironment environment) => Results.Ok(new
+{
+    service = "POS-FULL-SERVICE API",
+    status = "running",
+    environment = environment.EnvironmentName,
+    timestamp = DateTime.UtcNow
+})).AllowAnonymous();
+
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    service = "POS-FULL-SERVICE API",
+    timestamp = DateTime.UtcNow
+})).AllowAnonymous();
+
+app.MapGet("/api/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    service = "POS-FULL-SERVICE API",
+    timestamp = DateTime.UtcNow
+})).AllowAnonymous();
 
 // Servir la carpeta releases estáticamente para Squirrel
 var releasesPath = Path.Combine(builder.Environment.ContentRootPath, "releases");
@@ -229,7 +268,15 @@ app.UseStaticFiles(new StaticFileOptions
     ServeUnknownFileTypes = true // Importante para .nupkg y RELEASES
 });
 
-app.UseHttpsRedirection();
+if (!isRailwayRuntime)
+{
+    app.UseHttpsRedirection();
+}
+else
+{
+    Console.WriteLine("POS Server runtime audit: Railway runtime detected; HTTPS redirection is skipped because Railway terminates TLS at the edge.");
+}
+
 app.UseAuthentication();
 app.UseMiddleware<PosServer.Middlewares.TenantMiddleware>();
 app.UseMiddleware<PosServer.Middlewares.PostgresTenantMiddleware>();
@@ -252,3 +299,5 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+Console.WriteLine("POS Server runtime audit: startup completed; entering app.Run().");
+app.Run();
