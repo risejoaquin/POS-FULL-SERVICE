@@ -1,38 +1,39 @@
-# Railway deployment Dockerfile for PosServer (.NET 8)
-# Location: PosServer/Dockerfile
-# Required Railway setting:
+# Railway diagnostic Dockerfile for PosServer
+# Build context MUST be repository root, not /PosServer.
+# Required Railway settings:
 #   Root Directory: empty
-# Config-as-code:
-#   railway.json at repository root sets dockerfilePath = PosServer/Dockerfile
-# Build context must be repository root because PosServer depends on sibling projects.
+#   Dockerfile Path: PosServer/Dockerfile (provided by railway.json)
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project files first to improve Docker layer caching.
-COPY PosDomain/PosDomain.csproj PosDomain/
-COPY PosApplication/PosApplication.csproj PosApplication/
-COPY PosInfrastructure/PosInfrastructure.csproj PosInfrastructure/
-COPY PosServer/PosServer.csproj PosServer/
-
-RUN dotnet restore PosServer/PosServer.csproj
-
-# Copy the rest of the source tree.
+# Copy the whole repository first so Railway build logs can show the real build context.
+# This is intentionally diagnostic-friendly. It avoids opaque COPY cache-key failures and
+# prints the visible project structure before restore/publish.
 COPY . .
 
-# Publish only the API service. Do not publish Windows desktop projects here.
-RUN dotnet publish PosServer/PosServer.csproj \
-    --configuration Release \
-    --output /app/publish \
-    /p:UseAppHost=false
+RUN echo "===== RAILWAY CONTEXT AUDIT START =====" \
+    && echo "PWD=$(pwd)" \
+    && echo "Top-level files/folders visible to Docker:" \
+    && ls -la \
+    && echo "Detected .csproj files up to depth 3:" \
+    && find . -maxdepth 3 -name "*.csproj" -print | sort \
+    && echo "Required files check:" \
+    && test -f PosServer/PosServer.csproj || (echo "ERROR: Missing PosServer/PosServer.csproj. Railway Root Directory is probably set to /PosServer or invalid. Set Root Directory EMPTY and keep railway.json at repo root." && exit 41) \
+    && test -f PosDomain/PosDomain.csproj || (echo "ERROR: Missing PosDomain/PosDomain.csproj. PosServer depends on sibling projects, so build context must be repo root." && exit 42) \
+    && test -f PosApplication/PosApplication.csproj || (echo "ERROR: Missing PosApplication/PosApplication.csproj. Build context must include sibling projects." && exit 43) \
+    && test -f PosInfrastructure/PosInfrastructure.csproj || (echo "ERROR: Missing PosInfrastructure/PosInfrastructure.csproj. Build context must include sibling projects." && exit 44) \
+    && echo "RAILWAY CONTEXT AUDIT PASS: repo root context is visible." \
+    && echo "===== RAILWAY CONTEXT AUDIT END ====="
+
+RUN dotnet restore PosServer/PosServer.csproj
+RUN dotnet publish PosServer/PosServer.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-
 COPY --from=build /app/publish .
 
-# Railway injects PORT at runtime. The shell wrapper maps it to ASPNETCORE_URLS.
-ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_URLS=http://+:${PORT}
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} exec dotnet PosServer.dll"]
+ENTRYPOINT ["dotnet", "PosServer.dll"]

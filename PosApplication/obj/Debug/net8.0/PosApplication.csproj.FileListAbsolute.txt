@@ -1,0 +1,16 @@
+C:\Users\Lucilfer\Documents\POS\PosApplication\bin\Debug\net8.0\PosApplication.deps.json
+C:\Users\Lucilfer\Documents\POS\PosApplication\bin\Debug\net8.0\PosApplication.dll
+C:\Users\Lucilfer\Documents\POS\PosApplication\bin\Debug\net8.0\PosApplication.pdb
+C:\Users\Lucilfer\Documents\POS\PosApplication\bin\Debug\net8.0\PosDomain.dll
+C:\Users\Lucilfer\Documents\POS\PosApplication\bin\Debug\net8.0\PosDomain.pdb
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.csproj.AssemblyReference.cache
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.AssemblyInfoInputs.cache
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.AssemblyInfo.cs
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.csproj.CoreCompileInputs.cache
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.sourcelink.json
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosAppli.8790394B.Up2Date
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.dll
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\refint\PosApplication.dll
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\PosApplication.pdb
+C:\Users\Lucilfer\Documents\POS\PosApplication\obj\Debug\net8.0\ref\PosApplication.dll

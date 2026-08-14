@@ -1,34 +1,28 @@
-# Railway deployment Dockerfile for PosServer (.NET 8)
-# Location: repository root, next to Pos.sln.
-# This Dockerfile publishes only PosServer and its non-Windows dependencies.
+# Optional root Dockerfile mirror for platforms that only autodetect Dockerfile at repo root.
+# Railway Option A uses railway.json -> PosServer/Dockerfile.
+# Keep this file as a fallback. It uses the same diagnostic-friendly build flow.
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-
-# Copy project files first to improve Docker layer caching.
-COPY PosDomain/PosDomain.csproj PosDomain/
-COPY PosApplication/PosApplication.csproj PosApplication/
-COPY PosInfrastructure/PosInfrastructure.csproj PosInfrastructure/
-COPY PosServer/PosServer.csproj PosServer/
-
-RUN dotnet restore PosServer/PosServer.csproj
-
-# Copy the rest of the source tree.
 COPY . .
 
-# Publish the API only. Do not publish WPF projects here.
-RUN dotnet publish PosServer/PosServer.csproj \
-    --configuration Release \
-    --output /app/publish \
-    /p:UseAppHost=false
+RUN echo "===== RAILWAY ROOT DOCKERFILE CONTEXT AUDIT START =====" \
+    && echo "PWD=$(pwd)" \
+    && ls -la \
+    && find . -maxdepth 3 -name "*.csproj" -print | sort \
+    && test -f PosServer/PosServer.csproj || (echo "ERROR: Missing PosServer/PosServer.csproj. Build context must be repo root." && exit 41) \
+    && test -f PosDomain/PosDomain.csproj || (echo "ERROR: Missing PosDomain/PosDomain.csproj." && exit 42) \
+    && test -f PosApplication/PosApplication.csproj || (echo "ERROR: Missing PosApplication/PosApplication.csproj." && exit 43) \
+    && test -f PosInfrastructure/PosInfrastructure.csproj || (echo "ERROR: Missing PosInfrastructure/PosInfrastructure.csproj." && exit 44) \
+    && echo "RAILWAY ROOT DOCKERFILE CONTEXT AUDIT PASS." \
+    && echo "===== RAILWAY ROOT DOCKERFILE CONTEXT AUDIT END ====="
+
+RUN dotnet restore PosServer/PosServer.csproj
+RUN dotnet publish PosServer/PosServer.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-
 COPY --from=build /app/publish .
-
-# Railway provides PORT at runtime. Fallback to 8080 for local Docker runs.
-ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_URLS=http://+:${PORT}
 EXPOSE 8080
-
-ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} exec dotnet PosServer.dll"]
+ENTRYPOINT ["dotnet", "PosServer.dll"]

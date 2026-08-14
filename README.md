@@ -813,3 +813,23 @@ docker run --rm -p 8080:8080 -e PORT=8080 posserver-railway-test
 ```
 
 Guardrails: no business logic change, no checkout behavior change, no inventory mutation change, no public API contract change, no schema change, no migrations, no Railway variable mutation, no Supabase data mutation.
+
+## MACROFASE 12 — Production Database Baseline Audit
+
+Database baseline audit artifacts were added under `docs/` and `scripts/database/`.
+
+Current deployment blocker identified: Supabase schema drift against EF Core migration history.
+
+Recommended next action: model hardening, migration reset, and `InitialProductionBaseline` creation.
+
+## MACROFASE 12B — Model Hardening
+
+MACROFASE 12B prepares the production database baseline by hardening `CentralDbContext` before generating `InitialProductionBaseline`.
+
+Status: READY FOR LOCAL VERIFICATION.
+
+Validation command:
+
+```powershell
+.\VERIFY_MACROFASE_12B_MODEL_HARDENING_UPDATED.ps1
+```

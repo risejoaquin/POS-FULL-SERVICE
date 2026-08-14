@@ -1,59 +1,20 @@
-# Railway Option A — Config as Code Deployment
+# Railway Option A - Config as Code with Diagnostic Build Logs
 
-This hotfix configures Railway from the repository itself using `railway.json`.
-
-## Required Railway UI setting
-
-In Railway → Settings → Source:
+This option uses `railway.json` at repository root to select Dockerfile deployment:
 
 ```text
-Root Directory: empty
+builder: DOCKERFILE
+dockerfilePath: PosServer/Dockerfile
 ```
 
-Do not write any of the following in Root Directory:
+Railway Source configuration must keep Root Directory empty.
+
+This hotfix also improves Docker build logs by printing the visible build context and all detected `.csproj` files before `dotnet restore`.
+
+Current known blocker:
 
 ```text
-/PosServer
-Dockerfile Path: PosServer/Dockerfile
-Root Directory:
-/ Dockerfile Path: PosServer/Dockerfile
+snapshot-target-unpack/Root Directory:
 ```
 
-## How Railway should resolve the build
-
-`railway.json` must be in the repository root and contains:
-
-```json
-{
-  "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "PosServer/Dockerfile"
-  }
-}
-```
-
-This allows the Dockerfile to live in `PosServer/Dockerfile` while the build context remains the repository root.
-
-## Why Root Directory must stay empty
-
-`PosServer` depends on sibling projects:
-
-```text
-PosDomain/
-PosApplication/
-PosInfrastructure/
-```
-
-If Root Directory is `/PosServer`, Docker cannot access those sibling folders and Railway will fail with missing project-file errors.
-
-## Expected successful build progression
-
-```text
-load build definition from PosServer/Dockerfile
-COPY PosDomain/PosDomain.csproj PosDomain/
-COPY PosApplication/PosApplication.csproj PosApplication/
-COPY PosInfrastructure/PosInfrastructure.csproj PosInfrastructure/
-COPY PosServer/PosServer.csproj PosServer/
-RUN dotnet restore PosServer/PosServer.csproj
-RUN dotnet publish PosServer/PosServer.csproj
-```
+This is not a .NET build failure. It means the Railway Root Directory field contains invalid literal text. Clear the Root Directory field completely.

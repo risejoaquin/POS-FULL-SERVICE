@@ -9,6 +9,7 @@ using PosApplication.Interfaces.Server;
 using System.Text.Json;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace PosInfrastructure.Data.Server;
 
@@ -182,9 +183,238 @@ public class CentralDbContext : DbContext
             entity.HasQueryFilter(e => e.TenantId == CurrentTenantId);
         });
 
+        ApplyProductionDatabaseBaselineHardening(modelBuilder);
+
         // Configurar RowVersion (xmin en postgresql) para concurrencia optimista
 
     }
+
+
+    private static void ApplyProductionDatabaseBaselineHardening(ModelBuilder modelBuilder)
+    {
+        // MACROFASE 12B production database baseline hardening.
+        // This centralizes persistence rules needed before generating InitialProductionBaseline.
+        ConfigureProduct(modelBuilder.Entity<Product>());
+        ConfigureOrder(modelBuilder.Entity<Order>());
+        ConfigureOrderItem(modelBuilder.Entity<OrderItem>());
+        ConfigurePayment(modelBuilder.Entity<Payment>());
+        ConfigureUser(modelBuilder.Entity<User>());
+        ConfigureLicense(modelBuilder.Entity<License>());
+        ConfigureCashRegisterShift(modelBuilder.Entity<CashRegisterShift>());
+        ConfigureCashMovement(modelBuilder.Entity<CashMovement>());
+        ConfigureSupply(modelBuilder.Entity<Supply>());
+        ConfigureInventoryMovement(modelBuilder.Entity<InventoryMovement>());
+        ConfigureRecipeItem(modelBuilder.Entity<RecipeItem>());
+        ConfigureProductModifier(modelBuilder.Entity<ProductModifier>());
+        ConfigureModifierOption(modelBuilder.Entity<ModifierOption>());
+        ConfigureProductModifierLink(modelBuilder.Entity<ProductModifierLink>());
+        ConfigureOutboxMessage(modelBuilder.Entity<OutboxMessage>());
+        ConfigureInboxMessage(modelBuilder.Entity<InboxMessage>());
+        ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
+    }
+
+    private static void ConfigureTenantScopedEntity<TEntity>(EntityTypeBuilder<TEntity> entity) where TEntity : class
+    {
+        entity.Property<string>("TenantId")
+            .IsRequired()
+            .HasMaxLength(128);
+
+        entity.HasIndex("TenantId");
+    }
+
+    private static void ConfigureProduct(EntityTypeBuilder<Product> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+        entity.Property(e => e.Barcode).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.Category).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.ImagePath).IsRequired().HasMaxLength(512);
+        entity.Property(e => e.Price).HasPrecision(18, 2);
+        entity.HasIndex(e => new { e.TenantId, e.Barcode }).IsUnique().HasFilter("\"Barcode\" <> ''");
+        entity.HasIndex(e => new { e.TenantId, e.Category });
+        entity.HasIndex(e => new { e.TenantId, e.IsActive });
+    }
+
+    private static void ConfigureOrder(EntityTypeBuilder<Order> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.CustomerName).HasMaxLength(200);
+        entity.Property(e => e.IdempotencyKey).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.ClientSideId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.CreatedById).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.PaymentDetails).IsRequired().HasMaxLength(1024);
+        entity.Property(e => e.ReturnReason).IsRequired().HasMaxLength(512);
+        entity.Property(e => e.AuthorizedBy).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.SubTotal).HasPrecision(18, 2);
+        entity.Property(e => e.TaxAmount).HasPrecision(18, 2);
+        entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+        entity.HasIndex(e => new { e.TenantId, e.OrderDate });
+        entity.HasIndex(e => new { e.TenantId, e.ClientSideId }).IsUnique().HasFilter("\"ClientSideId\" <> ''");
+        entity.HasMany(e => e.Payments).WithOne(e => e.Order).HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Restrict);
+    }
+
+    private static void ConfigureOrderItem(EntityTypeBuilder<OrderItem> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.ProductBarcode).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.Notes).IsRequired().HasMaxLength(512);
+        entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+        entity.Property(e => e.Discount).HasPrecision(18, 2);
+        entity.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasIndex(e => new { e.TenantId, e.ProductId });
+    }
+
+    private static void ConfigurePayment(EntityTypeBuilder<Payment> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Method).IsRequired().HasMaxLength(64);
+        entity.Property(e => e.IdempotencyKey).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.Amount).HasPrecision(18, 2);
+        entity.HasIndex(e => new { e.TenantId, e.PaymentDate });
+        entity.HasIndex(e => new { e.TenantId, e.Status });
+    }
+
+    private static void ConfigureUser(EntityTypeBuilder<User> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Username).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(512);
+        entity.Property(e => e.Pin).HasMaxLength(128);
+        entity.Property(e => e.Role).IsRequired().HasMaxLength(64);
+        entity.Property(e => e.RefreshToken).HasMaxLength(512);
+        entity.HasIndex(e => new { e.TenantId, e.Username }).IsUnique();
+        entity.HasIndex(e => new { e.TenantId, e.Role });
+        entity.HasIndex(e => new { e.TenantId, e.IsActive });
+    }
+
+    private static void ConfigureLicense(EntityTypeBuilder<License> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.LicenseKey).IsRequired().HasMaxLength(256);
+        entity.Property(e => e.Description).IsRequired().HasMaxLength(512);
+        entity.HasIndex(e => new { e.TenantId, e.LicenseKey }).IsUnique().HasFilter("\"LicenseKey\" <> ''");
+        entity.HasIndex(e => new { e.TenantId, e.IsActive });
+    }
+
+    private static void ConfigureCashRegisterShift(EntityTypeBuilder<CashRegisterShift> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.StartingCash).HasPrecision(18, 2);
+        entity.Property(e => e.ExpectedEndingCash).HasPrecision(18, 2);
+        entity.Property(e => e.ActualEndingCash).HasPrecision(18, 2);
+        entity.Property(e => e.Difference).HasPrecision(18, 2);
+        entity.Property(e => e.OpenedBy).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.ClosedBy).IsRequired().HasMaxLength(128);
+        entity.HasIndex(e => new { e.TenantId, e.OpenedAt });
+        entity.HasIndex(e => new { e.TenantId, e.IsClosed });
+        entity.HasMany(e => e.Movements).WithOne(e => e.Shift).HasForeignKey(e => e.ShiftId).OnDelete(DeleteBehavior.Restrict);
+    }
+
+    private static void ConfigureCashMovement(EntityTypeBuilder<CashMovement> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Type).IsRequired().HasMaxLength(32);
+        entity.Property(e => e.Reason).IsRequired().HasMaxLength(512);
+        entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.Amount).HasPrecision(18, 2);
+        entity.HasIndex(e => new { e.TenantId, e.ShiftId, e.CreatedAt });
+    }
+
+    private static void ConfigureSupply(EntityTypeBuilder<Supply> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+        entity.Property(e => e.UnitOfMeasure).IsRequired().HasMaxLength(32);
+        entity.Property(e => e.Cost).HasPrecision(18, 4);
+        entity.Property(e => e.Stock).HasPrecision(18, 3);
+        entity.Property(e => e.MinStockThreshold).HasPrecision(18, 3);
+        entity.HasIndex(e => new { e.TenantId, e.Name });
+    }
+
+    private static void ConfigureInventoryMovement(EntityTypeBuilder<InventoryMovement> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Quantity).HasPrecision(18, 3);
+        entity.Property(e => e.MovementType).IsRequired().HasMaxLength(64);
+        entity.Property(e => e.Reference).IsRequired().HasMaxLength(256);
+        // InventoryMovement can reference either ProductId or SupplyId. ProductId is currently non-nullable and legacy supply movements use ProductId = 0, so explicit FK enforcement is deferred until the domain model is normalized.
+        entity.HasIndex(e => new { e.TenantId, e.ProductId, e.MovementDate });
+        entity.HasIndex(e => new { e.TenantId, e.SupplyId, e.MovementDate });
+        entity.HasIndex(e => new { e.TenantId, e.IsSynced });
+    }
+
+    private static void ConfigureRecipeItem(EntityTypeBuilder<RecipeItem> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Quantity).HasPrecision(18, 3);
+        entity.HasOne(e => e.Product).WithMany(e => e.RecipeItems).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(e => e.Supply).WithMany().HasForeignKey(e => e.SupplyId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasIndex(e => new { e.TenantId, e.ProductId, e.SupplyId }).IsUnique();
+    }
+
+    private static void ConfigureProductModifier(EntityTypeBuilder<ProductModifier> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+        entity.Property(e => e.Description).IsRequired().HasMaxLength(512);
+        entity.HasIndex(e => new { e.TenantId, e.Name });
+        entity.HasMany(e => e.Options).WithOne(e => e.ProductModifier).HasForeignKey(e => e.ProductModifierId).OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private static void ConfigureModifierOption(EntityTypeBuilder<ModifierOption> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+        entity.Property(e => e.PriceAdjustment).HasPrecision(18, 2);
+        entity.HasIndex(e => new { e.TenantId, e.ProductModifierId, e.SortOrder });
+    }
+
+    private static void ConfigureProductModifierLink(EntityTypeBuilder<ProductModifierLink> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.HasOne(e => e.Product).WithMany(e => e.ProductModifiers).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(e => e.ProductModifier).WithMany().HasForeignKey(e => e.ProductModifierId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasIndex(e => new { e.TenantId, e.ProductId, e.ProductModifierId }).IsUnique();
+    }
+
+    private static void ConfigureOutboxMessage(EntityTypeBuilder<OutboxMessage> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.EventId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.DeviceId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.AggregateId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.EventType).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.SchemaVersion).IsRequired().HasMaxLength(32);
+        entity.Property(e => e.Status).IsRequired().HasMaxLength(32);
+        entity.Property(e => e.Payload).IsRequired().HasColumnType("jsonb");
+        entity.HasIndex(e => e.EventId).IsUnique();
+        entity.HasIndex(e => new { e.TenantId, e.Status, e.NextAttemptAt });
+    }
+
+    private static void ConfigureInboxMessage(EntityTypeBuilder<InboxMessage> entity)
+    {
+        entity.HasKey(e => e.EventId);
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.EventId).HasMaxLength(128);
+        entity.HasIndex(e => new { e.TenantId, e.ProcessedAt });
+    }
+
+    private static void ConfigureAuditLog(EntityTypeBuilder<AuditLog> entity)
+    {
+        ConfigureTenantScopedEntity(entity);
+        entity.Property(e => e.UserId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.DeviceId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.Action).IsRequired().HasMaxLength(64);
+        entity.Property(e => e.EntityType).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.EntityId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.CorrelationId).IsRequired().HasMaxLength(128);
+        entity.Property(e => e.OldValues).IsRequired();
+        entity.Property(e => e.NewValues).IsRequired();
+        entity.HasIndex(e => new { e.TenantId, e.Timestamp });
+        entity.HasIndex(e => new { e.TenantId, e.EntityType, e.EntityId });
+    }
+
+
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

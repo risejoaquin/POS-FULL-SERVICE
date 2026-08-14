@@ -8735,6 +8735,244 @@ public void Phase11_Final_Readme_And_Roadmap_Should_Record_Functional_Business_C
     Assert.Contains("no checkout real", roadmap, StringComparison.OrdinalIgnoreCase);
 }
 
+
+[Fact]
+public void Macrofase12B_CentralDbContext_Should_Contain_Production_Baseline_Hardening()
+{
+    var source = ReadSource("PosInfrastructure", "Data", "Server", "CentralDbContext.cs");
+
+    Assert.Contains("ApplyProductionDatabaseBaselineHardening", source, StringComparison.Ordinal);
+    Assert.Contains("ConfigureTenantScopedEntity", source, StringComparison.Ordinal);
+    Assert.Contains("MACROFASE 12B production database baseline hardening", source, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_CentralDbContext_Should_Require_Tenant_And_Operational_Indexes()
+{
+    var source = ReadSource("PosInfrastructure", "Data", "Server", "CentralDbContext.cs");
+
+    Assert.Contains("entity.Property<string>(\"TenantId\")", source, StringComparison.Ordinal);
+    Assert.Contains(".IsRequired()", source, StringComparison.Ordinal);
+    Assert.Contains("HasMaxLength(128)", source, StringComparison.Ordinal);
+    Assert.Contains("HasIndex(\"TenantId\")", source, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_CentralDbContext_Should_Configure_Money_And_Inventory_Precision()
+{
+    var source = ReadSource("PosInfrastructure", "Data", "Server", "CentralDbContext.cs");
+
+    Assert.Contains("HasPrecision(18, 2)", source, StringComparison.Ordinal);
+    Assert.Contains("HasPrecision(18, 3)", source, StringComparison.Ordinal);
+    Assert.Contains("HasPrecision(18, 4)", source, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_CentralDbContext_Should_Document_InventoryMovement_Fk_Deferral()
+{
+    var source = ReadSource("PosInfrastructure", "Data", "Server", "CentralDbContext.cs");
+
+    Assert.Contains("InventoryMovement can reference either ProductId or SupplyId", source, StringComparison.Ordinal);
+    Assert.Contains("explicit FK enforcement is deferred", source, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_Documentation_Should_Describe_Model_Hardening()
+{
+    var doc = ReadSource("docs", "MACROFASE_12B_MODEL_HARDENING.md");
+    var report = ReadSource("docs", "DATABASE_BASELINE_MODEL_HARDENING_REPORT.md");
+
+    Assert.Contains("MACROFASE 12B production database baseline hardening documented", doc, StringComparison.Ordinal);
+    Assert.Contains("InitialProductionBaseline", doc, StringComparison.Ordinal);
+    Assert.Contains("DATABASE BASELINE MODEL HARDENING REPORT", report, StringComparison.Ordinal);
+    Assert.Contains("Known intentional deferral", report, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_Runbook_Should_Define_Migration_Reset_Flow()
+{
+    var runbook = ReadSource("docs", "MIGRATION_RESET_RUNBOOK.md");
+
+    Assert.Contains("InitialProductionBaseline", runbook, StringComparison.Ordinal);
+    Assert.Contains("DROP SCHEMA public CASCADE", runbook, StringComparison.Ordinal);
+    Assert.Contains("Root Directory", runbook, StringComparison.Ordinal);
+    Assert.Contains("PosServer/Dockerfile", runbook, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_Baseline_Script_Should_Default_To_Dry_Run()
+{
+    var script = ReadSource("scripts", "database", "Invoke-Macrofase12-ProductionDatabaseBaseline.ps1");
+
+    Assert.Contains("ApplyLocalMigrationReset", script, StringComparison.Ordinal);
+    Assert.Contains("Dry run only", script, StringComparison.Ordinal);
+    Assert.Contains("No files were deleted", script, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_Baseline_Script_Should_Backup_And_Generate_Migration_When_Applied()
+{
+    var script = ReadSource("scripts", "database", "Invoke-Macrofase12-ProductionDatabaseBaseline.ps1");
+
+    Assert.Contains("Migrations_Backup_PreMacro12", script, StringComparison.Ordinal);
+    Assert.Contains("dotnet ef migrations add $MigrationName", script, StringComparison.Ordinal);
+    Assert.Contains("dotnet build -c Release Pos.sln", script, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_Verifier_Should_Require_Model_Hardening_Markers()
+{
+    var verifier = ReadSource("VERIFY_MACROFASE_12B_MODEL_HARDENING_UPDATED.ps1");
+
+    Assert.Contains("MACROFASE 12B model hardening markers verified.", verifier, StringComparison.Ordinal);
+    Assert.Contains("ApplyProductionDatabaseBaselineHardening", verifier, StringComparison.Ordinal);
+    Assert.Contains("InitialProductionBaseline", verifier, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12B_Progress_Report_Should_Record_Next_Block()
+{
+    var progress = ReadSource("docs", "PROJECT_PROGRESS_REPORT_MACROFASE_12B.md");
+
+    Assert.Contains("MACROFASE 12B model hardening", progress, StringComparison.Ordinal);
+    Assert.Contains("MACROFASE 12 overall: 35% complete", progress, StringComparison.Ordinal);
+    Assert.Contains("MACROFASE 12C", progress, StringComparison.Ordinal);
+}
+
+
+
+[Fact]
+public void Macrofase12C_Documentation_Should_Define_Migration_Reset_And_Baseline()
+{
+    var doc = ReadSource("docs", "MACROFASE_12C_MIGRATION_RESET_INITIAL_BASELINE.md");
+    var runbook = ReadSource("docs", "INITIAL_PRODUCTION_BASELINE_RUNBOOK.md");
+
+    Assert.Contains("MACROFASE 12C migration reset and InitialProductionBaseline documented.", doc, StringComparison.Ordinal);
+    Assert.Contains("42P07: relation", doc, StringComparison.Ordinal);
+    Assert.Contains("InitialProductionBaseline", runbook, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Should_Provide_Supabase_Public_Schema_Reset_Sql()
+{
+    var sql = ReadSource("scripts", "database", "Reset-Supabase-PublicSchema-Macrofase12C.sql");
+
+    Assert.Contains("DROP SCHEMA IF EXISTS public CASCADE", sql, StringComparison.Ordinal);
+    Assert.Contains("CREATE SCHEMA public", sql, StringComparison.Ordinal);
+    Assert.Contains("Supabase public schema reset SQL documented", sql, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Reset_Script_Should_Default_To_Dry_Run()
+{
+    var script = ReadSource("scripts", "database", "Invoke-Macrofase12C-MigrationResetAndBaseline.ps1");
+
+    Assert.Contains("MACROFASE 12C dry run only", script, StringComparison.Ordinal);
+    Assert.Contains("No migration files were deleted", script, StringComparison.Ordinal);
+    Assert.Contains("No Supabase schema was dropped", script, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Reset_Script_Should_Backup_Old_Migrations()
+{
+    var script = ReadSource("scripts", "database", "Invoke-Macrofase12C-MigrationResetAndBaseline.ps1");
+
+    Assert.Contains("Migrations_Backup_PreMacro12", script, StringComparison.Ordinal);
+    Assert.Contains("Copy-Item", script, StringComparison.Ordinal);
+    Assert.Contains("Old CentralDbContext migration files removed", script, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Reset_Script_Should_Generate_InitialProductionBaseline()
+{
+    var script = ReadSource("scripts", "database", "Invoke-Macrofase12C-MigrationResetAndBaseline.ps1");
+
+    Assert.Contains("dotnet ef migrations add $MigrationName", script, StringComparison.Ordinal);
+    Assert.Contains("InitialProductionBaseline", script, StringComparison.Ordinal);
+    Assert.Contains("dotnet build -c Release Pos.sln", script, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Verifier_Should_Require_Baseline_Reset_Markers()
+{
+    var verifier = ReadSource("VERIFY_MACROFASE_12C_MIGRATION_BASELINE_UPDATED.ps1");
+
+    Assert.Contains("MACROFASE 12C migration baseline reset tooling verified.", verifier, StringComparison.Ordinal);
+    Assert.Contains("Supabase public schema reset SQL documented.", verifier, StringComparison.Ordinal);
+    Assert.Contains("InitialProductionBaseline generation path documented.", verifier, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Progress_Report_Should_Record_Macrofase_12_Status()
+{
+    var progress = ReadSource("docs", "PROJECT_PROGRESS_REPORT_MACROFASE_12C.md");
+
+    Assert.Contains("MACROFASE 12C — Migration Reset and InitialProductionBaseline", progress, StringComparison.Ordinal);
+    Assert.Contains("MACROFASE 12 overall: 55% complete", progress, StringComparison.Ordinal);
+    Assert.Contains("MACROFASE 12D", progress, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Runbook_Should_Define_Railway_Redeploy_Path()
+{
+    var runbook = ReadSource("docs", "INITIAL_PRODUCTION_BASELINE_RUNBOOK.md");
+
+    Assert.Contains("Railway Root Directory is empty or `/`", runbook, StringComparison.Ordinal);
+    Assert.Contains("PosServer/Dockerfile", runbook, StringComparison.Ordinal);
+    Assert.Contains("Redeploy", runbook, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Runbook_Should_Require_Disposable_Database_Precondition()
+{
+    var runbook = ReadSource("docs", "INITIAL_PRODUCTION_BASELINE_RUNBOOK.md");
+
+    Assert.Contains("The target Supabase database has no important data", runbook, StringComparison.Ordinal);
+    Assert.Contains("This is destructive", runbook, StringComparison.Ordinal);
+    Assert.Contains("confirmed disposable", runbook, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Should_Not_Change_Pos_Business_Behavior()
+{
+    var doc = ReadSource("docs", "MACROFASE_12C_MIGRATION_RESET_INITIAL_BASELINE.md");
+
+    Assert.Contains("No POS checkout behavior changes", doc, StringComparison.Ordinal);
+    Assert.Contains("No inventory mutation behavior changes", doc, StringComparison.Ordinal);
+    Assert.Contains("No API public contract changes", doc, StringComparison.Ordinal);
+}
+
+
+[Fact]
+public void Macrofase12C_Should_Provide_CentralDbContext_Design_Time_Factory()
+{
+    var factory = ReadSource("PosInfrastructure", "Data", "Server", "CentralDbContextDesignTimeFactory.cs");
+
+    Assert.Contains("IDesignTimeDbContextFactory<CentralDbContext>", factory, StringComparison.Ordinal);
+    Assert.Contains("CreateDbContext", factory, StringComparison.Ordinal);
+    Assert.Contains("DesignTimeTenantContext", factory, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Design_Time_Factory_Should_Avoid_Jwt_Startup_Requirement()
+{
+    var factory = ReadSource("PosInfrastructure", "Data", "Server", "CentralDbContextDesignTimeFactory.cs");
+    var doc = ReadSource("docs", "MACROFASE_12C_DESIGN_TIME_FACTORY_HOTFIX.md");
+
+    Assert.Contains("without executing JWT startup validation", factory, StringComparison.Ordinal);
+    Assert.Contains("does not require JWT_KEY", doc, StringComparison.Ordinal);
+    Assert.Contains("constructor ambiguity", doc, StringComparison.Ordinal);
+}
+
+[Fact]
+public void Macrofase12C_Reset_Script_Should_Announce_Design_Time_Factory()
+{
+    var script = ReadSource("scripts", "database", "Invoke-Macrofase12C-MigrationResetAndBaseline.ps1");
+
+    Assert.Contains("CentralDbContextDesignTimeFactory.cs", script, StringComparison.Ordinal);
+    Assert.Contains("should not require JWT_KEY", script, StringComparison.Ordinal);
+}
+
 private static int CountOccurrences(string source, string value)
 {
     return source.Split(value, StringSplitOptions.None).Length - 1;

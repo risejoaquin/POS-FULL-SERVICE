@@ -1,31 +1,32 @@
-# Railway Deployment — PosServer
+# Railway Deployment Configuration
 
-## Current deployment mode
+## Required configuration
 
-This repository uses Railway config-as-code.
-
-```text
-railway.json at repo root
-Dockerfile: PosServer/Dockerfile
-Build context: repository root
-Runtime entrypoint: dotnet PosServer.dll
-```
-
-## Railway UI settings
-
-In Railway → Settings → Source:
+In Railway Settings -> Source:
 
 ```text
 Root Directory: empty
 Branch: main
 ```
 
-Do not set Root Directory to `/PosServer`.
-Do not type `Dockerfile Path: PosServer/Dockerfile` into Root Directory.
+Do not write Dockerfile path inside Root Directory.
 
-## Why
+## Dockerfile selection
 
-The Dockerfile is inside `PosServer`, but the build context must be the repository root because `PosServer` depends on:
+This repository uses `railway.json` at repo root:
+
+```json
+{
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "PosServer/Dockerfile"
+  }
+}
+```
+
+## Why Root Directory must be empty
+
+`PosServer` depends on sibling projects:
 
 ```text
 PosDomain
@@ -33,27 +34,17 @@ PosApplication
 PosInfrastructure
 ```
 
-## Expected Railway build
+If Root Directory is `/PosServer`, Docker cannot see those sibling projects and the build fails.
+
+## Diagnostic build markers
+
+The diagnostic Dockerfile prints:
 
 ```text
-load build definition from PosServer/Dockerfile
-COPY PosDomain/PosDomain.csproj PosDomain/
-COPY PosApplication/PosApplication.csproj PosApplication/
-COPY PosInfrastructure/PosInfrastructure.csproj PosInfrastructure/
-COPY PosServer/PosServer.csproj PosServer/
-RUN dotnet restore PosServer/PosServer.csproj
-RUN dotnet publish PosServer/PosServer.csproj
+===== RAILWAY CONTEXT AUDIT START =====
+Detected .csproj files up to depth 3
+RAILWAY CONTEXT AUDIT PASS
+===== RAILWAY CONTEXT AUDIT END =====
 ```
 
-## Local verification
-
-```powershell
-.\VERIFY_RAILWAY_OPTION_A_UPDATED.ps1
-```
-
-Optional local Docker verification if Docker is installed:
-
-```powershell
-docker build -f PosServer/Dockerfile -t posserver-railway-test .
-docker run --rm -p 8080:8080 -e PORT=8080 posserver-railway-test
-```
+If Railway still fails with `snapshot-target-unpack/Root Directory:`, fix the Root Directory field first. Docker is not running yet in that failure mode.

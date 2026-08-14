@@ -2347,3 +2347,18 @@ Guardrails: no real hardware access, no printer execution, no cash drawer pulse,
 ## PHASE 11 FINAL — POS Functional Business Validation Closure
 
 PHASE 11 FINAL closes POS Functional Business Validation after PHASE 11.1, 11.2, 11.3, and 11.4. Expected regression state: 620 tests passed, 0 failed. Evidence: functional-business-closure-evidence.json, functional-business-readiness-scorecard.json, store-pilot-entry-decision-report.json, phase11-final-closure-summary.json. Guardrails: no checkout real, no payment capture, no receipt printing, no refund execution, no real inventory mutation, no hardware access, no store pilot activation, no production sync enablement, no public API behavior change, no schema change, no migrations.
+
+## MACROFASE 12B — Model Hardening
+
+Status: READY FOR LOCAL VERIFICATION.
+
+- CentralDbContext production database baseline hardening implemented.
+- InitialProductionBaseline generation prepared.
+- Supabase schema reset remains intentional/manual.
+- Expected test count after this block: 630 tests passed if the new architecture tests compile and pass locally.
+- Next block: MACROFASE 12C — Migration Reset and InitialProductionBaseline.
+
+
+## MACROFASE 12C — Migration Reset and InitialProductionBaseline
+
+MACROFASE 12C migration baseline reset tooling verified. Next: execute local migration reset, create InitialProductionBaseline, reset disposable Supabase schema, redeploy Railway.

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "ASd9Y3MaHHIft+YXLS+GVDU0Wn01BErrBZbb9bWPdyo=",
+  "Source": "PosServer",
+  "BasePath": "_content/PosServer",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
