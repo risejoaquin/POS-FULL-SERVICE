@@ -1,0 +1,52 @@
+<UserControl x:Class="PosBuilder.Views.Step1Environment"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+    <StackPanel Margin="20">
+        <TextBlock Text="Nombre del Comercio (Tenant)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <ComboBox ToolTip="Nombre del inquilino (ej: miempresa). Se usa para configurar el aislamiento de datos." Text="{Binding TenantName, UpdateSourceTrigger=PropertyChanged}" IsEditable="True" Padding="8" Margin="0,0,0,15" FontSize="14">
+            <ComboBoxItem Content="Mi Tienda"/>
+            <ComboBoxItem Content="Tienda Centro"/>
+            <ComboBoxItem Content="Tienda Norte"/>
+        </ComboBox>
+        
+        <TextBlock Text="Tipo de Negocio" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <ComboBox ToolTip="Selecciona el tipo de negocio para generar la base de datos adecuada." Text="{Binding BusinessType, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15" FontSize="14">
+            <ComboBoxItem Content="Abarrotes / Minimarket"/>
+            <ComboBoxItem Content="Cafetería"/>
+            <ComboBoxItem Content="Ferretería"/>
+            <ComboBoxItem Content="Restaurante / Comida Rápida"/>
+            <ComboBoxItem Content="Boutique / Ropa"/>
+            <ComboBoxItem Content="Farmacia"/>
+            <ComboBoxItem Content="Papelería"/>
+            <ComboBoxItem Content="Zapatería"/>
+            <ComboBoxItem Content="Electrónica / Tecnología"/>
+            <ComboBoxItem Content="Peluquería / Barbería"/>
+            <ComboBoxItem Content="Taller Mecánico"/>
+            <ComboBoxItem Content="Servicios Profesionales"/>
+            <ComboBoxItem Content="Otro"/>
+        </ComboBox>
+
+        <TextBlock Text="Entorno" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+            <RadioButton Content="Development" IsChecked="{Binding Environment, Converter={StaticResource StringToBoolConverter}, ConverterParameter=Development}" Margin="0,0,15,0"/>
+            <RadioButton Content="Production" IsChecked="{Binding Environment, Converter={StaticResource StringToBoolConverter}, ConverterParameter=Production}"/>
+        </StackPanel>
+        
+        <TextBlock Text="API URL" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <Grid Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" ToolTip="URL base donde se desplegará o consumirá la API." Text="{Binding ApiUrl, UpdateSourceTrigger=PropertyChanged}" Padding="8" FontSize="14"/>
+            <Button Grid.Column="1" Command="{Binding TestApiCommand}" Content="{Binding TestApiButtonText, FallbackValue='Probar'}" Margin="10,0,0,0" Padding="15,0" Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" />
+        </Grid>
+        
+        <TextBlock Text="Puerto" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15" FontSize="14"/>
+    </StackPanel>
+</UserControl>

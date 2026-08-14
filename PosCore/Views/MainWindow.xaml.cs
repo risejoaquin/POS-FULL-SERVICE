@@ -1,0 +1,180 @@
+using System;
+using System.Text;
+using System.Windows;
+using System.Windows.Input;
+using PosCore.ViewModels;
+using PosDomain.Entities;
+using PosApplication.Interfaces.Local;
+using System.Linq;
+
+namespace PosCore.Views
+{
+    public partial class MainWindow : Window
+    {
+        private readonly BarcodeProcessor _barcodeProcessor;
+        private StringBuilder _inputBuffer = new StringBuilder();
+
+        public void ShowLoading(string message = "Cargando...")
+        {
+            MainOverlay.Show(message);
+        }
+
+        public void HideLoading()
+        {
+            MainOverlay.Hide();
+        }
+
+        
+
+        public MainWindow(MainViewModel viewModel, IProductLookupService productLookupService)
+        {
+            InitializeComponent();
+            _barcodeProcessor = new BarcodeProcessor(productLookupService);
+            DataContext = viewModel;
+
+            if (DataContext is ViewModels.MainViewModel vm)
+            {
+                vm.OnFocusSearchRequested += () => 
+                {
+                    var searchBox = ProductsPanel.FindName("SearchBox") as System.Windows.Controls.TextBox;
+                    if (searchBox != null)
+                    {
+                        searchBox.Focus();
+                        searchBox.SelectAll();
+                    }
+                };
+            }
+
+            
+            
+            
+            
+            
+            
+        }
+
+        
+
+        
+        private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DataContext is MainViewModel mainVm)
+            {
+                if (e.Key == Key.F1)
+                {
+                    ProductsPanel.FocusSearch();
+                    e.Handled = true;
+                    return;
+                }
+                else if (e.Key == Key.F2)
+                {
+                    if (mainVm.SuspendOrderCommand.CanExecute(null)) mainVm.SuspendOrderCommand.Execute(null);
+                    e.Handled = true; return;
+                }
+                else if (e.Key == Key.F3)
+                {
+                    if (mainVm.ResumeOrderCommand.CanExecute(null)) mainVm.ResumeOrderCommand.Execute(null);
+                    e.Handled = true; return;
+                }
+                else if (e.Key == Key.F4)
+                {
+                    if (mainVm.OpenShiftCommand.CanExecute(null)) mainVm.OpenShiftCommand.Execute(null);
+                    e.Handled = true; return;
+                }
+                else if (e.Key == Key.F11)
+                {
+                    if (mainVm.CancelSaleCommand.CanExecute(null)) mainVm.CancelSaleCommand.Execute(null);
+                    e.Handled = true; return;
+                }
+                else if (e.Key == Key.F12)
+                {
+                    if (mainVm.CheckoutCommand.CanExecute(null)) mainVm.CheckoutCommand.Execute(null);
+                    e.Handled = true; return;
+                }
+            }
+
+            // Ignore modifiers and tab/etc if needed, but we'll focus on letters/digits
+            if (e.Key == Key.Enter)
+            {
+                var input = _inputBuffer.ToString();
+                _inputBuffer.Clear();
+
+                if (string.IsNullOrWhiteSpace(input)) return;
+
+                if (DataContext is MainViewModel vm)
+                {
+                    bool isBarcode = await _barcodeProcessor.DetectBarcodeTiming(input);
+                    BarcodeProcessor.ClearKeystrokes();
+
+                    if (isBarcode)
+                    {
+                        var product = _barcodeProcessor.LookupProduct(input);
+                        if (product == null)
+                        {
+                            var result = MessageBox.Show($"Producto no encontrado. ¿Crear nuevo?", "No encontrado", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            if (result == MessageBoxResult.Yes)
+                            {
+                                // Placeholder para abrir crear nuevo producto
+                                MessageBox.Show("Abriendo ventana de creación de producto...", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                        }
+                        else
+                        {
+                            var existingItem = vm.Cart.FirstOrDefault(c => c.ProductId == product.Id);
+                            if (existingItem != null)
+                            {
+                                existingItem.Quantity++;
+                                
+                            }
+                            else
+                            {
+                                vm.Cart.Add(new OrderItem
+                                {
+                                    ProductId = product.Id,
+                                    Product = product,
+                                    UnitPrice = product.Price,
+                                    Quantity = 1,
+                                });
+                            }
+                            vm.UpdateTotal();
+                        }
+                    }
+                    else
+                    {
+                        // Check shortcuts
+                        var shortcut = _barcodeProcessor.ProcessShortcuts(input);
+                        switch (shortcut)
+                        {
+                            case ShortcutAction.Mostrador:
+                                MessageBox.Show("Atajo detectado: Mostrador");
+                                break;
+                            case ShortcutAction.Descuento:
+                                MessageBox.Show("Atajo detectado: Descuento");
+                                if (!vm.IsDiscountApplied)
+                                {
+                                    vm.ApplyDiscountCommand?.Execute(null); // Assuming there's a command, if not, toggle it
+                                }
+                                break;
+                            case ShortcutAction.AdminPanel:
+                                MessageBox.Show("Atajo detectado: Panel Admin");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                BarcodeProcessor.RegisterKeystroke();
+                
+                if (e.Key >= Key.D0 && e.Key <= Key.D9)
+                    _inputBuffer.Append((char)('0' + (e.Key - Key.D0)));
+                else if (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9)
+                    _inputBuffer.Append((char)('0' + (e.Key - Key.NumPad0)));
+                else if (e.Key >= Key.A && e.Key <= Key.Z)
+                    _inputBuffer.Append(e.Key.ToString());
+            }
+        }
+    }
+}

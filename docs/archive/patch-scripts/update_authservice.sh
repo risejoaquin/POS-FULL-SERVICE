@@ -1,0 +1,4 @@
+#!/bin/bash
+sed -i 's/var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? _configuration\["Jwt:Key"\] ?? "super_secret_fallback_jwt_key_1234567890";/var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? _configuration["Jwt:Key"] ?? throw new InvalidOperationException("Missing JWT_KEY");/g' PosInfrastructure/Services/Server/AuthService.cs
+sed -i 's/var jwtIssuer = _configuration\["Jwt:Issuer"\] ?? "PosServer";/var jwtIssuer = _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Missing Jwt:Issuer");/g' PosInfrastructure/Services/Server/AuthService.cs
+sed -i 's/var jwtAudience = _configuration\["Jwt:Audience"\] ?? "PosClient";/var jwtAudience = _configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Missing Jwt:Audience");/g' PosInfrastructure/Services/Server/AuthService.cs

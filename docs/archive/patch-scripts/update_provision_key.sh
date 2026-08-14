@@ -1,0 +1,2 @@
+#!/bin/bash
+sed -i 's/var expectedProvisionKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? _configuration\["Jwt:Key"\] ?? "super_secret_fallback_jwt_key_1234567890";/var expectedProvisionKey = Environment.GetEnvironmentVariable("PROVISION_KEY") ?? _configuration["ProvisionKey"] ?? throw new InvalidOperationException("Missing PROVISION_KEY");/g' PosInfrastructure/Services/Server/AuthService.cs

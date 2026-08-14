@@ -1,0 +1,33 @@
+# Build outputs
+**/bin/
+**/obj/
+Output/
+artifacts/
+
+# Version control / IDE
+.git/
+.github/
+.vs/
+.idea/
+.vscode/
+
+# Local/user files
+*.user
+*.suo
+*.cache
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Local environment files must not be sent to Railway build context
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+# Node artifacts if frontend/tooling is added later
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

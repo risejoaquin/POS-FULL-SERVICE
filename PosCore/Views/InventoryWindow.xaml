@@ -1,0 +1,430 @@
+<Window x:Class="PosCore.Views.InventoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PosCore.Views"
+        mc:Ignorable="d"
+        Title="Control de Inventario - POS Express" MinHeight="650" SizeToContent="WidthAndHeight" MinWidth="1000" 
+        WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}">
+    <Window.Resources>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Control de Inventario" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="📦 Gestionar Insumos" Command="{Binding OpenSuppliesCommand}" Height="35" MinWidth="150" Padding="15,0" Background="{StaticResource AccentBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                        <Button Content="📥 Importar (CSV)" Command="{Binding ImportProductsCommand}" Height="35" MinWidth="130" Padding="15,0" Background="{StaticResource WarningBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                        <Button Content="📤 Exportar (PDF/Excel)" Command="{Binding ExportProductsCommand}" Height="35" MinWidth="130" Padding="15,0" Background="#17A2B8" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+
+        
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.5*"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Lista de Productos -->
+            <Grid Grid.Column="0" Margin="0,0,20,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                
+                <WrapPanel Grid.Row="0" Margin="0,0,0,15">
+                    <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" Width="150" Height="40" Margin="0,0,15,0" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource SurfaceBrush}" VerticalContentAlignment="Center" ToolTip="Buscar"/>
+                    <Button Content="➕ Agregar" Command="{Binding AddProductCommand}" MinWidth="100" Padding="15,0" Height="40" Background="{StaticResource SuccessBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                    <Button Content="✏️ Editar" Command="{Binding EditProductCommand}" MinWidth="90" Padding="15,0" Height="40" Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                    <Button Content="🗑️ Eliminar" Command="{Binding DeleteProductCommand}" MinWidth="90" Padding="15,0" Height="40" Background="{StaticResource ErrorBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                    <Button Content="📋 Receta (BOM)" Command="{Binding ConfigureRecipeCommand}" MinWidth="130" Padding="15,0" Height="40" Background="{StaticResource InfoBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                    <Button Content="⚙️ Modificadores" Command="{Binding ConfigureModifiersCommand}" MinWidth="140" Padding="15,0" Height="40" Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
+                    <Button Content="🧪 Diagnóstico Drift" Command="{Binding ShowInventoryDriftDiagnosticsCommand}" MinWidth="160" Padding="15,0" Height="40" Background="#6F42C1" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Ejecuta diagnóstico interno de drift. No corrige inventario."/>
+                    <Button Content="📋 Copiar Drift" Command="{Binding CopyInventoryDriftDiagnosticsReportCommand}" MinWidth="130" Padding="15,0" Height="40" Background="#4B5563" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Copia el reporte diagnóstico. No corrige inventario."/>
+                    <Button Content="💾 Exportar Drift" Command="{Binding ExportInventoryDriftDiagnosticsReportCommand}" MinWidth="140" Padding="15,0" Height="40" Background="#0F766E" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Exporta el reporte diagnóstico. No corrige inventario."/>
+                    <Button Content="👁 Revisión Manual" Command="{Binding StartInventoryDriftManualReviewCommand}" MinWidth="150" Padding="15,0" Height="40" Background="#B45309" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara revisión manual de drift. No corrige inventario."/>
+                    <Button Content="🧭 Diseño Reconciliación" Command="{Binding DesignControlledInventoryDriftReconciliationCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#7C2D12" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Diseña reconciliación manual controlada futura. No ejecuta ajustes de stock."/>
+                    <Button Content="🔐 Validar Permiso" Command="{Binding PrepareInventoryDriftReconciliationPermissionGuardCommand}" MinWidth="160" Padding="15,0" Height="40" Background="#1D4ED8" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Valida RBAC para reconciliación futura. No ejecuta ajustes de stock."/>
+                    <Button Content="🧾 Preparar Auditoría" Command="{Binding PrepareInventoryDriftReconciliationAuditTrailCommand}" MinWidth="180" Padding="15,0" Height="40" Background="#6D28D9" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara audit trail de reconciliación futura; no ejecuta ajustes de stock."/>
+                    <Button Content="🛡 Sync-Safe" Command="{Binding PrepareInventoryDriftReconciliationSyncSafetyGuardCommand}" MinWidth="160" Padding="15,0" Height="40" Background="#047857" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara guard sync-safe de reconciliación futura; no ejecuta ajustes de stock y no modifica sync."/>
+                    <Button Content="🧩 Diseño Ejecución" Command="{Binding PrepareInventoryDriftControlledReconciliationExecutionDesignCommand}" MinWidth="180" Padding="15,0" Height="40" Background="#0F172A" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Diseña ejecución controlada futura; no ejecuta reconciliación real, no modifica inventario y no modifica sync."/>
+                    <Button Content="📘 Runbook Final" Command="{Binding PrepareInventoryDriftReconciliationFinalRunbookOperationalClosureCommand}" MinWidth="170" Padding="15,0" Height="40" Background="#334155" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara runbook operativo final; no ejecuta reconciliación real, no modifica inventario y no modifica sync."/>
+                    <Button Content="🔄 Sync Reliability" Command="{Binding PreparePosOfflineSyncReliabilityBaselineCommand}" MinWidth="180" Padding="15,0" Height="40" Background="#0369A1" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara baseline de confiabilidad offline sync; no ejecuta sync real, no modifica inventario y no modifica checkout."/>
+                    <Button Content="📦 Queue Diagnostics" Command="{Binding PreparePosOfflineSyncQueueDiagnosticsBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#155E75" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara diagnóstico de cola offline sync; no ejecuta sync real, no escribe cola, no modifica inventario y no modifica checkout."/>
+                    <Button Content="🔑 Idempotency Keys" Command="{Binding PreparePosOfflineSyncIdempotencyKeyStrategyBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#7C2D12" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara estrategia de idempotencia offline sync; no ejecuta sync real, no escribe cola, no modifica inventario y no modifica checkout."/>
+                    <Button Content="⏱ Retry Backoff" Command="{Binding PreparePosOfflineSyncRetryBackoffPolicyBaselineCommand}" MinWidth="180" Padding="15,0" Height="40" Background="#9333EA" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara política retry/backoff offline sync; no ejecuta sync real, no escribe cola, no modifica inventario y no modifica checkout."/>
+                    <Button Content="⚠ Conflict Detection" Command="{Binding PreparePosOfflineSyncConflictDetectionStrategyBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#BE123C" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara estrategia de detección de conflictos offline sync; no ejecuta sync real, no escribe cola, no resuelve conflictos, no modifica inventario y no modifica checkout."/>
+                    <Button Content="✅ Sync Checkpoint" Command="{Binding PreparePosOfflineSyncCheckpointLastSuccessStateBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#0E7490" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara checkpoint y last success state offline sync; no ejecuta sync real, no escribe cola, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                
+                    <Button Content="🧷 Sync Ownership" Command="{Binding PreparePosOfflineSyncTenantDeviceBoundarySyncOwnershipBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#B45309" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara tenant/device boundary y sync ownership offline sync; no ejecuta sync real, no escribe cola, no reclama ownership, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="🔎 Sync Observability" Command="{Binding PreparePosOfflineSyncObservabilityCorrelationBaselineCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#0F766E" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara observability/correlation offline sync: correlation id, tenant id, device id, sync operation id, queue item id, idempotency key, retry/backoff, checkpoint state, last success state y sensitive data redaction; no ejecuta sync real, no escribe cola, no emite telemetría, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="🧰 Manual Recovery" Command="{Binding PreparePosOfflineSyncManualRecoveryRunbookBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#BE123C" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara manual recovery runbook offline sync: entry criteria, operator triage, queue snapshot, checkpoint freeze, correlation id evidence, tenant id, device id, idempotency key, retry/backoff, conflict detection, dead-letter review y approval requirement; no ejecuta sync real, no escribe cola, no ejecuta recuperación manual, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="🏁 Sync Closure" Command="{Binding PreparePosOfflineSyncOperationalClosureBaselineCommand}" MinWidth="180" Padding="15,0" Height="40" Background="#334155" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara operational closure offline sync: final readiness checklist, evidence archive, queue health closure, checkpoint closure, production enablement gate, rollback escalation y operator sign-off; no ejecuta sync real, no escribe cola, no ejecuta cierre operacional, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="🚦 Sync Gate" Command="{Binding PreparePosProductionSyncExecutionGateSafeEnablementBaselineCommand}" MinWidth="180" Padding="15,0" Height="40" Background="#0F766E" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync execution gate y safe enablement: reliability closure, queue health, idempotency, checkpoints, observability, manual recovery, rollback plan, feature flag, canary enablement y production approval; no ejecuta sync real, no escribe cola, no habilita sync, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="🛑 Sync Kill Switch" Command="{Binding PreparePosProductionSyncFeatureFlagKillSwitchBaselineCommand}" MinWidth="200" Padding="15,0" Height="40" Background="#991B1B" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync feature flag y kill switch: default disabled state, tenant scoped flag, device scoped flag, kill switch, safe disable behavior, rollback trigger, queue pause, checkpoint freeze, idempotency preservation y audit logging; no ejecuta sync real, no escribe cola, no habilita sync, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="Sync Canary" Command="{Binding PreparePosProductionSyncCanaryRolloutBaselineCommand}" MinWidth="190" Padding="15,0" Height="40" Background="#047857" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync canary rollout: canary cohort selection, tenant canary scope, device canary scope, percentage cap, monitoring window, failure thresholds, rollback criteria, kill switch integration y feature flag promotion gate; no ejecuta sync real, no escribe cola, no habilita sync, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="Sync Processor" Command="{Binding PreparePosProductionSyncQueueProcessorExecutionBaselineCommand}" MinWidth="200" Padding="15,0" Height="40" Background="#1D4ED8" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync queue processor execution: processor ownership, feature flag prerequisite, kill switch prerequisite, canary prerequisite, tenant/device validation, queue claim strategy, idempotency enforcement, checkpoint commit boundary y failure handoff; no ejecuta sync real, no escribe cola, no reclama queue items, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="Ack Checkpoint" Command="{Binding PreparePosProductionSyncServerAcknowledgementCheckpointCommitBaselineCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#7C3AED" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync server acknowledgement checkpoint commit: acknowledgement contract, status validation, durable acknowledgement evidence, correlation/idempotency matching, tenant/device matching, queue item id matching, checkpoint commit boundary y failure handoff; no ejecuta sync real, no escribe cola, no envía acknowledgements, no confirma checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="Conflict Gate" Command="{Binding PreparePosProductionSyncConflictResolutionExecutionGateBaselineCommand}" MinWidth="200" Padding="15,0" Height="40" Background="#B45309" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync conflict resolution execution gate: conflict classification, server acknowledgement prerequisite, checkpoint prerequisite, manual approval, tenant/device validation, idempotency evidence, rollback plan y audit log requirement; no ejecuta sync real, no resuelve conflictos, no escribe cola, no confirma checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="Dead-Letter" Command="{Binding PreparePosProductionSyncDeadLetterManualInterventionBaselineCommand}" MinWidth="200" Padding="15,0" Height="40" Background="#7F1D1D" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync dead-letter queue manual intervention: dead-letter queue contract, terminal failure criteria, manual intervention workflow, evidence package, tenant/device scope, idempotency evidence, checkpoint freeze y audit log requirement; no ejecuta sync real, no escribe cola, no mueve items a dead-letter, no ejecuta intervención manual, no confirma checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="Runtime Metrics" Command="{Binding PreparePosProductionSyncObservabilityRuntimeMetricsBaselineCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#0F766E" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync observability runtime metrics: runtime metrics contract, queue depth, processing latency, acknowledgement latency, checkpoint lag, retry rate, dead-letter rate, conflict rate, error rate, throughput, tenant/device dimensions, correlation id trace, redaction, alert thresholds y operator dashboard; no ejecuta sync real, no escribe cola, no emite runtime metrics, no cambia alerting configuration, no confirma checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="📘 Support Runbook" Command="{Binding PreparePosProductionSyncOperationalRunbookSupportHandoffBaselineCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#1E3A8A" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync operational runbook y support handoff: operational runbook, support handoff workflow, incident severity, first response checklist, escalation matrix, evidence package, queue snapshot, runtime metrics, correlation id, tenant/device, idempotency key, checkpoint state, feature flag, kill switch, dead-letter state, operator communication y closure criteria; no ejecuta sync real, no escribe cola, no ejecuta support handoff, no cambia runtime operations, no confirma checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="✅ Sync Readiness" Command="{Binding PreparePosProductionSyncFinalEnablementReadinessClosureBaselineCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#166534" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync final enablement readiness closure: all prior closures, verification evidence, test pass evidence, build pass evidence, feature flag readiness, kill switch readiness, canary readiness, queue processor readiness, server acknowledgement readiness, conflict resolution readiness, dead-letter readiness, observability readiness, runbook support handoff readiness, rollback readiness, production approval y operator sign-off; no ejecuta sync real, no habilita sync, no escribe cola, no alterna runtime flags, no avanza checkpoints, no ejecuta support handoff, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6A Flag Persist" Command="{Binding PreparePosProductionSyncFeatureFlagPersistenceImplementationCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#0E7490" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync feature flag persistence implementation: tenant scoped feature flag persistence, device scoped feature flag persistence, default disabled state, operator approval evidence, feature flag versioning, effective window, audit evidence, rollback state, kill switch precedence, canary prerequisite, read-before-enable requirement e idempotent feature flag write; no ejecuta sync real, no habilita sync, no escribe cola, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6B Kill Switch" Command="{Binding PreparePosProductionSyncKillSwitchRuntimeEnforcementImplementationCommand}" MinWidth="210" Padding="15,0" Height="40" Background="#991B1B" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync kill switch runtime enforcement implementation: kill switch runtime enforcement, kill switch precedence over feature flag, tenant scoped kill switch read, device scoped kill switch read, default fail-closed state, read-before-processing, read-before-checkpoint, read-before-queue-claim, operator override prohibition, auditable runtime decision, correlation id runtime decision e idempotent block decision; no ejecuta sync real, no habilita sync, no escribe cola, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6C Queue Dry-Run" Command="{Binding PreparePosProductionSyncQueueProcessorDryRunExecutionImplementationCommand}" MinWidth="230" Padding="15,0" Height="40" Background="#7C3AED" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync queue processor dry-run execution implementation: queue processor dry-run mode, read-only queue scan, no queue claim, no queue writes, no item status transition, no checkpoint advancement, feature flag read requirement, kill switch enforcement requirement, tenant/device dry-run scope, idempotency key inspection, correlation id dry-run evidence y operator approval evidence; no ejecuta sync real, no habilita sync, no reclama cola, no escribe cola, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6D Claim Lease" Command="{Binding PreparePosProductionSyncQueueClaimLeaseImplementationCommand}" MinWidth="225" Padding="15,0" Height="40" Background="#BE123C" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync queue claim and lease implementation: queue claim contract, lease ownership contract, tenant/device queue claim, claim only after feature flag read, claim blocked by kill switch, dry-run readiness, lease expiration, stale lease recovery, idempotency key claim guard, correlation id claim evidence y rollback-safe lease release; no ejecuta sync real, no habilita sync, no escribe payloads de cola, no procesa items, no confirma acknowledgements, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6E Server Ack" Command="{Binding PreparePosProductionSyncServerAcknowledgementIntegrationImplementationCommand}" MinWidth="230" Padding="15,0" Height="40" Background="#7C3AED" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync server acknowledgement integration implementation: server acknowledgement contract, acknowledgement request envelope, acknowledgement response envelope, acknowledgement status validation, durable acknowledgement evidence, tenant/device acknowledgement scope, queue item acknowledgement matching, lease ownership acknowledgement guard, idempotency key acknowledgement guard, correlation id acknowledgement evidence y checkpoint blocked until durable acknowledgement; no ejecuta sync real, no habilita sync, no envía acknowledgements reales, no avanza checkpoints, no escribe payloads de cola, no procesa items, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6F Checkpoint" Command="{Binding PreparePosProductionSyncCheckpointCommitRuntimeImplementationCommand}" MinWidth="230" Padding="15,0" Height="40" Background="#166534" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync checkpoint commit runtime implementation: checkpoint commit contract, durable acknowledgement prerequisite, checkpoint candidate state, checkpoint monotonicity guard, tenant/device checkpoint scope, queue item checkpoint matching, lease ownership checkpoint guard, idempotency key checkpoint guard, correlation id checkpoint evidence, last success state update boundary y checkpoint rollback boundary; no ejecuta sync real, no habilita sync, no confirma checkpoints reales, no escribe payloads de cola, no procesa items, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6G Conflict Detect" Command="{Binding PreparePosProductionSyncConflictDetectionRuntimeImplementationCommand}" MinWidth="240" Padding="15,0" Height="40" Background="#92400E" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync conflict detection runtime implementation: conflict detection contract, local version evidence, server version evidence, checkpoint comparison, tenant/device conflict detection scope, queue item conflict matching, lease ownership conflict guard, idempotency key conflict guard, correlation id conflict evidence, conflict classification y manual resolution handoff; no ejecuta sync real, no habilita sync, no resuelve conflictos automáticamente, no confirma checkpoints reales, no escribe payloads de cola, no procesa items, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6H DLQ Persist" Command="{Binding PreparePosProductionSyncDeadLetterQueuePersistenceImplementationCommand}" MinWidth="230" Padding="15,0" Height="40" Background="#7F1D1D" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync dead-letter queue persistence implementation: dead-letter queue persistence contract, dead-letter record envelope, reason code, tenant/device scope, queue item dead-letter matching, lease ownership dead-letter guard, idempotency key dead-letter guard, correlation id dead-letter evidence, conflict detection prerequisite, manual intervention prerequisite, retry exhaustion prerequisite, redacted payload snapshot y replay prohibition; no ejecuta sync real, no habilita sync, no reproduce automáticamente, no procesa items, no muta payloads de cola, no confirma checkpoints reales, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6I Runtime Metrics" Command="{Binding PreparePosProductionSyncRuntimeMetricsEmissionImplementationCommand}" MinWidth="240" Padding="15,0" Height="40" Background="#0F766E" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync runtime metrics emission implementation: runtime metrics emission contract, queue depth metric, processing latency metric, acknowledgement latency metric, checkpoint lag metric, retry rate metric, dead-letter rate metric, conflict rate metric, error rate metric, sync throughput metric, tenant/device metric scope, correlation id metric evidence, idempotency key metric evidence, redacted metric tags, alert threshold metric handoff y operator dashboard metric handoff; no ejecuta sync real, no habilita sync, no emite telemetría externa, no procesa items, no muta payloads de cola, no confirma checkpoints reales, no modifica inventario y no modifica checkout."/>
+                    <Button Content="6J Canary Enablement" Command="{Binding PreparePosProductionSyncCanaryTenantDeviceControlledEnablementCommand}" MinWidth="250" Padding="15,0" Height="40" Background="#7C2D12" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand" ToolTip="Prepara production sync canary tenant/device controlled enablement: canary enablement contract, tenant scoped canary enablement, device scoped canary enablement, feature flag prerequisite, kill switch prerequisite, dry-run prerequisite, queue claim lease prerequisite, server acknowledgement prerequisite, checkpoint prerequisite, conflict detection prerequisite, dead-letter prerequisite, runtime metrics prerequisite, operator approval evidence, canary blast radius, rollback boundary y monitoring window; no habilita sync global, no production-wide rollout, no automatic tenant expansion, no automatic device expansion, no muta payloads de cola, no confirma checkpoints sin control, no modifica inventario y no modifica checkout."/>
+                </WrapPanel>
+
+                <Border Grid.Row="1" Background="#FEF3C7" BorderBrush="#92400E" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="PHASE 6G production sync conflict detection runtime implementation: conflict detection contract, local version evidence, server version evidence, checkpoint comparison, tenant/device scope, queue item matching, lease ownership guard, idempotency guard, correlation evidence, conflict classification y manual resolution handoff; no ejecuta sync real, no habilita sync, no resuelve conflictos automáticamente, no confirma checkpoints reales, no modifica inventario y no modifica checkout." TextWrapping="Wrap" Foreground="#92400E" FontWeight="Bold"/>
+                        <TextBlock Text="conflict detection contract; local version evidence; server version evidence; checkpoint comparison; queue item conflict matching; lease ownership conflict guard; idempotency key conflict guard; correlation id conflict evidence; conflict classification; manual resolution handoff" TextWrapping="Wrap" Foreground="#92400E" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncConflictDetectionRuntimeImplementationStatus}" Foreground="#92400E" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncConflictDetectionRuntimeImplementationRequiredChecks}" Foreground="#92400E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="{Binding PosProductionSyncConflictDetectionRuntimeImplementationInstructions}" Foreground="#92400E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Background="#FFF8E1" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Diagnóstico de drift: solo lectura / no corrige inventario" FontWeight="Bold" Foreground="#92400E"/>
+                        <TextBlock Text="{Binding InventoryDriftDiagnosticsStatus}" Foreground="#92400E" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftDiagnosticsSummary}" Foreground="#92400E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="120"/>
+                        <TextBlock Text="Flujo de revisión manual: documenta diferencias; no aplica ajustes de stock." FontWeight="Bold" Foreground="#92400E" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftManualReviewStatus}" Foreground="#92400E" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftManualReviewInstructions}" Foreground="#92400E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="Diseño de reconciliación controlada: define permisos, auditoría y validación sync-safe; no ejecuta ajustes de stock." FontWeight="Bold" Foreground="#92400E" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftControlledReconciliationDesignStatus}" Foreground="#92400E" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftControlledReconciliationDesignChecklist}" Foreground="#92400E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="RBAC reconciliación: requiere rol autorizado; no ejecuta ajustes de stock." FontWeight="Bold" Foreground="#1D4ED8" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationPermissionStatus}" Foreground="#1D4ED8" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationRequiredPermission}" Foreground="#1D4ED8" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationPermissionInstructions}" Foreground="#1D4ED8" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="Audit trail reconciliación: requiere evidencia exportada; no ejecuta ajustes de stock." FontWeight="Bold" Foreground="#6D28D9" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationAuditStatus}" Foreground="#6D28D9" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationAuditRequiredFields}" Foreground="#6D28D9" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationAuditInstructions}" Foreground="#6D28D9" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="Sync-safe reconciliación: requiere tenant scope, cola de sync revisada, idempotencia y conflictos documentados; no ejecuta ajustes de stock y no modifica sync." Foreground="#047857" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationSyncSafetyStatus}" Foreground="#047857" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationSyncSafetyRequiredChecks}" Foreground="#047857" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationSyncSafetyInstructions}" Foreground="#047857" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="Ejecución controlada reconciliación: diseño final con prerrequisitos completos; no ejecuta reconciliación real, no modifica inventario y no modifica sync." FontWeight="Bold" Foreground="#0F172A" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                        <TextBlock Text="Runbook operativo final: checklist de cierre, evidencia archivada y criterios operativos; no ejecuta reconciliación real, no modifica inventario y no modifica sync." FontWeight="Bold" Foreground="#334155" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationFinalRunbookStatus}" Foreground="#334155" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationFinalRunbookOperationalClosureChecklist}" Foreground="#334155" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="{Binding InventoryDriftReconciliationFinalRunbookInstructions}" Foreground="#334155" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="{Binding InventoryDriftControlledReconciliationExecutionDesignStatus}" Foreground="#0F172A" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding InventoryDriftControlledReconciliationExecutionDesignRequiredPreconditions}" Foreground="#0F172A" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="{Binding InventoryDriftControlledReconciliationExecutionDesignInstructions}" Foreground="#0F172A" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="Offline sync reliability baseline: revisa cola offline, idempotencia, reintentos, conflictos, checkpoint, tenant boundary y observabilidad; no ejecuta sync real, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#0369A1" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncReliabilityStatus}" Foreground="#0369A1" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncReliabilityRequiredChecks}" Foreground="#0369A1" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncReliabilityInstructions}" Foreground="#0369A1" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="Offline sync queue diagnostics baseline: inventaria cola offline, pendientes, fallidos, reintentos, último error, idempotencia, tenant boundary y correlación; no ejecuta sync real, no escribe cola, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#155E75" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncQueueDiagnosticsStatus}" Foreground="#155E75" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncQueueDiagnosticsRequiredChecks}" Foreground="#155E75" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncQueueDiagnosticsInstructions}" Foreground="#155E75" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="Offline sync idempotency key strategy baseline: define identidad determinística, tenant id, device id, local event id, operation type, retry reuse y duplicate handling; no ejecuta sync real, no escribe cola, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#7C2D12" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncIdempotencyKeyStrategyStatus}" Foreground="#7C2D12" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncIdempotencyKeyStrategyRequiredChecks}" Foreground="#7C2D12" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncIdempotencyKeyStrategyInstructions}" Foreground="#7C2D12" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+
+<TextBlock Text="Offline sync retry backoff policy baseline: clasifica errores retryable/no retryable, exponential backoff, jitter, max retry attempts, dead letter/manual review e idempotency key reuse; no ejecuta sync real, no escribe cola, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#9333EA" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncRetryBackoffPolicyStatus}" Foreground="#9333EA" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncRetryBackoffPolicyRequiredChecks}" Foreground="#9333EA" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncRetryBackoffPolicyInstructions}" Foreground="#9333EA" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+
+<TextBlock Text="Offline sync conflict detection strategy baseline: compara server version, local version, last synced version, entity scope, tenant boundary, idempotency interaction, retry/backoff interaction y manual review conflict threshold; no ejecuta sync real, no escribe cola, no resuelve conflictos, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncConflictDetectionStrategyStatus}" Foreground="#BE123C" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncConflictDetectionStrategyRequiredChecks}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncConflictDetectionStrategyInstructions}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="Offline sync checkpoint and last success state baseline: define checkpoint strategy, last successful sync timestamp, last successful queue item id, server cursor, resume behavior, atomic checkpoint update, duplicate replay prevention y tenant boundary; no ejecuta sync real, no escribe cola, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncCheckpointLastSuccessStateStatus}" Foreground="#0E7490" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncCheckpointLastSuccessStateRequiredChecks}" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncCheckpointLastSuccessStateInstructions}" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="Offline sync tenant/device boundary and sync ownership baseline: define tenant id boundary, device id boundary, user/session boundary, local queue owner, sync ownership boundary, single writer ownership rule, ownership mismatch rejection y checkpoint ownership validation; no ejecuta sync real, no escribe cola, no reclama ownership, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#B45309" TextWrapping="Wrap" Margin="0,8,0,0"/>
+
+<TextBlock Text="Offline sync observability and correlation baseline: define correlation id strategy, tenant id log scope, device id log scope, user session log scope, sync operation id, queue item id, idempotency key, retry/backoff logs, conflict detection result, checkpoint state, last success state, ownership mismatch logging, structured log fields y sensitive data redaction; no ejecuta sync real, no escribe cola, no emite telemetría, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="correlation id strategy; structured log fields; operator-safe sync diagnostic message; no telemetry emission" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncObservabilityCorrelationStatus}" Foreground="#0F766E" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncObservabilityCorrelationRequiredChecks}" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncObservabilityCorrelationInstructions}" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="PHASE 4I manual recovery runbook baseline: manual recovery entry criteria, operator triage, queue snapshot, checkpoint freeze, correlation id evidence, tenant id evidence, device id evidence, idempotency key validation, retry/backoff state review, conflict detection state review, dead-letter review workflow, support handoff package y approval requirement; no ejecuta sync real, no escribe cola, no ejecuta recuperación manual, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="manual recovery runbook; queue snapshot before recovery; checkpoint freeze before recovery; operator-safe recovery message; rollback prohibition" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncManualRecoveryRunbookStatus}" Foreground="#BE123C" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncManualRecoveryRunbookRequiredChecks}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncManualRecoveryRunbookInstructions}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="PHASE 4J offline sync operational closure baseline: final readiness checklist, evidence archive requirement, manual recovery closure criteria, queue health closure criteria, checkpoint closure criteria, correlation evidence closure, tenant/device ownership closure, idempotency closure, retry/backoff closure, conflict detection closure, observability closure, production sync enablement gate, rollback escalation path, support handoff closure y operator sign-off; no ejecuta sync real, no escribe cola, no ejecuta cierre operacional, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#334155" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="operational closure baseline; final readiness checklist; evidence archive; production sync enablement gate; rollback escalation path; operator-safe closure message" Foreground="#334155" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncOperationalClosureStatus}" Foreground="#334155" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncOperationalClosureRequiredChecks}" Foreground="#334155" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncOperationalClosureInstructions}" Foreground="#334155" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<Border Background="#ECFDF5" BorderBrush="#0F766E" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
+<StackPanel>
+<TextBlock Text="Production sync execution gate safe enablement baseline: reliability closure, queue health, idempotency, retry/backoff, conflict detection, checkpoint, tenant/device ownership, observability, manual recovery, rollback plan, feature flag, canary enablement y production approval; no ejecuta sync real, no escribe cola, no habilita sync, no avanza checkpoints, no modifica inventario y no modifica checkout." Foreground="#0F766E" TextWrapping="Wrap" FontWeight="SemiBold"/>
+<TextBlock Text="{Binding PosProductionSyncExecutionGateSafeEnablementStatus}" Foreground="#0F766E" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncExecutionGateSafeEnablementRequiredChecks}" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncExecutionGateSafeEnablementInstructions}" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+</StackPanel>
+</Border>
+
+<Border Background="#FEF2F2" BorderBrush="#991B1B" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
+<StackPanel>
+<TextBlock Text="Production sync feature flag and kill switch baseline: default disabled state, tenant scoped feature flag, device scoped feature flag, kill switch, safe disable behavior, emergency rollback trigger, queue processing pause behavior, checkpoint freeze, idempotency preservation, operator-safe disabled message, audit log requirement y correlation id logging; no ejecuta sync real, no escribe cola, no habilita sync, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout." Foreground="#991B1B" TextWrapping="Wrap" FontWeight="SemiBold"/>
+<TextBlock Text="{Binding PosProductionSyncFeatureFlagKillSwitchStatus}" Foreground="#991B1B" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncFeatureFlagKillSwitchRequiredChecks}" Foreground="#991B1B" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncFeatureFlagKillSwitchInstructions}" Foreground="#991B1B" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+<TextBlock Text="Production sync canary rollout baseline: define canary cohort selection, tenant canary scope, device canary scope, rollout percentage cap, monitoring window, success metrics, failure thresholds, automatic pause criteria, manual rollback criteria, kill switch integration y feature flag promotion gate; no ejecuta sync real, no escribe cola, no habilita sync, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#047857" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncCanaryRolloutStatus}" Foreground="#047857" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncCanaryRolloutRequiredChecks}" Foreground="#047857" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncCanaryRolloutInstructions}" Foreground="#047857" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+<TextBlock Text="Production sync queue processor execution baseline: define queue processor ownership, feature flag prerequisite, kill switch prerequisite, canary prerequisite, tenant/device validation, queue claim strategy, idempotency enforcement, retry/backoff enforcement, checkpoint commit boundary, conflict detection handoff, dead-letter handoff y manual recovery handoff; no ejecuta sync real, no escribe cola, no reclama queue items, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#1D4ED8" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncQueueProcessorExecutionStatus}" Foreground="#1D4ED8" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncQueueProcessorExecutionRequiredChecks}" Foreground="#1D4ED8" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncQueueProcessorExecutionInstructions}" Foreground="#1D4ED8" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                <TextBlock Text="Production sync server acknowledgement checkpoint commit: define acknowledgement contract, acknowledgement status validation, server accepted/rejected states, durable acknowledgement evidence, correlation id matching, idempotency key matching, tenant/device matching, queue item id matching, checkpoint commit boundary, no checkpoint commit on partial failure, retry/backoff handoff, dead-letter handoff y manual recovery handoff; no ejecuta sync real, no escribe cola, no envía acknowledgements, no confirma checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                <TextBlock Text="server acknowledgement contract; durable acknowledgement evidence; checkpoint commit boundary; no checkpoint commit on partial failure" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementCheckpointCommitStatus}" Foreground="#7C3AED" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementCheckpointCommitRequiredChecks}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementCheckpointCommitInstructions}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+<TextBlock Text="Production sync conflict resolution execution gate baseline: define conflict type classification, deterministic resolution rule, manual approval requirement, operator role requirement, server acknowledgement prerequisite, checkpoint prerequisite, tenant/device validation, correlation id evidence, idempotency key evidence, queue item evidence, rollback plan, dead-letter handoff, manual recovery handoff y audit log requirement; no ejecuta sync real, no resuelve conflictos, no escribe cola, no confirma checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#B45309" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncConflictResolutionExecutionGateStatus}" Foreground="#B45309" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncConflictResolutionExecutionGateRequiredChecks}" Foreground="#B45309" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncConflictResolutionExecutionGateInstructions}" Foreground="#B45309" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+<TextBlock Text="Production sync dead-letter queue manual intervention baseline: dead-letter queue contract, terminal failure criteria, manual intervention workflow, operator assignment, support escalation, evidence package, correlation id evidence, tenant/device scope, idempotency evidence, queue item evidence, retry history, conflict state, checkpoint freeze, manual resolution approval y audit log requirement; no ejecuta sync real, no escribe cola, no mueve items a dead-letter, no ejecuta intervención manual, no confirma checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#7F1D1D" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="dead-letter queue contract; terminal failure criteria; manual intervention workflow; evidence package; checkpoint freeze; audit trail requirement" Foreground="#7F1D1D" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncDeadLetterManualInterventionStatus}" Foreground="#7F1D1D" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncDeadLetterManualInterventionRequiredChecks}" Foreground="#7F1D1D" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncDeadLetterManualInterventionInstructions}" Foreground="#7F1D1D" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="PHASE 5H production sync observability runtime metrics baseline: runtime metrics contract, queue depth, processing latency, acknowledgement latency, checkpoint lag, retry rate, dead-letter rate, conflict rate, error rate, throughput, tenant/device dimensions, correlation id trace, sensitive data redaction, alert thresholds y operator dashboard; no ejecuta sync real, no escribe cola, no emite runtime metrics, no cambia alerting configuration, no confirma checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="runtime metrics contract; queue depth metric; processing latency metric; acknowledgement latency metric; checkpoint lag metric; retry/dead-letter/conflict/error rates; tenant/device metric dimensions; correlation id trace; sensitive data redaction; alert threshold requirement" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncObservabilityRuntimeMetricsStatus}" Foreground="#0F766E" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncObservabilityRuntimeMetricsRequiredChecks}" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncObservabilityRuntimeMetricsInstructions}" Foreground="#0F766E" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="PHASE 5I production sync operational runbook support handoff baseline: operational runbook, support handoff workflow, incident severity classification, first response checklist, escalation matrix, support evidence package, queue snapshot, runtime metrics, correlation id, tenant/device evidence, idempotency key, checkpoint state, feature flag state, kill switch state, dead-letter state, operator communication template y support closure criteria; no ejecuta sync real, no escribe cola, no ejecuta support handoff, no cambia runtime operations, no confirma checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#1E3A8A" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="operational runbook; support handoff workflow; incident severity classification; first response checklist; escalation matrix; support evidence package; queue snapshot; runtime metrics; correlation id; tenant/device evidence; idempotency key; checkpoint state; feature flag state; kill switch state; dead-letter state; operator communication template; support closure criteria" Foreground="#1E3A8A" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncOperationalRunbookSupportHandoffStatus}" Foreground="#1E3A8A" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncOperationalRunbookSupportHandoffRequiredChecks}" Foreground="#1E3A8A" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncOperationalRunbookSupportHandoffInstructions}" Foreground="#1E3A8A" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+<TextBlock Text="PHASE 5J production sync final enablement readiness closure baseline: all prior phase closures, verification evidence, test pass evidence, build pass evidence, feature flag readiness, kill switch readiness, canary readiness, queue processor readiness, server acknowledgement readiness, conflict resolution readiness, dead-letter readiness, observability readiness, runbook support handoff readiness, rollback readiness, production approval y operator sign-off; no ejecuta sync real, no habilita sync, no escribe cola, no alterna runtime flags, no avanza checkpoints, no ejecuta support handoff, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#166534" TextWrapping="Wrap" Margin="0,8,0,0"/>
+<TextBlock Text="final enablement readiness closure; all prior closures; verification evidence; test pass evidence; build pass evidence; feature flag readiness; kill switch readiness; rollback readiness; production approval; operator sign-off" Foreground="#166534" TextWrapping="Wrap" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncFinalEnablementReadinessClosureStatus}" Foreground="#166534" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosProductionSyncFinalEnablementReadinessClosureRequiredChecks}" Foreground="#166534" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosProductionSyncFinalEnablementReadinessClosureInstructions}" Foreground="#166534" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="PHASE 6A feature flag persistence implementation: tenant scoped feature flag persistence, device scoped feature flag persistence, default disabled state, operator approval evidence, feature flag versioning, effective window, audit evidence, rollback state, kill switch precedence, canary prerequisite, read-before-enable requirement e idempotent feature flag write; no ejecuta sync real, no habilita sync, no escribe cola, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                        <TextBlock Text="tenant scoped feature flag persistence; device scoped feature flag persistence; default disabled state; idempotent feature flag write" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncFeatureFlagPersistenceImplementationStatus}" Foreground="#0E7490" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncFeatureFlagPersistenceImplementationRequiredChecks}" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                        <TextBlock Text="{Binding PosProductionSyncFeatureFlagPersistenceImplementationInstructions}" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                        <TextBlock Text="{Binding PosProductionSyncFeatureFlagPersistenceImplementationEvidence}" Foreground="#0E7490" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                    <TextBlock Text="Production sync kill switch runtime enforcement implementation: define kill switch precedence over feature flag, tenant scoped kill switch read, device scoped kill switch read, default fail-closed state, read-before-processing, read-before-checkpoint, read-before-queue-claim, operator override prohibition, auditable runtime decision, correlation id runtime decision, tenant/device runtime decision, idempotent block decision, operator-safe kill switch message, rollback to disabled y manual support escalation; no ejecuta sync real, no habilita sync, no escribe cola, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#991B1B" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncKillSwitchRuntimeEnforcementImplementationStatus}" Foreground="#991B1B" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncKillSwitchRuntimeEnforcementImplementationRequiredChecks}" Foreground="#991B1B" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                    <TextBlock Text="{Binding PosProductionSyncKillSwitchRuntimeEnforcementImplementationInstructions}" Foreground="#991B1B" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                    <TextBlock Text="{Binding PosProductionSyncKillSwitchRuntimeEnforcementImplementationEvidence}" Foreground="#991B1B" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+                    <TextBlock Text="PHASE 6C production sync queue processor dry-run execution implementation: queue processor dry-run mode, read-only queue scan, no queue claim, no queue writes, no item status transition, no checkpoint advancement, feature flag read requirement, kill switch enforcement requirement, tenant/device dry-run scope, idempotency key inspection, correlation id dry-run evidence y operator approval evidence; no ejecuta sync real, no habilita sync, no reclama cola, no escribe cola, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    <TextBlock Text="queue processor dry-run mode; read-only queue scan; no queue claim; no queue writes; no item status transition; no checkpoint advancement; feature flag read requirement; kill switch enforcement requirement; tenant/device dry-run scope; idempotency key inspection; correlation id dry-run evidence; operator approval evidence" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueProcessorDryRunExecutionImplementationStatus}" Foreground="#7C3AED" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueProcessorDryRunExecutionImplementationRequiredChecks}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueProcessorDryRunExecutionImplementationInstructions}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueProcessorDryRunExecutionImplementationEvidence}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+                    <TextBlock Text="PHASE 6D production sync queue claim and lease implementation: queue claim contract, lease ownership contract, tenant/device queue claim, claim only after feature flag read, claim blocked by kill switch, dry-run readiness, lease expiration, stale lease recovery, idempotency key claim guard, correlation id claim evidence y rollback-safe lease release; no ejecuta sync real, no habilita sync, no escribe payloads de cola, no procesa items, no confirma acknowledgements, no alterna runtime flags, no avanza checkpoints, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    <TextBlock Text="queue claim contract; lease ownership contract; tenant/device queue claim; claim only after feature flag read; claim blocked by kill switch; dry-run readiness; lease expiration; stale lease recovery; idempotency key claim guard; correlation id claim evidence; rollback-safe lease release" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueClaimLeaseImplementationStatus}" Foreground="#BE123C" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueClaimLeaseImplementationRequiredChecks}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueClaimLeaseImplementationInstructions}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                    <TextBlock Text="{Binding PosProductionSyncQueueClaimLeaseImplementationEvidence}" Foreground="#BE123C" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+                    <TextBlock Text="PHASE 6E production sync server acknowledgement integration implementation: server acknowledgement contract, acknowledgement request envelope, acknowledgement response envelope, acknowledgement status validation, durable acknowledgement evidence, tenant/device acknowledgement scope, queue item acknowledgement matching, lease ownership acknowledgement guard, idempotency key acknowledgement guard, correlation id acknowledgement evidence y checkpoint blocked until durable acknowledgement; no ejecuta sync real, no habilita sync, no envía acknowledgements reales, no avanza checkpoints, no escribe payloads de cola, no procesa items, no modifica inventario y no modifica checkout." FontWeight="Bold" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    <TextBlock Text="server acknowledgement contract; acknowledgement request envelope; acknowledgement response envelope; acknowledgement status validation; durable acknowledgement evidence; tenant/device acknowledgement scope; queue item acknowledgement matching; lease ownership acknowledgement guard; idempotency key acknowledgement guard; correlation id acknowledgement evidence; checkpoint blocked until durable acknowledgement" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementIntegrationImplementationStatus}" Foreground="#7C3AED" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementIntegrationImplementationRequiredChecks}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+                    <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementIntegrationImplementationInstructions}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+                    <TextBlock Text="{Binding PosProductionSyncServerAcknowledgementIntegrationImplementationEvidence}" Foreground="#7C3AED" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+
+
+
+
+
+</StackPanel>
+</Border>
+
+
+
+
+
+<TextBlock Text="{Binding PosOfflineSyncTenantDeviceBoundarySyncOwnershipStatus}" Foreground="#B45309" Margin="0,4,0,0"/>
+<TextBlock Text="{Binding PosOfflineSyncTenantDeviceBoundarySyncOwnershipRequiredChecks}" Foreground="#B45309" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="80"/>
+<TextBlock Text="{Binding PosOfflineSyncTenantDeviceBoundarySyncOwnershipInstructions}" Foreground="#B45309" TextWrapping="Wrap" Margin="0,4,0,0" MaxHeight="90"/>
+
+
+                    </StackPanel>
+                </Border>
+                
+                <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8">
+                    <DataGrid ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" 
+                              HeadersVisibility="Column" SelectionMode="Single" Background="Transparent" BorderThickness="0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}" MinRowHeight="40" AlternatingRowBackground="{StaticResource BackgroundBrush}">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F9FAFB"/>
+                                <Setter Property="Foreground" Value="#6B7280"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="10,12"/>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Código" Binding="{Binding Barcode}" Width="120"/>
+                            <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Precio" Binding="{Binding Price, StringFormat=C}" Width="100"/>
+                            <DataGridTextColumn Header="Stock" Binding="{Binding StockQuantity}" Width="80"/>
+                            <DataGridTextColumn Header="Min." Binding="{Binding MinStockThreshold}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </Grid>
+            
+            <!-- Formulario de Edición -->
+            <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" Padding="25" CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,0,10,0">
+                    <TextBlock Text="Detalles del Producto" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+                        
+                    <!-- Información Básica -->
+                    <Border Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Información Básica" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Código de Barras" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding EditingProduct.Barcode, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,10,0" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+                                <Button Grid.Column="1" Content="Generar" Command="{Binding GenerateBarcodeCommand}" MinWidth="80" Padding="15,0" Height="40" Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" ToolTip="Generar Código Automático">
+                                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                                </Button>
+                            </Grid>
+
+                            <TextBlock Text="Nombre del Producto" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding EditingProduct.Name, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,0" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Precios y Stock -->
+                    <Border Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Precios y Stock" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Precio (Venta)" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                                    <TextBox Text="{Binding EditingProduct.Price, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,15" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Stock Actual" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                                    <TextBox Text="{Binding EditingProduct.StockQuantity, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,15" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <TextBlock Text="Alerta Stock Mínimo" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding EditingProduct.MinStockThreshold, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,0" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Configuración Extra -->
+                    <Border Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,25">
+                        <StackPanel>
+                            <TextBlock Text="Configuración Extra" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Variantes / Modificadores Rápidos" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding Variantes, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,15" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+
+                            <TextBlock Text="Alérgenos o Notas de Cocina" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding NotasCocina, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,15" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+
+                            <TextBlock Text="URL de Imagen" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding EditingProduct.ImagePath, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,0" Padding="10,0" FontSize="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BackgroundBrush}" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                        <Button Content="Cancelar" Command="{Binding CancelEditCommand}" MinWidth="100" Padding="15,0" Height="40" Background="{StaticResource BorderBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand">
+                            <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                        </Button>
+                        <Button Content="Guardar" Command="{Binding SaveProductCommand}" MinWidth="120" Padding="15,0" Height="40" Background="{StaticResource SuccessBrush}" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand">
+                            <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                        </Button>
+                    </StackPanel>
+                
+                <StackPanel Margin="0,10,0,0">
+                    <TextBlock Text="PHASE 6H production sync dead-letter queue persistence implementation: dead-letter queue persistence contract, dead-letter record envelope, reason code, tenant/device scope, queue item dead-letter matching, lease ownership dead-letter guard, idempotency key dead-letter guard, correlation id dead-letter evidence, conflict detection prerequisite, manual intervention prerequisite, retry exhaustion prerequisite, redacted payload snapshot y replay prohibition; no ejecuta sync real, no habilita sync, no reproduce automáticamente, no procesa items, no muta payloads de cola, no confirma checkpoints reales, no modifica inventario y no modifica checkout." TextWrapping="Wrap" Foreground="#7F1D1D" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding PosProductionSyncDeadLetterQueuePersistenceImplementationStatus}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding PosProductionSyncDeadLetterQueuePersistenceImplementationRequiredChecks}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding PosProductionSyncDeadLetterQueuePersistenceImplementationInstructions}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Margin="0,10,0,0">
+                    <TextBlock Text="PHASE 6I production sync runtime metrics emission implementation: runtime metrics emission contract, queue depth metric, processing latency metric, acknowledgement latency metric, checkpoint lag metric, retry rate metric, dead-letter rate metric, conflict rate metric, error rate metric, sync throughput metric, tenant/device metric scope, correlation id metric evidence, idempotency key metric evidence, redacted metric tags, alert threshold metric handoff y operator dashboard metric handoff; no ejecuta sync real, no habilita sync, no emite telemetría externa, no procesa items, no muta payloads de cola, no confirma checkpoints reales, no modifica inventario y no modifica checkout." TextWrapping="Wrap" Foreground="#0F766E" FontWeight="SemiBold"/>
+                    <TextBlock Text="runtime metrics emission contract; queue depth metric; processing latency metric; acknowledgement latency metric; checkpoint lag metric; retry rate metric; dead-letter rate metric; conflict rate metric; error rate metric; sync throughput metric; tenant/device metric scope; correlation id metric evidence; idempotency key metric evidence; redacted metric tags; operator dashboard metric handoff" TextWrapping="Wrap" Foreground="#0F766E"/>
+                    <TextBlock Text="{Binding PosProductionSyncRuntimeMetricsEmissionImplementationStatus}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding PosProductionSyncRuntimeMetricsEmissionImplementationRequiredChecks}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding PosProductionSyncRuntimeMetricsEmissionImplementationInstructions}" TextWrapping="Wrap"/>
+
+                <Border Background="#FFF7ED" BorderBrush="#FED7AA" BorderThickness="1" Padding="10" Margin="0,10,0,10">
+                    <StackPanel>
+                        <TextBlock Text="PHASE 6J production sync canary tenant/device controlled enablement: canary enablement contract, tenant scoped canary enablement, device scoped canary enablement, feature flag prerequisite, kill switch prerequisite, dry-run prerequisite, queue claim lease prerequisite, server acknowledgement prerequisite, checkpoint prerequisite, conflict detection prerequisite, dead-letter prerequisite, runtime metrics prerequisite, operator approval evidence, canary blast radius, rollback boundary y monitoring window; no habilita sync global, no production-wide rollout, no automatic tenant expansion, no automatic device expansion, no muta payloads de cola, no confirma checkpoints sin control, no modifica inventario y no modifica checkout." TextWrapping="Wrap" FontWeight="Bold"/>
+                        <TextBlock Text="canary enablement contract; tenant scoped canary enablement; device scoped canary enablement; feature flag prerequisite; kill switch prerequisite; dry-run prerequisite; queue claim lease prerequisite; server acknowledgement prerequisite; checkpoint prerequisite; conflict detection prerequisite; dead-letter prerequisite; runtime metrics prerequisite; operator approval evidence; canary blast radius; canary rollback boundary; canary monitoring window" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncCanaryTenantDeviceControlledEnablementStatus}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncCanaryTenantDeviceControlledEnablementRequiredChecks}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding PosProductionSyncCanaryTenantDeviceControlledEnablementInstructions}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                </StackPanel>
+</StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
