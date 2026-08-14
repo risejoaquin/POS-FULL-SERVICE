@@ -27,9 +27,12 @@ public class TenantMiddleware
                              path == "/api/health" ||
                              path.StartsWith("/health/") ||
                              path == "/metrics" ||
+                             path == "/favicon.ico" ||
                              path.Contains("/swagger") ||
                              path.Contains("/api/license/validate") ||
+                             path.Contains("/api/v1/license/validate") ||
                              path.Contains("/api/license/generate") ||
+                             path.Contains("/api/v1/license/generate") ||
                              path.StartsWith("/api/auth/login") ||
                              path.StartsWith("/api/v1/auth/login") ||
                              path.StartsWith("/api/auth/provision") ||
@@ -46,9 +49,28 @@ public class TenantMiddleware
 
         if (string.IsNullOrEmpty(tenantId) && !isExemptRoute)
         {
-            context.Response.StatusCode = 400;
+            var isAuthenticated = context.User?.Identity?.IsAuthenticated == true;
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { Error = "TenantId no puede ser determinado a partir del token o los headers válidos." });
+
+            if (!isAuthenticated)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    code = "UNAUTHORIZED",
+                    message = "Authentication is required.",
+                    correlationId = context.Response.Headers["X-Correlation-ID"].FirstOrDefault() ?? context.TraceIdentifier
+                });
+                return;
+            }
+
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                code = "TENANT_CONTEXT_REQUIRED",
+                message = "Tenant context could not be determined from authenticated claims or allowed headers.",
+                correlationId = context.Response.Headers["X-Correlation-ID"].FirstOrDefault() ?? context.TraceIdentifier
+            });
             return;
         }
 

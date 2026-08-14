@@ -226,8 +226,16 @@ app.UseExceptionHandler(exceptionHandlerApp =>
         await context.Response.WriteAsJsonAsync(responseObj);
     });
 });
-app.UseSwagger();
-app.UseSwaggerUI();
+var swaggerEnabledInProduction = string.Equals(Environment.GetEnvironmentVariable("ENABLE_SWAGGER"), "true", StringComparison.OrdinalIgnoreCase);
+if (app.Environment.IsDevelopment() || swaggerEnabledInProduction)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    Console.WriteLine("POS Server security hardening: Swagger UI is disabled in production unless ENABLE_SWAGGER=true.");
+}
 
 app.UseMiddleware<PosServer.Middlewares.CorrelationIdMiddleware>();
 app.UseMiddleware<PosServer.Middlewares.ExceptionHandlingMiddleware>();
@@ -253,6 +261,22 @@ app.MapGet("/api/health", () => Results.Ok(new
     service = "POS-FULL-SERVICE API",
     timestamp = DateTime.UtcNow
 })).AllowAnonymous();
+
+app.MapGet("/metrics", () => Results.NotFound(new
+{
+    code = "METRICS_NOT_PUBLIC",
+    message = "Metrics are not exposed publicly in production.",
+    timestamp = DateTime.UtcNow
+})).AllowAnonymous();
+
+app.MapGet("/health/metrics", () => Results.NotFound(new
+{
+    code = "METRICS_NOT_PUBLIC",
+    message = "Health metrics are not exposed publicly in production.",
+    timestamp = DateTime.UtcNow
+})).AllowAnonymous();
+
+app.MapGet("/favicon.ico", () => Results.NoContent()).AllowAnonymous();
 
 // Servir la carpeta releases estáticamente para Squirrel
 var releasesPath = Path.Combine(builder.Environment.ContentRootPath, "releases");

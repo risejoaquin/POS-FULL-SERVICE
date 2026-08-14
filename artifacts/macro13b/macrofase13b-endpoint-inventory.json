@@ -1,0 +1,236 @@
+﻿[
+    {
+        "Method":  "GET",
+        "Route":  "/",
+        "Source":  "Program.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P0",
+        "Notes":  "Service identity endpoint"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/health",
+        "Source":  "Program.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P0",
+        "Notes":  "Public health alias"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/api/health",
+        "Source":  "Program.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P0",
+        "Notes":  "Public API health alias"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/health/live",
+        "Source":  "HealthController.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P0",
+        "Notes":  "Liveness"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/health/ready",
+        "Source":  "HealthController.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P0",
+        "Notes":  "Readiness with database check"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/health/metrics",
+        "Source":  "HealthController.cs",
+        "Auth":  "ReviewRequired",
+        "MutatesData":  false,
+        "Risk":  "P2",
+        "Notes":  "Operational metrics exposure requires decision"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/metrics",
+        "Source":  "HealthController.cs",
+        "Auth":  "ReviewRequired",
+        "MutatesData":  false,
+        "Risk":  "P2",
+        "Notes":  "Absolute metrics route exposure requires decision"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/auth/login",
+        "Source":  "AuthController.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "LoginPolicy rate limit"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/auth/refresh",
+        "Source":  "AuthController.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "LoginPolicy rate limit"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/auth/provision",
+        "Source":  "AuthController.cs",
+        "Auth":  "ServiceGuardRequired",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Must be protected by provision guard"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/license/validate",
+        "Source":  "LicenseController.cs",
+        "Auth":  "Anonymous",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "License validation"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/license/generate",
+        "Source":  "LicenseController.cs",
+        "Auth":  "Admin",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "License generation"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/api/v1/products",
+        "Source":  "ProductsController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "Paged products"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/api/v1/products/changes",
+        "Source":  "ProductsController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "Product sync changes"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/products",
+        "Source":  "ProductsController.cs",
+        "Auth":  "Admin",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Create/update product"
+    },
+    {
+        "Method":  "DELETE",
+        "Route":  "/api/v1/products/{barcode}",
+        "Source":  "ProductsController.cs",
+        "Auth":  "Admin",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Delete product"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/orders",
+        "Source":  "OrdersController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Create/update order"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/api/v1/orders",
+        "Source":  "OrdersController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "Paged orders"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/api/v1/orders/{id}",
+        "Source":  "OrdersController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "Order by id"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/inventorymovements",
+        "Source":  "InventoryMovementsController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Sync inventory movement"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/shifts",
+        "Source":  "ShiftsController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Sync shift"
+    },
+    {
+        "Method":  "GET",
+        "Route":  "/api/v1/sync/changes",
+        "Source":  "SyncController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  false,
+        "Risk":  "P1",
+        "Notes":  "Sync changes"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/sync/apply",
+        "Source":  "SyncController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Apply sync payload"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/sync/ping",
+        "Source":  "SyncController.cs",
+        "Auth":  "Authenticated",
+        "MutatesData":  false,
+        "Risk":  "P2",
+        "Notes":  "Heartbeat logging"
+    },
+    {
+        "Method":  "POST",
+        "Route":  "/api/v1/users",
+        "Source":  "UsersController.cs",
+        "Auth":  "Admin",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Create/update user"
+    },
+    {
+        "Method":  "DELETE",
+        "Route":  "/api/v1/users/{username}",
+        "Source":  "UsersController.cs",
+        "Auth":  "Admin",
+        "MutatesData":  true,
+        "Risk":  "P1",
+        "Notes":  "Delete user"
+    }
+]
