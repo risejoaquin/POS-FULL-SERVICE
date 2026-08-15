@@ -47,6 +47,17 @@ namespace PosInfrastructure.Services.Local
             product.LastUpdated = DateTime.UtcNow;
             _dbContext.Products.Add(product);
             await _dbContext.SaveChangesAsync();
+
+            if (product.StockQuantity > 0)
+            {
+                _dbContext.InventoryMovements.Add(InventoryMovement.ProductRestock(
+                    product.Id,
+                    product.StockQuantity,
+                    product.TenantId,
+                    "Stock inicial"));
+                await _dbContext.SaveChangesAsync();
+            }
+
             return product;
         }
 
@@ -69,12 +80,26 @@ namespace PosInfrastructure.Services.Local
             existing.Name = product.Name;
             existing.Barcode = product.Barcode;
             existing.Price = product.Price;
-            existing.StockQuantity = product.StockQuantity;
             existing.MinStockThreshold = product.MinStockThreshold;
             existing.Category = product.Category;
             existing.ImagePath = product.ImagePath;
             existing.CustomAttributes = product.CustomAttributes;
             existing.LastUpdated = DateTime.UtcNow;
+
+            var stockAdjustment = product.StockQuantity - existing.StockQuantity;
+            if (stockAdjustment != 0)
+            {
+                ApplyProductStockAdjustment(existing, stockAdjustment);
+                _dbContext.InventoryMovements.Add(new InventoryMovement
+                {
+                    ProductId = existing.Id,
+                    Quantity = stockAdjustment,
+                    MovementType = InventoryMovement.AdjustmentType,
+                    MovementDate = DateTime.UtcNow,
+                    Reference = "Ajuste por edición de producto",
+                    TenantId = existing.TenantId
+                });
+            }
 
             _dbContext.Products.Update(existing);
             await _dbContext.SaveChangesAsync();
@@ -94,7 +119,7 @@ namespace PosInfrastructure.Services.Local
         {
             if (products == null) throw new ArgumentNullException(nameof(products));
 
-            var importedCount = 0;
+            var importedProducts = new List<Product>();
             foreach (var product in products)
             {
                 if (product == null) continue;
@@ -105,15 +130,26 @@ namespace PosInfrastructure.Services.Local
 
                 product.LastUpdated = DateTime.UtcNow;
                 _dbContext.Products.Add(product);
-                importedCount++;
+                importedProducts.Add(product);
             }
 
-            if (importedCount > 0)
+            if (importedProducts.Count > 0)
             {
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var importedProduct in importedProducts.Where(p => p.StockQuantity > 0))
+                {
+                    _dbContext.InventoryMovements.Add(InventoryMovement.ProductRestock(
+                        importedProduct.Id,
+                        importedProduct.StockQuantity,
+                        importedProduct.TenantId,
+                        "Stock inicial importado"));
+                }
+
                 await _dbContext.SaveChangesAsync();
             }
 
-            return importedCount;
+            return importedProducts.Count;
         }
 
         public async Task<IEnumerable<RecipeItem>> GetProductRecipeItemsAsync(int productId)
@@ -257,7 +293,7 @@ namespace PosInfrastructure.Services.Local
             {
                 ProductId = productId,
                 Quantity = quantity,
-                MovementType = "Adjustment",
+                MovementType = InventoryMovement.AdjustmentType,
                 MovementDate = DateTime.UtcNow,
                 Reference = reason ?? string.Empty,
                 TenantId = product.TenantId

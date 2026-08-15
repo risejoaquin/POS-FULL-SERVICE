@@ -25,6 +25,10 @@ namespace PosBuilder.Models
         public string EmployeeUser { get; set; } = "";
         public string EmployeePassword { get; set; } = "";
         public string Environment { get; set; } = "";
+        public bool EnableInventoryControl { get; set; } = true;
+        public bool EnableReports { get; set; } = true;
+        public bool EnableCredit { get; set; }
+        public bool EnableMultiStore { get; set; }
         public List<UserModel> ExtraUsers { get; set; } = new List<UserModel>();
     }
 }

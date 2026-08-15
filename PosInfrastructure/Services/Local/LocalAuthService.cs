@@ -31,22 +31,8 @@ public class LocalAuthService : ILocalAuthService
         var user = users.FirstOrDefault(u => CredentialMatches(u, passwordOrPin));
         if (user != null)
         {
+            await UpgradeLegacyCredentialIfNeededAsync(user, passwordOrPin);
             return BuildUserLoginResult(user, $"local-token-{Guid.NewGuid()}", "Login local exitoso");
-        }
-
-        var hasAnyUsers = await _dbContext.Users.IgnoreQueryFilters().AnyAsync();
-        if (!hasAnyUsers && normalizedUsername == "admin" && passwordOrPin == "admin")
-        {
-            return new LoginResult
-            {
-                IsSuccess = true,
-                Message = "Login local admin inicial exitoso",
-                Token = "local-token-admin",
-                TenantId = "default",
-                Username = "Admin",
-                Role = "Admin",
-                CurrentUserId = "admin"
-            };
         }
 
         return new LoginResult { IsSuccess = false, Message = "Credenciales inválidas" };
@@ -66,7 +52,8 @@ public class LocalAuthService : ILocalAuthService
 
         if (existingUser != null)
         {
-            existingUser.Pin = passwordOrPin;
+            existingUser.Pin = null;
+            existingUser.PasswordHash = HashCredential(passwordOrPin);
             existingUser.Role = normalizedRole;
             existingUser.TenantId = normalizedTenantId;
             existingUser.IsActive = true;
@@ -77,7 +64,8 @@ public class LocalAuthService : ILocalAuthService
         var newUser = new User
         {
             Username = normalizedUsername,
-            Pin = passwordOrPin,
+            Pin = null,
+            PasswordHash = HashCredential(passwordOrPin),
             Role = normalizedRole,
             TenantId = normalizedTenantId,
             IsActive = true,
@@ -96,13 +84,6 @@ public class LocalAuthService : ILocalAuthService
             return false;
         }
 
-        // Legacy behavior preserved for this architecture-only phase.
-        // Security hardening should remove this default override in a later phase.
-        if (managerPin == "admin")
-        {
-            return true;
-        }
-
         var usersQuery = _dbContext.Users
             .Where(u => u.IsActive && u.Role != null &&
                 (u.Role.ToLower() == "admin" || u.Role.ToLower() == "manager"));
@@ -114,7 +95,14 @@ public class LocalAuthService : ILocalAuthService
         }
 
         var users = await usersQuery.ToListAsync();
-        return users.Any(u => CredentialMatches(u, managerPin));
+        var manager = users.FirstOrDefault(u => CredentialMatches(u, managerPin));
+        if (manager == null)
+        {
+            return false;
+        }
+
+        await UpgradeLegacyCredentialIfNeededAsync(manager, managerPin);
+        return true;
     }
 
     public Task MigrateAdminIfNeededAsync()
@@ -165,6 +153,16 @@ public class LocalAuthService : ILocalAuthService
 
     private static bool CredentialMatches(User user, string credential)
     {
+        if (!string.IsNullOrWhiteSpace(user.PasswordHash) && VerifyCredential(credential, user.PasswordHash))
+        {
+            return true;
+        }
+
+        return IsLegacyPlainCredential(user, credential);
+    }
+
+    private static bool IsLegacyPlainCredential(User user, string credential)
+    {
         if (!string.IsNullOrWhiteSpace(user.Pin) && user.Pin == credential)
         {
             return true;
@@ -180,13 +178,35 @@ public class LocalAuthService : ILocalAuthService
             return true;
         }
 
+        return false;
+    }
+
+    private static bool VerifyCredential(string credential, string passwordHash)
+    {
         try
         {
-            return BCrypt.Net.BCrypt.Verify(credential, user.PasswordHash);
+            return BCrypt.Net.BCrypt.Verify(credential, passwordHash);
         }
         catch
         {
             return false;
         }
+    }
+
+    private static string HashCredential(string credential)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(credential);
+    }
+
+    private async Task UpgradeLegacyCredentialIfNeededAsync(User user, string credential)
+    {
+        if (!IsLegacyPlainCredential(user, credential))
+        {
+            return;
+        }
+
+        user.Pin = null;
+        user.PasswordHash = HashCredential(credential);
+        await _dbContext.SaveChangesAsync();
     }
 }

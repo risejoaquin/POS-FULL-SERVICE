@@ -4,7 +4,9 @@ using PosApplication.Interfaces.Local;
 using PosCore.Services;
 using PosDomain.Entities;
 using System;
+using System.Globalization;
 using System.Collections.ObjectModel;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -130,9 +132,10 @@ public partial class UsersViewModel : ObservableObject
             return;
         }
 
-        await _usersService.ResetPinAsync(user.Id, "1234");
+        var temporaryPin = GenerateTemporaryPin();
+        await _usersService.ResetPinAsync(user.Id, temporaryPin);
         await LoadUsersAsync();
-        MessageBox.Show($"La contraseña de {user.Username} ha sido restablecido a '1234'.", "Contraseña Restablecida", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show($"La contraseña de {user.Username} ha sido restablecida. PIN temporal: {temporaryPin}", "Contraseña Restablecida", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     [RelayCommand]
@@ -157,5 +160,10 @@ public partial class UsersViewModel : ObservableObject
     {
         return string.Equals(_sessionManager.Role, "Admin", StringComparison.OrdinalIgnoreCase) ||
                string.Equals(_sessionManager.Role, "Administrador", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GenerateTemporaryPin()
+    {
+        return RandomNumberGenerator.GetInt32(100000, 1000000).ToString(CultureInfo.InvariantCulture);
     }
 }

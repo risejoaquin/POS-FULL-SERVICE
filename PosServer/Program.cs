@@ -12,6 +12,7 @@ using System.Net;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.IO;
 using System;
@@ -318,7 +319,12 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(releasesPath),
     RequestPath = "/releases",
-    ServeUnknownFileTypes = true // Importante para .nupkg y RELEASES
+    ContentTypeProvider = new ReleaseContentTypeProvider(),
+    OnPrepareResponse = context =>
+    {
+        context.Context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+        context.Context.Response.Headers["Cache-Control"] = "public, max-age=300";
+    }
 });
 
 if (!isRailwayRuntime)
@@ -354,3 +360,27 @@ using (var scope = app.Services.CreateScope())
 
 Console.WriteLine("POS Server runtime audit: startup completed; entering app.Run().");
 app.Run();
+
+internal sealed class ReleaseContentTypeProvider : IContentTypeProvider
+{
+    private readonly FileExtensionContentTypeProvider _inner = new();
+
+    public ReleaseContentTypeProvider()
+    {
+        _inner.Mappings[".nupkg"] = "application/octet-stream";
+        _inner.Mappings[".sha256"] = "text/plain";
+        _inner.Mappings[".yml"] = "text/yaml";
+        _inner.Mappings[".yaml"] = "text/yaml";
+    }
+
+    public bool TryGetContentType(string subpath, out string contentType)
+    {
+        if (string.Equals(Path.GetFileName(subpath), "RELEASES", StringComparison.OrdinalIgnoreCase))
+        {
+            contentType = "text/plain";
+            return true;
+        }
+
+        return _inner.TryGetContentType(subpath, out contentType!);
+    }
+}

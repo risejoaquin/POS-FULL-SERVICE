@@ -61,7 +61,6 @@ namespace PosInfrastructure.Services.Server
                         // Resolve conflict by updating existing
                         existing.Name = product.Name;
                         existing.Price = product.Price;
-                        existing.StockQuantity = product.StockQuantity;
                         existing.Category = product.Category;
                         existing.LastUpdated = product.LastUpdated;
                     }

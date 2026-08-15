@@ -38,8 +38,8 @@ namespace PosInfrastructure.Services.Server
             {
                 user.Id = 0;
                 user.CreatedAt = DateTime.UtcNow;
-                if (!string.IsNullOrEmpty(user.Pin)) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Pin);
-                else if (!string.IsNullOrEmpty(user.PasswordHash)) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+                user.PasswordHash = ResolvePasswordHash(user.Pin, user.PasswordHash);
+                user.Pin = null;
                 _context.Users.Add(user);
             }
             else
@@ -53,8 +53,8 @@ namespace PosInfrastructure.Services.Server
                 existing.Role = user.Role;
                 existing.IsActive = user.IsActive;
                 existing.LastUpdated = DateTime.UtcNow;
-                if (!string.IsNullOrEmpty(user.PasswordHash)) existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-                if (!string.IsNullOrEmpty(user.Pin)) existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Pin);
+                var resolvedPasswordHash = ResolvePasswordHash(user.Pin, user.PasswordHash);
+                if (!string.IsNullOrEmpty(resolvedPasswordHash)) existing.PasswordHash = resolvedPasswordHash;
                     
                 _context.Users.Update(existing);
             }
@@ -80,6 +80,29 @@ namespace PosInfrastructure.Services.Server
                 return true;
             }
             return false;
+        }
+
+        private static string? ResolvePasswordHash(string? pin, string? passwordHash)
+        {
+            if (!string.IsNullOrWhiteSpace(pin))
+            {
+                return BCrypt.Net.BCrypt.HashPassword(pin);
+            }
+
+            if (string.IsNullOrWhiteSpace(passwordHash))
+            {
+                return passwordHash;
+            }
+
+            return IsBCryptHash(passwordHash) ? passwordHash : BCrypt.Net.BCrypt.HashPassword(passwordHash);
+        }
+
+        private static bool IsBCryptHash(string value)
+        {
+            return value.StartsWith("$2a$", StringComparison.Ordinal) ||
+                   value.StartsWith("$2b$", StringComparison.Ordinal) ||
+                   value.StartsWith("$2x$", StringComparison.Ordinal) ||
+                   value.StartsWith("$2y$", StringComparison.Ordinal);
         }
     }
 }

@@ -37,8 +37,8 @@ namespace PosInfrastructure.Services.Local
             {
                 ProductId = productId,
                 Quantity = quantity,
-                MovementType = "Sale",
-                MovementDate = DateTime.Now,
+                MovementType = InventoryMovement.SaleType,
+                MovementDate = DateTime.UtcNow,
                 Reference = reference,
                 TenantId = tenantId
             };
@@ -63,8 +63,8 @@ namespace PosInfrastructure.Services.Local
                         {
                             SupplyId = recipeItem.Supply.Id,
                             Quantity = requiredSupplyQuantity,
-                            MovementType = "RecipeConsumption",
-                            MovementDate = DateTime.Now,
+                            MovementType = InventoryMovement.RecipeConsumptionType,
+                            MovementDate = DateTime.UtcNow,
                             Reference = reference,
                             TenantId = tenantId
                         };
@@ -91,8 +91,8 @@ namespace PosInfrastructure.Services.Local
             {
                 ProductId = productId,
                 Quantity = quantity,
-                MovementType = "Return",
-                MovementDate = DateTime.Now,
+                MovementType = InventoryMovement.ReturnType,
+                MovementDate = DateTime.UtcNow,
                 Reference = reference,
                 TenantId = tenantId
             };
@@ -115,8 +115,8 @@ namespace PosInfrastructure.Services.Local
             {
                 ProductId = productId,
                 Quantity = quantity,
-                MovementType = "Restock",
-                MovementDate = DateTime.Now,
+                MovementType = InventoryMovement.RestockType,
+                MovementDate = DateTime.UtcNow,
                 Reference = reference,
                 TenantId = tenantId
             };

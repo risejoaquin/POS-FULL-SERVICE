@@ -46,6 +46,18 @@ public class PosDbContext : DbContext
 
         modelBuilder.Entity<Product>().ToTable(t => t.HasCheckConstraint("CK_Product_StockQuantity_NonNegative", "\"StockQuantity\" >= 0"));
         modelBuilder.Entity<Supply>().ToTable(t => t.HasCheckConstraint("CK_Supply_Stock_NonNegative", "\"Stock\" >= 0"));
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.FindProperty("RowVersion") != null)
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property<uint>("RowVersion")
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever()
+                    .HasDefaultValue(1u);
+            }
+        }
         
         // Optimización SQLite: Índices
         modelBuilder.Entity<Product>()

@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PosCore\PosCore.csproj" />
     <ProjectReference Include="..\PosInfrastructure\PosInfrastructure.csproj" />
+    <ProjectReference Include="..\PosBuilder\PosBuilder.csproj" />
   </ItemGroup>
 
 </Project>

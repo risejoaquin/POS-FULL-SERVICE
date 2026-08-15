@@ -122,7 +122,11 @@ namespace PosBuilder
                 EmployeePassword = _viewModel.EmployeePassword,
                 ExtraUsers = _viewModel.ExtraUsers.ToList(),
                 BusinessType = _viewModel.BusinessType,
-                Environment = _viewModel.Environment
+                Environment = _viewModel.Environment,
+                EnableInventoryControl = _viewModel.ModuleInventory,
+                EnableReports = _viewModel.ModuleReports,
+                EnableCredit = _viewModel.ModuleCredit,
+                EnableMultiStore = _viewModel.ModuleMultiStore
             };
             
             MainOverlay.Show("Verificando conectividad...");
@@ -133,7 +137,7 @@ namespace PosBuilder
                 client.BaseAddress = new Uri(config.ApiBaseUrl);
                 
                 // [x] API reachable
-                var pingResponse = await client.GetAsync("health/live");
+                var pingResponse = await client.GetAsync("health");
                 if (!pingResponse.IsSuccessStatusCode)
                 {
                     throw new Exception("API is not reachable or healthy.");
@@ -174,7 +178,9 @@ namespace PosBuilder
                 string outputDir = System.IO.Path.Combine(System.Environment.CurrentDirectory, "Output");
                 if (!System.IO.Directory.Exists(outputDir)) System.IO.Directory.CreateDirectory(outputDir);
                 string appSettingsPath = System.IO.Path.Combine(outputDir, "appsettings.json");
-                bool ok1 = await generator.WriteWithIntegrityValidationAsync(appSettingsPath, generator.GenerateAppSettings(config));
+                var appSettingsJson = generator.GenerateAppSettings(config);
+                generator.ValidateGeneratedAppSettings(appSettingsJson);
+                bool ok1 = await generator.WriteWithIntegrityValidationAsync(appSettingsPath, appSettingsJson);
                 if (!ok1) throw new Exception("Error al guardar archivo appsettings.json");
 
                 try {

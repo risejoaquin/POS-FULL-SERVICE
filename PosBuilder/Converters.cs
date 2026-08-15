@@ -29,7 +29,12 @@ namespace PosBuilder
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value is Visibility visibility && visibility == Visibility.Visible)
+            {
+                return "PostgreSQL";
+            }
+
+            return Binding.DoNothing;
         }
     }
 }

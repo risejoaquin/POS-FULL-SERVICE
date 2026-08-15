@@ -49,7 +49,7 @@ public class LicenseService
         try
         {
             var request = new { LicenseKey = _settings.License.LicenseKey, TerminalId = Environment.MachineName };
-            var response = await _httpClient.PostAsJsonAsync("api/license/validate", request);
+            var response = await _httpClient.PostAsJsonAsync("api/v1/license/validate", request);
             
             if (response.IsSuccessStatusCode)
             {

@@ -50,7 +50,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var products = await _httpClient.GetFromJsonAsync<List<Product>>("api/products", _jsonOptions);
+            var products = await _httpClient.GetFromJsonAsync<List<Product>>("api/v1/products", _jsonOptions);
             return products ?? new List<Product>();
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in GetProductsAsync"); return new List<Product>(); }
@@ -60,7 +60,7 @@ public class ApiService : IApiService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<PosDomain.Entities.SyncPayload>($"api/sync/changes?since={Uri.EscapeDataString(since.ToString("O"))}", _jsonOptions);
+            return await _httpClient.GetFromJsonAsync<PosDomain.Entities.SyncPayload>($"api/v1/sync/changes?since={Uri.EscapeDataString(since.ToString("O"))}", _jsonOptions);
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in GetAllChangesAsync"); return null; }
     }
@@ -69,7 +69,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"api/products/changes?since={Uri.EscapeDataString(since.ToString("O"))}", _jsonOptions);
+            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"api/v1/products/changes?since={Uri.EscapeDataString(since.ToString("O"))}", _jsonOptions);
             return products ?? new List<Product>();
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in GetChangesAsync"); return new List<Product>(); }
@@ -80,8 +80,8 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"api/products/{Uri.EscapeDataString(barcode)}");
-            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (DELETE api/products/{Uri.EscapeDataString(barcode)}): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
+            var response = await _httpClient.DeleteAsync($"api/v1/products/{Uri.EscapeDataString(barcode)}");
+            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (DELETE api/v1/products/{Uri.EscapeDataString(barcode)}): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in DeleteProductAsync"); return false; }
     }
@@ -90,8 +90,8 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/products", product, _jsonOptions);
-            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/products): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
+            var response = await _httpClient.PostAsJsonAsync("api/v1/products", product, _jsonOptions);
+            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/v1/products): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in SyncProductAsync"); return false; }
     }
@@ -100,8 +100,8 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/orders", order, _jsonOptions);
-            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/orders): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
+            var response = await _httpClient.PostAsJsonAsync("api/v1/orders", order, _jsonOptions);
+            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/v1/orders): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in SyncOrderAsync"); return false; }
     }
@@ -111,8 +111,8 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/users", user, _jsonOptions);
-            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/users): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
+            var response = await _httpClient.PostAsJsonAsync("api/v1/users", user, _jsonOptions);
+            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/v1/users): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in SyncUserAsync"); return false; }
     }
@@ -121,8 +121,8 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"api/users/{Uri.EscapeDataString(username)}");
-            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (DELETE api/users/{Uri.EscapeDataString(username)}): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
+            var response = await _httpClient.DeleteAsync($"api/v1/users/{Uri.EscapeDataString(username)}");
+            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (DELETE api/v1/users/{Uri.EscapeDataString(username)}): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in DeleteUserAsync"); return false; }
     }
@@ -133,8 +133,8 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/shifts", shift, _jsonOptions);
-            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/shifts): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
+            var response = await _httpClient.PostAsJsonAsync("api/v1/shifts", shift, _jsonOptions);
+            if (!response.IsSuccessStatusCode) { var err = await response.Content.ReadAsStringAsync(); Serilog.Log.Error($"Sync fail (api/v1/shifts): {response.StatusCode} - {err}"); if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || response.StatusCode == System.Net.HttpStatusCode.Conflict) { return true; } } return response.IsSuccessStatusCode;
         }
         catch (Exception ex) { Serilog.Log.Error(ex, "Exception in SyncShiftAsync"); return false; }
     }
@@ -143,7 +143,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/auth/login", new PosDomain.Entities.LoginRequest { Username = username, Password = password }, _jsonOptions);
+            var response = await _httpClient.PostAsJsonAsync("api/v1/auth/login", new PosDomain.Entities.LoginRequest { Username = username, Password = password }, _jsonOptions);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<PosApplication.Interfaces.Local.LoginResponse>(_jsonOptions);
@@ -161,7 +161,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/sync/ping", payload, _jsonOptions);
+            var response = await _httpClient.PostAsJsonAsync("api/v1/sync/ping", payload, _jsonOptions);
             return response.IsSuccessStatusCode;
         }
         catch
@@ -174,7 +174,7 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/inventorymovements", movement, _jsonOptions);
+            var response = await _httpClient.PostAsJsonAsync("api/v1/inventorymovements", movement, _jsonOptions);
             return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.BadRequest;
         }
         catch { return false; }

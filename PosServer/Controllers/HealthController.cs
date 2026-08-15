@@ -51,11 +51,11 @@ namespace PosServer.Controllers
         {
             try
             {
-                int syncPending = await _context.OutboxMessages.IgnoreQueryFilters().CountAsync(m => m.ProcessedAt == null);
+                int syncPending = await _context.OutboxMessages.IgnoreQueryFilters().CountAsync(m => m.Status == "Pending" || m.Status == "Processing");
                 int syncFailed = await _context.OutboxMessages.IgnoreQueryFilters().CountAsync(m => m.Status == "Failed" || m.Status == "DeadLetter");
                 
                 var processedMessages = await _context.OutboxMessages.IgnoreQueryFilters()
-                    .Where(m => m.ProcessedAt != null)
+                    .Where(m => m.Status == "Processed" && m.ProcessedAt != null)
                     .Select(m => new { m.CreatedAt, m.ProcessedAt })
                     .Take(100)
                     .ToListAsync();

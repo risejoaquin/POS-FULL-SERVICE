@@ -73,8 +73,11 @@ public class SyncService
 
             // 2. Procesar Outbox local para enviar al servidor
             // 2. Procesar Outbox local en lotes para pruebas de estrés y tolerancia
+            var now = DateTime.UtcNow;
             var pendingMessages = await dbContext.OutboxMessages
-                .Where(m => m.ProcessedAt == null)
+                .Where(m => m.ProcessedAt == null &&
+                            m.Status != OutboxSyncStateMachine.DeadLetter &&
+                            m.NextAttemptAt <= now)
                 .OrderBy(m => m.CreatedAt)
                 .Take(2000) // Ráfaga máxima de 2000
                 .ToListAsync();
@@ -96,7 +99,9 @@ public class SyncService
                     {
                         try
                         {
+                            OutboxSyncStateMachine.MarkProcessing(message);
                             bool success = false;
+                            bool invalidEvent = false;
 
                             if (message.EventType == "OrderCreated" || message.EventType == "OrderReturned")
                             {
@@ -107,7 +112,7 @@ public class SyncService
                                     // Idempotencia: Asegurar un ClientSideId único y determinista basado en el evento local
                                     if (string.IsNullOrEmpty(order.ClientSideId))
                                     {
-                                        order.ClientSideId = $"local-{order.Id}-{message.CreatedAt.Ticks}";
+                                        order.ClientSideId = OutboxSyncStateMachine.BuildDeterministicClientSideId(message);
                                     }
                                     order.CustomerName ??= "";
                                     order.ReturnReason ??= "";
@@ -150,10 +155,9 @@ public class SyncService
                                 if (user != null)
                                 {
                                     if (string.IsNullOrEmpty(user.TenantId)) user.TenantId = sessionManager.CurrentTenantId;
-                                    if (string.IsNullOrEmpty(user.PasswordHash) && !string.IsNullOrEmpty(user.Pin)) user.PasswordHash = user.Pin;
                                     user.Username ??= "";
                                     user.PasswordHash ??= "";
-                                    user.Pin ??= "";
+                                    user.Pin = null;
                                     user.TenantId ??= "";
                                     user.Role ??= "Cashier";
                                     success = await apiService.SyncUserAsync(user);
@@ -200,45 +204,56 @@ public class SyncService
                             }
                             else 
                             {
-                                // Ignorar cualquier otro tipo de evento que no se envíe explícitamente y evitar que bloquee la cola.
-                                success = true;
+                                invalidEvent = true;
                             }
 
-                                                        if (success)
+                            if (invalidEvent)
                             {
-                                message.ProcessedAt = DateTime.UtcNow;
-                                _logger.LogInformation($"Mensaje ID {message.Id} ({message.EventType}) sincronizado con éxito.");
+                                OutboxSyncStateMachine.MarkInvalidEvent(message, DateTime.UtcNow);
+                                _logger.LogError(
+                                    "Mensaje ID {MessageId} movido a DeadLetter por evento no soportado. EventType={EventType}, EventId={EventId}",
+                                    message.Id,
+                                    message.EventType,
+                                    message.EventId);
+                            }
+                            else if (success)
+                            {
+                                OutboxSyncStateMachine.MarkProcessed(message, DateTime.UtcNow);
+                                _logger.LogInformation(
+                                    "Mensaje ID {MessageId} ({EventType}) sincronizado con éxito. EventId={EventId}",
+                                    message.Id,
+                                    message.EventType,
+                                    message.EventId);
                             }
                             else
                             {
-                                message.AttemptCount++;
-                                if (message.AttemptCount >= 7)
-                                {
-                                    _logger.LogError($"Mensaje ID {message.Id} descartado (límite de reintentos alcanzado).");
-                                    message.ProcessedAt = DateTime.UtcNow;
-                                }
-                                else
-                                {
-                                    _logger.LogWarning($"Fallo al sincronizar Mensaje ID {message.Id}. Intento {message.AttemptCount}. EventType: {message.EventType}, Payload: {message.Payload}");
-                                    networkFailure = true;
-                                    break; 
-                                }
+                                OutboxSyncStateMachine.MarkRetryableFailure(message, "Remote endpoint rejected sync message.", DateTime.UtcNow);
+                                _logger.LogWarning(
+                                    "Fallo al sincronizar Mensaje ID {MessageId}. Attempt={AttemptCount}, Status={Status}, EventType={EventType}, EventId={EventId}, NextAttemptAt={NextAttemptAt}",
+                                    message.Id,
+                                    message.AttemptCount,
+                                    message.Status,
+                                    message.EventType,
+                                    message.EventId,
+                                    message.NextAttemptAt);
+                                networkFailure = message.Status != OutboxSyncStateMachine.DeadLetter;
+                                break;
                             }
                         }
                         catch (Exception ex)
                         {
-                            message.AttemptCount++;
-                            if (message.AttemptCount >= 7)
-                            {
-                                _logger.LogError(ex, $"Mensaje ID {message.Id} descartado tras múltiples excepciones.");
-                                message.ProcessedAt = DateTime.UtcNow;
-                            }
-                            else
-                            {
-                                _logger.LogWarning(ex, $"Excepcion al sincronizar Mensaje ID {message.Id} (EventType: {message.EventType}, Payload: {message.Payload})");
-                                networkFailure = true;
-                                break; 
-                            }
+                            OutboxSyncStateMachine.MarkRetryableFailure(message, ex.Message, DateTime.UtcNow);
+                            _logger.LogWarning(
+                                ex,
+                                "Excepción al sincronizar Mensaje ID {MessageId}. Attempt={AttemptCount}, Status={Status}, EventType={EventType}, EventId={EventId}, NextAttemptAt={NextAttemptAt}",
+                                message.Id,
+                                message.AttemptCount,
+                                message.Status,
+                                message.EventType,
+                                message.EventId,
+                                message.NextAttemptAt);
+                            networkFailure = message.Status != OutboxSyncStateMachine.DeadLetter;
+                            break;
                         }
                     }
 
@@ -247,13 +262,13 @@ public class SyncService
 
                     if (networkFailure)
                     {
-                        var failedMessage = batch.FirstOrDefault(m => m.ProcessedAt == null);
+                        var failedMessage = batch.FirstOrDefault(m => m.ProcessedAt == null && m.Status == OutboxSyncStateMachine.Failed);
                         if (failedMessage != null)
                         {
-                            // Exponential Backoff (2^retry * 1s)
-                            int backoffDelayMs = (int)Math.Pow(2, failedMessage.AttemptCount) * 1000;
-                            _logger.LogWarning($"Fallo de red detectado en el lote. Aplicando Exponential Backoff de {backoffDelayMs}ms.");
-                            await Task.Delay(backoffDelayMs);
+                            _logger.LogWarning(
+                                "Fallo de red detectado en el lote. Mensaje ID {MessageId} queda pendiente hasta {NextAttemptAt}.",
+                                failedMessage.Id,
+                                failedMessage.NextAttemptAt);
                         }
                         break; // Salir de la ráfaga de 2000, el timer retomará después
                     }
@@ -322,7 +337,6 @@ public class SyncService
                                 localProduct.Category = cloudProduct.Category;
                                 localProduct.MinStockThreshold = cloudProduct.MinStockThreshold;
                                 localProduct.IsActive = cloudProduct.IsActive;
-                                localProduct.StockQuantity = Math.Min(localProduct.StockQuantity, cloudProduct.StockQuantity);
                                 localProduct.LastUpdated = cloudProduct.LastUpdated;
                                 dbContext.Products.Update(localProduct);
                             }

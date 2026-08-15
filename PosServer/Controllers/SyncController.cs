@@ -54,7 +54,12 @@ namespace PosServer.Controllers
         public IActionResult Ping([FromBody] PingPayload payload)
         {
             var tenantId = _tenantContext.GetTenantId();
-            Console.WriteLine($"[Heartbeat] Tenant: {tenantId} | AppVersion: {payload.AppVersion} | Memory: {payload.MemoryUsageMB}MB | Printer: {payload.PrinterStatus}");
+            Serilog.Log.Information(
+                "Heartbeat received for tenant {TenantId}. AppVersion={AppVersion}, MemoryUsageMB={MemoryUsageMB}, PrinterStatus={PrinterStatus}",
+                tenantId,
+                payload.AppVersion,
+                payload.MemoryUsageMB,
+                payload.PrinterStatus);
             return Ok();
         }
     }

@@ -21,7 +21,13 @@ namespace PosBuilder
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value is not Visibility visibility)
+            {
+                return Binding.DoNothing;
+            }
+
+            var isVisible = visibility == Visibility.Visible;
+            return parameter?.ToString() == "Invert" ? !isVisible : isVisible;
         }
     }
 }

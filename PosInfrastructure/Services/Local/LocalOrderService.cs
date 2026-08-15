@@ -141,8 +141,8 @@ namespace PosInfrastructure.Services.Local
                     _dbContext.InventoryMovements.Add(new InventoryMovement
                     {
                         ProductId = product.Id,
-                        Quantity = -line.Quantity,
-                        MovementType = "Sale",
+                        Quantity = line.Quantity,
+                        MovementType = InventoryMovement.SaleType,
                         Reference = "Venta de producto",
                         TenantId = request.TenantId,
                         MovementDate = DateTime.Now
@@ -165,10 +165,9 @@ namespace PosInfrastructure.Services.Local
 
                             _dbContext.InventoryMovements.Add(new InventoryMovement
                             {
-                                ProductId = product.Id,
                                 SupplyId = recipeItem.SupplyId,
-                                Quantity = -deducted,
-                                MovementType = "Sale",
+                                Quantity = deducted,
+                                MovementType = InventoryMovement.RecipeConsumptionType,
                                 Reference = $"Consumo por venta de producto {product.Name}",
                                 TenantId = request.TenantId,
                                 MovementDate = DateTime.Now

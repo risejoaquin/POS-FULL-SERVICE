@@ -40,8 +40,8 @@ public class UsersService : IUsersService
         var user = new User
         {
             Username = username.Trim(),
-            Pin = pin,
-            PasswordHash = pin,
+            Pin = null,
+            PasswordHash = HashCredential(pin),
             Role = role,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
@@ -61,8 +61,8 @@ public class UsersService : IUsersService
         }
 
         existingUser.Username = username.Trim();
-        existingUser.Pin = pin;
-        existingUser.PasswordHash = pin;
+        existingUser.Pin = null;
+        existingUser.PasswordHash = HashCredential(pin);
         existingUser.Role = role;
         await _dbContext.SaveChangesAsync();
     }
@@ -75,8 +75,8 @@ public class UsersService : IUsersService
             return;
         }
 
-        user.Pin = newPin;
-        user.PasswordHash = newPin;
+        user.Pin = null;
+        user.PasswordHash = HashCredential(newPin);
         await _dbContext.SaveChangesAsync();
     }
 
@@ -95,5 +95,10 @@ public class UsersService : IUsersService
     private static string NormalizeUsername(string username)
     {
         return username.Trim().ToLowerInvariant();
+    }
+
+    private static string HashCredential(string credential)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(credential);
     }
 }

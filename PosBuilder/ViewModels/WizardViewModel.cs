@@ -145,7 +145,7 @@ namespace PosBuilder.ViewModels
             {
                 using var client = new System.Net.Http.HttpClient();
                 client.Timeout = System.TimeSpan.FromSeconds(5);
-                var response = await client.GetAsync($"{ApiUrl.TrimEnd('/')}/swagger/index.html");
+                var response = await client.GetAsync($"{ApiUrl.TrimEnd('/')}/health");
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Conexión a la API exitosa.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -57,6 +57,19 @@ namespace PosInfrastructure.Services.Server
             {
                 product.Id = 0; // Garantizar ID autonumerado en PostgreSQL
                 _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+
+                if (product.StockQuantity > 0)
+                {
+                    _context.InventoryMovements.Add(InventoryMovement.ProductRestock(
+                        product.Id,
+                        product.StockQuantity,
+                        tenantId,
+                        "Stock inicial"));
+                    await _context.SaveChangesAsync();
+                }
+
+                return (true, "Success", product);
             }
             else
             {
@@ -68,15 +81,38 @@ namespace PosInfrastructure.Services.Server
 
                 existing.Name = product.Name;
                 existing.Price = product.Price;
-                existing.StockQuantity = product.StockQuantity;
                 existing.MinStockThreshold = product.MinStockThreshold;
                 existing.Category = product.Category;
                 existing.CustomAttributes = product.CustomAttributes;
+
+                var stockAdjustment = product.StockQuantity - existing.StockQuantity;
+                if (stockAdjustment != 0)
+                {
+                    var stockResult = stockAdjustment > 0
+                        ? existing.IncreaseStock(stockAdjustment)
+                        : existing.DecreaseStock(Math.Abs(stockAdjustment));
+
+                    if (!stockResult.IsSuccess)
+                    {
+                        return (false, stockResult.Error, existing);
+                    }
+
+                    _context.InventoryMovements.Add(new InventoryMovement
+                    {
+                        ProductId = existing.Id,
+                        Quantity = stockAdjustment,
+                        MovementType = InventoryMovement.AdjustmentType,
+                        MovementDate = DateTime.UtcNow,
+                        Reference = "Ajuste por actualización de producto",
+                        TenantId = tenantId
+                    });
+                }
+
                 existing.LastUpdated = DateTime.UtcNow; // Actualizar con hora del servidor
             }
 
             await _context.SaveChangesAsync();
-            return (true, "Success", existing ?? product);
+            return (true, "Success", existing);
         }
 
         public async Task<bool> DeleteProductAsync(string barcode)

@@ -85,13 +85,16 @@ namespace PosInfrastructure.Services.Server
                                     
                                     if (product != null)
                                     {
-                                        product.StockQuantity += (int)item.Quantity;
-                                        product.LastUpdated = DateTime.UtcNow;
+                                        var increaseStock = product.IncreaseStock((int)item.Quantity);
+                                        if (!increaseStock.IsSuccess)
+                                        {
+                                            return (false, increaseStock.Error, existingOrder.Id);
+                                        }
 
                                         _context.InventoryMovements.Add(new InventoryMovement {
                                             ProductId = product.Id,
                                             Quantity = item.Quantity,
-                                            MovementType = "Return",
+                                            MovementType = InventoryMovement.ReturnType,
                                             Reference = existingOrder.IdempotencyKey,
                                             TenantId = tenantId
                                         });
@@ -100,13 +103,18 @@ namespace PosInfrastructure.Services.Server
                                         {
                                             if (recipe.Supply != null)
                                             {
-                                                recipe.Supply.Stock += recipe.Quantity * item.Quantity;
+                                                var returnedSupplyQuantity = recipe.Quantity * item.Quantity;
+                                                var increaseSupplyStock = recipe.Supply.IncreaseStock(returnedSupplyQuantity);
+                                                if (!increaseSupplyStock.IsSuccess)
+                                                {
+                                                    return (false, increaseSupplyStock.Error, existingOrder.Id);
+                                                }
                                                 
                                                 _context.InventoryMovements.Add(new InventoryMovement {
                                                     ProductId = product.Id,
                                                     SupplyId = recipe.SupplyId,
-                                                    Quantity = recipe.Quantity * item.Quantity,
-                                                    MovementType = "Return",
+                                                    Quantity = returnedSupplyQuantity,
+                                                    MovementType = InventoryMovement.ReturnType,
                                                     Reference = existingOrder.IdempotencyKey,
                                                     TenantId = tenantId
                                                 });
@@ -165,14 +173,16 @@ namespace PosInfrastructure.Services.Server
                                 return (false, $"El producto con código de barras {item.ProductBarcode} no existe en el catálogo central.", null);
                             }
 
-                            // Deduct Product Stock
-                            product.StockQuantity -= (int)item.Quantity;
-                            product.LastUpdated = DateTime.UtcNow;
+                            var decreaseProductStock = product.DecreaseStock((int)item.Quantity);
+                            if (!decreaseProductStock.IsSuccess)
+                            {
+                                return (false, $"Stock insuficiente para {product.Name}.", null);
+                            }
 
                             _context.InventoryMovements.Add(new InventoryMovement {
                                 ProductId = product.Id,
-                                Quantity = -item.Quantity,
-                                MovementType = "Sale",
+                                Quantity = item.Quantity,
+                                MovementType = InventoryMovement.SaleType,
                                 Reference = order.IdempotencyKey,
                                 TenantId = tenantId
                             });
@@ -182,13 +192,17 @@ namespace PosInfrastructure.Services.Server
                             {
                                 if (recipe.Supply != null)
                                 {
-                                    recipe.Supply.Stock -= recipe.Quantity * item.Quantity;
+                                    var consumedSupplyQuantity = recipe.Quantity * item.Quantity;
+                                    var decreaseSupplyStock = recipe.Supply.DecreaseStock(consumedSupplyQuantity);
+                                    if (!decreaseSupplyStock.IsSuccess)
+                                    {
+                                        return (false, $"Stock insuficiente para el insumo {recipe.Supply.Name}.", null);
+                                    }
                                     
                                     _context.InventoryMovements.Add(new InventoryMovement {
-                                        ProductId = product.Id,
                                         SupplyId = recipe.SupplyId,
-                                        Quantity = -(recipe.Quantity * item.Quantity),
-                                        MovementType = "Sale",
+                                        Quantity = consumedSupplyQuantity,
+                                        MovementType = InventoryMovement.RecipeConsumptionType,
                                         Reference = order.IdempotencyKey,
                                         TenantId = tenantId
                                     });
